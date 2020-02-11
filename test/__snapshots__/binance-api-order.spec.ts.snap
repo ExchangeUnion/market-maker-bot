@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BinanceAPI.newOrder ETHBTC market buy order fails without exchange info 1`] = `[Error: exchangeInfo has not been fetched]`;
+
+exports[`BinanceAPI.newOrder limit it fails without price 1`] = `"price is required for limit and stop-limit orders"`;
+
+exports[`BinanceAPI.newOrder queryOrder fails with order does not exist 1`] = `
+Object {
+  "code": -2013,
+  "msg": "Order does not exist.",
+}
+`;
+
+exports[`BinanceAPI.newOrder stop-limit fails without price 1`] = `"price is required for stop-limit orders"`;
+
+exports[`BinanceAPI.newOrder stop-limit fails without stopPrice 1`] = `"stopPrice is required for stop-limit orders"`;

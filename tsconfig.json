@@ -1,0 +1,23 @@
+{
+  "include": [ "src" ],
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "commonjs",
+    "allowJs": false,
+    "outDir": "./dist",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
+    "lib": ["dom","ES2017"],
+    "declaration": true,
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "sourceMap": true
+  }
+}

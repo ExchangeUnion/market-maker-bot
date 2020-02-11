@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExchangeBroker.OpenDEX verify configuration throws without certPath 1`] = `[Error: OpenDEX exchange type requires you to specify the certPath, rpchost and rpcport]`;
+
+exports[`ExchangeBroker.OpenDEX verify configuration throws without rpchost 1`] = `[Error: OpenDEX exchange type requires you to specify the certPath, rpchost and rpcport]`;
+
+exports[`ExchangeBroker.OpenDEX verify configuration throws without rpcport 1`] = `[Error: OpenDEX exchange type requires you to specify the certPath, rpchost and rpcport]`;

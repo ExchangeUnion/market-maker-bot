@@ -1,0 +1,65 @@
+{
+  "name": "market-maker-tools",
+  "version": "0.0.1",
+  "description": "market maker tools for opendex",
+  "main": "index.js",
+  "scripts": {
+    "dev:arby": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch\"",
+    "dev:balancer": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch:balancer\"",
+    "compile": "npm run lint && tsc && cross-os postcompile",
+    "lint": "tslint --fix --project tsconfig.json --config tslint.json 'src/*' 'test/**/*.ts'",
+    "compile:watch": "tsc -w",
+    "nodemon:watch": "nodemon --watch dist -e js dist/arby.js",
+    "nodemon:watch:balancer": "nodemon --watch dist -e js dist/balancer.js",
+    "test": "jest --forceExit",
+    "test:watch": "jest --watch",
+    "clean": "rm -Rf dist/* && npm i"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ExchangeUnion/market-maker-tools.git"
+  },
+  "keywords": [
+    "arbitrage",
+    "opendex",
+    "exchange"
+  ],
+  "author": "Karl Ranna",
+  "bugs": {
+    "url": "https://github.com/ExchangeUnion/market-maker-tools/issues"
+  },
+  "homepage": "https://github.com/ExchangeUnion/market-maker-tools#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.21",
+    "@types/node": "^12.12.5",
+    "@types/uuid": "^3.4.6",
+    "@types/ws": "^6.0.3",
+    "concurrently": "^5.0.0",
+    "cross-os": "^1.3.0",
+    "google-protobuf": "^3.10.0",
+    "grpc": "^1.24.2",
+    "jest": "^24.9.0",
+    "nodemon": "^1.19.4",
+    "ts-jest": "^24.1.0",
+    "tslint": "^6.0.0-beta0",
+    "tslint-config-airbnb": "^5.11.2",
+    "tslint-no-circular-imports": "^0.7.0",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "axios-debug-log": "^0.6.2",
+    "dotenv": "^8.2.0",
+    "moment": "^2.24.0",
+    "uuid": "^3.3.3",
+    "winston": "^3.2.1",
+    "ws": "^7.2.0"
+  },
+  "cross-os": {
+    "postcompile": {
+      "linux": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
+      "darwin": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
+      "win32": "xcopy /s src\\broker\\opendex\\proto\\*.js* dist\\broker\\opendex\\proto\\* >nul"
+    }
+  }
+}
