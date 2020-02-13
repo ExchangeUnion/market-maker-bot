@@ -336,15 +336,20 @@ class BinanceAPI extends ExchangeAPI {
     const recvWindow = 5000;
     const timestamp = new Date().getTime();
     const queryString = `timestamp=${timestamp}&recvWindow=${recvWindow}`;
-    const response = await axios.get(
-        `${ACCOUNT_URL}?${queryString}&signature=${this.signRequest(queryString)}`,
-      {
-        headers: {
-          'X-MBX-APIKEY': this.apiKey,
+    try {
+      const response = await axios.get(
+          `${ACCOUNT_URL}?${queryString}&signature=${this.signRequest(queryString)}`,
+        {
+          headers: {
+            'X-MBX-APIKEY': this.apiKey,
+          },
         },
-      },
-      );
-    return response.data;
+        );
+      return response.data;
+    } catch (e) {
+      this.logger.error(`failed to fetch account info ${JSON.stringify(e)}`);
+      return { balances: [] };
+    }
   }
 
   public getAssets = async (): Promise<Balance[]> => {
