@@ -148,11 +148,11 @@ class ArbitrageTrade {
       this.openDexSellOrder.on('fill', () => {
         this.logger.info('sell order partially filled - init trade on Binance');
       });
+      this.updateOrdersTimer = setTimeout(this.createOpenDexOrders, ORDER_UPDATE_INTERVAL);
       await Promise.all([
         this.openDexBuyOrder.start(),
         this.openDexSellOrder.start(),
       ]);
-      this.updateOrdersTimer = setTimeout(this.createOpenDexOrders, ORDER_UPDATE_INTERVAL);
     }
   }
 
