@@ -133,7 +133,9 @@ class ExchangeBroker {
       priceStreamClosePromises.push(priceStream.close());
     });
     await Promise.all(priceStreamClosePromises);
-    await this.api.stop();
+    if (this.api) {
+      await this.api.stop();
+    }
   }
 
   private checkConfig = () => {

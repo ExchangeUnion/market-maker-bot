@@ -31,6 +31,8 @@ class OpenDexAPI extends ExchangeAPI {
   private rpcport: number;
   private xudClient!: XudGrpcClient;
   private swapSubscriptions = new Map<string, Function>();
+  private checkConnectionTimeout: ReturnType<typeof setTimeout> | undefined;
+
   private swapsCompleteSubscription: grpc.ClientReadableStream<SwapSuccess> | undefined;
 
   constructor(
@@ -56,19 +58,46 @@ class OpenDexAPI extends ExchangeAPI {
       rpcport: this.rpcport,
     });
     this.xudClient.start();
+    await this.waitForConnection();
     this.swapsCompleteSubscription = await this.xudClient.subscribeSwaps();
     this.swapsCompleteSubscription.on('data', this.onSwapComplete.bind(this));
+    this.swapsCompleteSubscription.on('end', () => {
+      this.start();
+      // TODO: cancel all orders on other exchanges
+    });
     this.swapsCompleteSubscription.on('error', (error: any) => {
       if (error.code && error.code === grpc.status.CANCELLED) {
         return;
       } else {
-        throw new Error(error);
+        this.logger.error(`failed to subscribe to xud swaps: ${error}`);
       }
     });
     this.logger.info('OpenDEX API started');
   }
 
+  private waitForConnection = () => {
+    return new Promise((resolve, reject) => {
+      const verifyConnection = async () => {
+        try {
+          await this.xudClient.getBalance();
+          resolve();
+        } catch (e) {
+          if (e.code === 14) {
+            this.logger.warn('could not verify connection to xud, retrying in 5 sec...');
+            this.checkConnectionTimeout = setTimeout(verifyConnection, 5000);
+          } else {
+            reject();
+          }
+        }
+      };
+      verifyConnection();
+    });
+  }
+
   public stop = async () => {
+    if (this.checkConnectionTimeout) {
+      clearTimeout(this.checkConnectionTimeout);
+    }
     if (this.swapsCompleteSubscription) {
       this.swapsCompleteSubscription.cancel();
     }

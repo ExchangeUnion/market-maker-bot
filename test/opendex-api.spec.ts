@@ -21,18 +21,18 @@ const loggers = Logger.createLoggers(Level.Warn);
 
 describe('OpenDexAPI', () => {
   let openDexAPI: OpenDexAPI;
-  let onSwapCompleteMock: any;
+  let onSwapsSubscription: any;
   let onCancelSubscribeSwaps: any;
 
   beforeEach(async () => {
     mockedXudGrpcClient.prototype.start = jest.fn();
-    onSwapCompleteMock = jest.fn();
+    onSwapsSubscription = jest.fn();
     onCancelSubscribeSwaps = jest.fn();
     mockedXudGrpcClient.prototype.subscribeSwaps = jest.fn()
       .mockImplementation(() => {
         return Promise.resolve({
           cancel: onCancelSubscribeSwaps,
-          on: onSwapCompleteMock,
+          on: onSwapsSubscription,
         });
       });
     openDexAPI = new OpenDexAPI({
@@ -41,6 +41,8 @@ describe('OpenDexAPI', () => {
       rpchost: 'localhost',
       rpcport: 8886,
     });
+    openDexAPI['waitForConnection'] = jest.fn()
+      .mockReturnValue(Promise.resolve());
     await openDexAPI.start();
   });
 
@@ -54,9 +56,10 @@ describe('OpenDexAPI', () => {
     expect(mockedXudGrpcClient.prototype.subscribeSwaps).toHaveBeenCalledTimes(1);
     expect(openDexAPI['xudClient']).toBeTruthy();
     expect(openDexAPI['swapsCompleteSubscription']).toBeTruthy();
-    expect(onSwapCompleteMock).toHaveBeenCalledTimes(2);
-    expect(onSwapCompleteMock).toHaveBeenCalledWith('data', expect.any(Function));
-    expect(onSwapCompleteMock).toHaveBeenCalledWith('error', expect.any(Function));
+    expect(onSwapsSubscription).toHaveBeenCalledTimes(3);
+    expect(onSwapsSubscription).toHaveBeenCalledWith('data', expect.any(Function));
+    expect(onSwapsSubscription).toHaveBeenCalledWith('error', expect.any(Function));
+    expect(onSwapsSubscription).toHaveBeenCalledWith('end', expect.any(Function));
     openDexAPI.stop();
     expect(onCancelSubscribeSwaps).toHaveBeenCalledTimes(1);
   });
