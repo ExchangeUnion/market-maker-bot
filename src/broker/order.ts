@@ -15,8 +15,8 @@ interface Order { on(event: 'failure', listener: (failure: string) => void): thi
   emit(event: 'fill', fill: string): boolean;
   on(event: 'status', listener: (status: string) => void): this;
   emit(event: 'status', status: string): boolean;
-  on(event: 'complete', listener: (summary: string) => void): this;
-  emit(event: 'complete', summary: string): boolean;
+  on(event: 'complete', listener: (orderId: string, quantity: number) => void): this;
+  emit(event: 'complete', orderId: string, quantity: number): boolean;
 }
 
 abstract class Order extends EventEmitter {

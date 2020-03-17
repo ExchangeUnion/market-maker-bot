@@ -55,7 +55,8 @@ class OpenDexOrder extends Order {
 
   private onSwapComplete = (swapSuccess: SwapSuccess.AsObject) => {
     this.logger.info(`swapSuccess: ${JSON.stringify(swapSuccess)}`);
-    this.emit('complete', this.orderId);
+    // TODO: emit fill instead of complete when quantity is partial
+    this.emit('complete', this.orderId, swapSuccess.quantity);
   }
 
   public cancel = async () => {

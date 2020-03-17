@@ -4,6 +4,7 @@ import uuidv4 from 'uuid/v4';
 import { OrderSide, OrderType } from '../enums';
 import { OpenDexOrder } from '../broker/opendex/order';
 import { Balance } from '../broker/api';
+import { satsToCoinsStr } from '../utils';
 
 const ORDER_UPDATE_INTERVAL = 60000;
 
@@ -159,20 +160,22 @@ class ArbitrageTrade {
   private getAssets = async () => {
     let openDexBaseAssetMaxSell = 0;
     let openDexQuoteAssetMaxBuy = 0;
-    if (!this.openDexAssets.length) {
-      this.openDexAssets = await this.opendex.getAssets();
-    }
+    this.openDexAssets = await this.opendex.getAssets();
     this.openDexAssets.forEach((ownedAsset) => {
       if (
         CURRENCIES.OpenDex[this.baseAsset] === ownedAsset.asset
       ) {
         if (ownedAsset.maxsell) {
-          openDexBaseAssetMaxSell = ownedAsset.maxsell;
+          openDexBaseAssetMaxSell = parseFloat(
+            satsToCoinsStr(ownedAsset.maxsell),
+          );
         }
         this.logger.info(`opendex baseAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`);
       } else if (CURRENCIES.OpenDex[this.quoteAsset] === ownedAsset.asset) {
         if (ownedAsset.maxbuy) {
-          openDexQuoteAssetMaxBuy = ownedAsset.maxbuy;
+          openDexQuoteAssetMaxBuy = parseFloat(
+            satsToCoinsStr(ownedAsset.maxbuy),
+          );
         }
         this.logger.info(`opendex quoteAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`);
       }
@@ -223,19 +226,25 @@ class ArbitrageTrade {
     await Promise.all(orderCancelPromises);
   }
 
-  private orderComplete = async (orderId: string) => {
+  private orderComplete = async (orderId: string, quantity: number) => {
     // TODO: cancel order update interval when executing asymmetric trades
-    this.logger.info(`order ${orderId} was successfully swapped - init trade on Binance`);
-    // TODO: update asset allocation cache
     // TODO: logic to handle when limit order isn't filled within a certain timeframe
+    const quantityInCoins = parseFloat(
+      satsToCoinsStr(quantity),
+    );
+    if (quantityInCoins < limits[this.baseAsset]) {
+      this.logger.warn(`skipping asymmetric trade because quantity of ${quantityInCoins} is smaller than minimum allowed ${limits[this.baseAsset]}`);
+      return;
+    }
+    this.logger.info(`order ${orderId} was successfully swapped - init trade on Binance`);
     if (this.openDexBuyOrder && this.openDexBuyOrder.orderId === orderId) {
       const binanceSellOrder = this.binance.newOrder({
+        quantity: quantityInCoins,
         orderId: uuidv4(),
         baseAsset: CURRENCIES.Binance[this.baseAsset],
         quoteAsset: CURRENCIES.Binance[this.quoteAsset],
         orderType: OrderType.Limit,
         orderSide: OrderSide.Sell,
-        quantity: this.openDexBuyOrder['quantity'],
         price: this.price!,
       });
       binanceSellOrder.on('complete', (orderId: string) => {
@@ -251,12 +260,12 @@ class ArbitrageTrade {
     }
     if (this.openDexSellOrder && this.openDexSellOrder.orderId === orderId) {
       const binanceBuyOrder = this.binance.newOrder({
+        quantity: quantityInCoins,
         orderId: uuidv4(),
         baseAsset: CURRENCIES.Binance[this.baseAsset],
         quoteAsset: CURRENCIES.Binance[this.quoteAsset],
         orderType: OrderType.Limit,
         orderSide: OrderSide.Buy,
-        quantity: this.openDexSellOrder['quantity'],
         price: this.price!,
       });
       binanceBuyOrder.on('complete', (orderId: string) => {

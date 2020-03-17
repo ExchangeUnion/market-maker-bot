@@ -115,11 +115,16 @@ describe('OpenDEX.Order', () => {
       const emitSpy = jest.spyOn(order, 'emit');
       const swapSuccess = {
         orderId: '123abc',
+        quantity: 100,
       } as SwapSuccess.AsObject;
       order['onSwapComplete'](swapSuccess);
       expect(emitSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy)
-        .toHaveBeenCalledWith('complete', expect.any(String));
+        .toHaveBeenCalledWith(
+          'complete',
+          expect.any(String),
+          swapSuccess.quantity,
+        );
     });
 
   });

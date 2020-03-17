@@ -79,7 +79,9 @@ class BinanceOrder extends Order {
         this.emit('status', this.status);
       }
       if (orderInfo.status === OrderStatus.Filled) {
-        this.emit('complete', this.orderId);
+        // TODO: handle partial fills. Skipping for now since we're
+        // switching to CCXT.
+        this.emit('complete', this.orderId, this.quantity);
         clearInterval(this.checkOrderInterval);
       }
     } catch (e) {

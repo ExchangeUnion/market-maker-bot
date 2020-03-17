@@ -3,6 +3,7 @@ import { ArbitrageTrade } from '../src/trade/arbitrage-trade';
 import { ExchangeBroker } from '../src/broker/exchange';
 import { OpenDexOrder } from '../src/broker/opendex/order';
 import { OrderSide } from '../src/enums';
+import { coinsToSats } from '../src/utils';
 
 require('dotenv').config();
 const OPENDEX_MARGIN = process.env.MARGIN && parseFloat(process.env.MARGIN) || 0.06;
@@ -33,15 +34,15 @@ describe('ArbitrageTrade', () => {
           asset: 'DAI',
           free: 10000,
           locked: 15000,
-          maxsell: 9000,
-          maxbuy: 1000,
+          maxsell: 900000000000,
+          maxbuy: 100000000000,
         },
         {
           asset: 'BTC',
           free: 0.00001,
           locked: 3,
-          maxsell: 0.000009,
-          maxbuy: 0.000001,
+          maxsell: 900,
+          maxbuy: 100,
         },
       ]);
     binanceBroker.getAssets = jest.fn()
@@ -195,7 +196,7 @@ describe('ArbitrageTrade', () => {
     });
 
     test('it excutes sell order on Binance', () => {
-      arbitrageTrade['orderComplete'](arbitrageTrade['openDexBuyOrder']!['orderId']);
+      arbitrageTrade['orderComplete'](arbitrageTrade['openDexBuyOrder']!['orderId'], coinsToSats(quantity));
       expect(binanceBroker.newOrder).toHaveBeenCalledTimes(1);
       expect(binanceBroker.newOrder).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -215,7 +216,7 @@ describe('ArbitrageTrade', () => {
     });
 
     test('it excutes buy order on Binance', () => {
-      arbitrageTrade['orderComplete'](arbitrageTrade['openDexSellOrder']!['orderId']);
+      arbitrageTrade['orderComplete'](arbitrageTrade['openDexSellOrder']!['orderId'], coinsToSats(quantity));
       expect(binanceBroker.newOrder).toHaveBeenCalledTimes(1);
       expect(binanceBroker.newOrder).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -363,7 +364,7 @@ describe('ArbitrageTrade', () => {
           expect(arbitrageTrade['sellQuantity']).toEqual(0.000009);
           // it caches the asset allocation
           expect(binanceBroker.getAssets).toHaveBeenCalledTimes(1);
-          expect(openDexBroker.getAssets).toHaveBeenCalledTimes(1);
+          expect(openDexBroker.getAssets).toHaveBeenCalledTimes(2);
           expect(mockOrder.cancel).toHaveBeenCalledTimes(2);
           expect(openDexBroker.newOrder).toHaveBeenCalledTimes(4);
           expect(openDexBroker.newOrder).toHaveBeenCalledWith(
