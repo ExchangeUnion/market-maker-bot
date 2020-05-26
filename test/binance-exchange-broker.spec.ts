@@ -4,7 +4,6 @@ import {
   OrderSide,
   OrderType,
 } from '../src/enums';
-import { BinanceStream } from '../src/broker/binance/stream';
 import { BinanceAPI } from '../src/broker/binance/api';
 import { Level, Logger } from '../src/logger';
 import { mockAccountInfo } from '../mock-data/account-info';
@@ -127,10 +126,6 @@ describe('Broker', () => {
 
     describe('getPrice', () => {
       let broker: ExchangeBroker;
-      const onBTCUSDTpriceChange = jest.fn();
-      const startStream = BinanceStream.prototype.start = jest.fn();
-      const onListener = BinanceStream.prototype.on = jest.fn();
-      const closeListener = BinanceStream.prototype.close = jest.fn();
 
       beforeEach(async () => {
         broker = new ExchangeBroker({
@@ -146,31 +141,21 @@ describe('Broker', () => {
       test('getPrice creates price stream for tradingPair', async () => {
         expect(broker['priceStreams'].size).toEqual(0);
         const tradingPair = 'BTCUSDT';
-        await broker.getPrice(tradingPair, onBTCUSDTpriceChange);
+        await broker.getPrice(tradingPair);
         expect(broker['priceStreams'].size).toEqual(1);
         expect(broker['priceStreams'].has(tradingPair)).toBeTruthy();
-      });
-
-      test('getPrice does not create duplicate streams', async () => {
-        const tradingPair = 'BTCUSDT';
-        await broker.getPrice(tradingPair, onBTCUSDTpriceChange);
-        await broker.getPrice(tradingPair, onBTCUSDTpriceChange);
-        expect(BinanceStream).toHaveBeenCalledTimes(1);
-        expect(startStream).toHaveBeenCalledTimes(1);
-        expect(onListener).toHaveBeenCalledTimes(2);
       });
 
       describe('close', () => {
 
         it('destroys all streams and closes API', async () => {
           expect(broker['priceStreams'].size).toEqual(0);
-          await broker.getPrice('BTCUSDT', () => {});
-          await broker.getPrice('ETHBTC', () => {});
+          await broker.getPrice('BTCUSDT');
+          await broker.getPrice('ETHBTC');
           expect(broker['priceStreams'].size).toEqual(2);
           // close destroys pending streams
           const apiClose = BinanceAPI.prototype.stop = jest.fn();
           await broker.close();
-          expect(closeListener).toHaveBeenCalledTimes(2);
           expect(apiClose).toHaveBeenCalledTimes(1);
         });
 

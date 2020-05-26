@@ -54,11 +54,11 @@ describe('TradeManager', () => {
       expect(brokerManager['trades'].size).toEqual(tradeCount);
     });
 
-    it('starts LTC/BTC trade', () => {
+    it('starts ETH/BTC trade', () => {
       expect(ArbitrageTrade.prototype.constructor)
         .toHaveBeenCalledWith(
           expect.objectContaining({
-            baseAsset: 'LTC',
+            baseAsset: 'ETH',
             quoteAsset: 'BTC',
           }),
         );

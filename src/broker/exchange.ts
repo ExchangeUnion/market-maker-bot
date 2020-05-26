@@ -3,8 +3,7 @@ import {
   OrderType,
   OrderSide,
 } from '../enums';
-import { Stream } from './stream';
-import { BinanceStream } from './binance/stream';
+import { getBinancePriceStream } from './binance/stream';
 import { OpenDexStream } from './opendex/stream';
 import { OpenDexOrder } from './opendex/order';
 import { Logger } from '../logger';
@@ -12,6 +11,8 @@ import { BinanceAPI } from './binance/api';
 import { OpenDexAPI } from './opendex/api';
 import { ExchangeAPI, Balance } from './api';
 import { BinanceOrder } from './binance/order';
+import { Observable } from 'rxjs';
+import { BigNumber } from 'bignumber.js';
 
 export type OrderRequest = {
   orderId: string,
@@ -36,7 +37,7 @@ export type LimitOrderRequest = OrderRequest & {
 
 class ExchangeBroker {
   private exchange: ExchangeType;
-  private priceStreams = new Map<string, Stream>();
+  private priceStreams = new Map<string, Observable<BigNumber>>();
   private apiKey: string | undefined;
   private apiSecret: string | undefined;
   private certPath: string | undefined;
@@ -98,27 +99,22 @@ class ExchangeBroker {
     return ownedAssets;
   }
 
-  public getPrice = async (
+  public getPrice = (
     tradingPair: string,
-    callback: (tradingPair: string, price: number) => any,
-  ): Promise<void> => {
-    if (!this.priceStreams.has(tradingPair)) {
+  ): Observable<BigNumber> => {
+    const priceStream = this.priceStreams.get(tradingPair);
+    if (priceStream) {
+      return priceStream;
+    } else {
       if (this.exchange === ExchangeType.Binance) {
-        const binanceStream = new BinanceStream(this.logger, tradingPair);
-        this.priceStreams.set(tradingPair, binanceStream);
-        binanceStream.on('price', callback);
-        await binanceStream.start();
+        const binancePrice$ = getBinancePriceStream(tradingPair, this.logger);
+        this.priceStreams.set(tradingPair, binancePrice$);
       } else if (this.exchange === ExchangeType.OpenDEX) {
         const openDexStream = new OpenDexStream();
-        this.priceStreams.set(tradingPair, openDexStream);
-        openDexStream.on('price', callback);
-        await openDexStream.start();
+        this.priceStreams.set(tradingPair, openDexStream.getObservable());
       }
-    } else {
-      const priceStream = this.priceStreams.get(tradingPair)!;
-      priceStream.on('price', callback);
-      return Promise.resolve();
     }
+    return this.priceStreams.get(tradingPair)!;
   }
 
   public newOrder = (
@@ -128,11 +124,6 @@ class ExchangeBroker {
   }
 
   public close = async () => {
-    const priceStreamClosePromises: Promise<any>[] = [];
-    this.priceStreams.forEach((priceStream) => {
-      priceStreamClosePromises.push(priceStream.close());
-    });
-    await Promise.all(priceStreamClosePromises);
     if (this.api) {
       await this.api.stop();
     }

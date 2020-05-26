@@ -45,9 +45,7 @@ describe('ExchangeBroker.OpenDEX', () => {
 
   describe('getPrice', () => {
     let broker: ExchangeBroker;
-    const onBTCUSDTpriceChange = jest.fn();
-    const startStream = OpenDexStream.prototype.start = jest.fn();
-    const onListener = OpenDexStream.prototype.on = jest.fn();
+    OpenDexStream.prototype.getObservable = jest.fn();
 
     beforeEach(async () => {
       broker = new ExchangeBroker({
@@ -64,10 +62,9 @@ describe('ExchangeBroker.OpenDEX', () => {
     test('getPrice creates price stream for tradingPair', async () => {
       expect(broker['priceStreams'].size).toEqual(0);
       const tradingPair = 'BTCUSDT';
-      await broker.getPrice(tradingPair, onBTCUSDTpriceChange);
+      await broker.getPrice(tradingPair);
       expect(OpenDexStream).toHaveBeenCalledTimes(1);
-      expect(startStream).toHaveBeenCalledTimes(1);
-      expect(onListener).toHaveBeenCalledTimes(1);
+      expect(broker['priceStreams'].size).toEqual(1);
     });
   });
 

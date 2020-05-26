@@ -2,12 +2,13 @@ import { Logger, Level } from '../src/logger';
 import { ArbitrageTrade } from '../src/trade/arbitrage-trade';
 import { ExchangeBroker } from '../src/broker/exchange';
 import { OpenDexOrder } from '../src/broker/opendex/order';
-import { OrderSide } from '../src/enums';
+import { OrderSide, OrderType } from '../src/enums';
 import { coinsToSats } from '../src/utils';
+import { BigNumber } from 'bignumber.js';
 
 require('dotenv').config();
-const OPENDEX_MARGIN = process.env.MARGIN && parseFloat(process.env.MARGIN) || 0.06;
-process.env.MARGIN = `${OPENDEX_MARGIN}`;
+const OPENDEX_MARGIN = new BigNumber('0.06');
+process.env.MARGIN = OPENDEX_MARGIN.toFixed();
 
 jest.mock('../src/broker/exchange');
 const mockedExchangeBroker = <jest.Mock<ExchangeBroker>><any>ExchangeBroker;
@@ -58,7 +59,9 @@ describe('ArbitrageTrade', () => {
           locked: 2,
         },
       ]);
-    binanceBroker.getPrice = jest.fn();
+    binanceBroker.getPrice = jest.fn().mockImplementation(() => {
+      return { subscribe: () => {} };
+    });
     loggers.trademanager.warn = jest.fn();
     arbitrageTrade = new ArbitrageTrade({
       logger: loggers.trademanager,
@@ -107,7 +110,9 @@ describe('ArbitrageTrade', () => {
           locked: 0,
         },
       ]);
-      binanceBroker2.getPrice = jest.fn();
+      binanceBroker2.getPrice = jest.fn().mockImplementation(() => {
+        return { subscribe: () => {} };
+      });
       arbitrageTrade2 = new ArbitrageTrade({
         logger: loggers.trademanager,
         opendex: openDexBroker2,
@@ -120,7 +125,7 @@ describe('ArbitrageTrade', () => {
     it('closes the trade', async () => {
       const closeSpy = jest.spyOn(arbitrageTrade2, 'close');
       await arbitrageTrade2.start();
-      await arbitrageTrade2['updateBinancePrice']('BTCUSDT', 10000);
+      await arbitrageTrade2['updateBinancePrice'](new BigNumber('10000'));
       expect(closeSpy).toHaveBeenCalledTimes(1);
     });
   });
@@ -133,7 +138,7 @@ describe('ArbitrageTrade', () => {
 
     it('subscribes to Binance BTC/DAI price stream', () => {
       expect(binanceBroker.getPrice).toHaveBeenCalledTimes(1);
-      expect(binanceBroker.getPrice).toHaveBeenCalledWith('BTCUSDT', expect.any(Function));
+      expect(binanceBroker.getPrice).toHaveBeenCalledWith('BTCUSDT');
     });
 
     describe('close', () => {
@@ -165,8 +170,8 @@ describe('ArbitrageTrade', () => {
   });
 
   describe('when order completes', () => {
-    const price = 1234.56789012;
-    const quantity = 4321.09876543;
+    const price = new BigNumber('1234.56789012');
+    const quantity = new BigNumber('4321.09876543');
     let mockBuyOrder: any;
     let mockSellOrder: any;
     let mockBinanceOrder: any;
@@ -196,16 +201,17 @@ describe('ArbitrageTrade', () => {
     });
 
     test('it excutes sell order on Binance', () => {
-      arbitrageTrade['orderComplete'](arbitrageTrade['openDexBuyOrder']!['orderId'], coinsToSats(quantity));
+      arbitrageTrade['orderComplete'](arbitrageTrade['openDexBuyOrder']!['orderId'], coinsToSats(quantity.toNumber()));
       expect(binanceBroker.newOrder).toHaveBeenCalledTimes(1);
       expect(binanceBroker.newOrder).toHaveBeenCalledWith(
         expect.objectContaining({
-          price,
-          quantity,
+          price: price.toNumber(),
+          quantity: quantity.toNumber(),
           orderId: expect.any(String),
           baseAsset: 'BTC',
           quoteAsset: 'USDT',
           orderSide: OrderSide.Sell,
+          orderType: OrderType.Limit,
         }),
       );
       expect(mockBinanceOrder.on).toHaveBeenCalledTimes(3);
@@ -216,12 +222,12 @@ describe('ArbitrageTrade', () => {
     });
 
     test('it excutes buy order on Binance', () => {
-      arbitrageTrade['orderComplete'](arbitrageTrade['openDexSellOrder']!['orderId'], coinsToSats(quantity));
+      arbitrageTrade['orderComplete'](arbitrageTrade['openDexSellOrder']!['orderId'], coinsToSats(quantity.toNumber()));
       expect(binanceBroker.newOrder).toHaveBeenCalledTimes(1);
       expect(binanceBroker.newOrder).toHaveBeenCalledWith(
         expect.objectContaining({
-          price,
-          quantity,
+          price: price.toNumber(),
+          quantity: quantity.toNumber(),
           orderId: expect.any(String),
           baseAsset: 'BTC',
           quoteAsset: 'USDT',
@@ -265,19 +271,19 @@ describe('ArbitrageTrade', () => {
             setTimeout(resolve, 10000);
           });
         });
-      arbitrageTrade['updateBinancePrice']('BTCUSDT', 7000);
-      arbitrageTrade['updateBinancePrice']('BTCUSDT', 7001);
-      arbitrageTrade['updateBinancePrice']('BTCUSDT', 6999);
+      arbitrageTrade['updateBinancePrice'](new BigNumber('7000'));
+      arbitrageTrade['updateBinancePrice'](new BigNumber('7001'));
+      arbitrageTrade['updateBinancePrice'](new BigNumber('6999'));
       expect(arbitrageTrade['createOpenDexOrders']).toHaveBeenCalledTimes(1);
     });
 
     describe('order and buy/sell quantities do not exist', () => {
-      const expectedBuyQuantity = 0.14285714;
-      const expectedSellQuantity = 0.000009;
-      const price = 7000;
+      const expectedBuyQuantity = new BigNumber('0.14285714');
+      const expectedSellQuantity = new BigNumber('0.000009');
+      const price = new BigNumber('7000');
 
       beforeEach(async () => {
-        await arbitrageTrade['updateBinancePrice']('BTCUSDT', price);
+        await arbitrageTrade['updateBinancePrice'](price);
       });
 
       test('gets asset allocation for Binance and OpenDEX', () => {
@@ -285,38 +291,28 @@ describe('ArbitrageTrade', () => {
         expect(openDexBroker.getAssets).toHaveBeenCalledTimes(1);
       });
 
-      test('sets buy quantity', () => {
-        expect(arbitrageTrade['buyQuantity'])
-          .toEqual(expectedBuyQuantity);
-      });
-
-      test('sets sell quantity', () => {
-        expect(arbitrageTrade['sellQuantity'])
-          .toEqual(expectedSellQuantity);
-      });
-
       test('it creates buy and sell orders', () => {
-        const expectedBuyPrice = price - price * OPENDEX_MARGIN;
+        const expectedBuyPrice = price.minus(price.multipliedBy(OPENDEX_MARGIN));
         expect(openDexBroker.newOrder).toHaveBeenCalledTimes(2);
         expect(openDexBroker.newOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             orderId: expect.any(String),
-            price: expectedBuyPrice,
+            price: expectedBuyPrice.toNumber(),
             baseAsset: 'BTC',
             quoteAsset: 'DAI',
             orderSide: OrderSide.Buy,
-            quantity: expectedBuyQuantity,
+            quantity: expectedBuyQuantity.toNumber(),
           }),
         );
-        const expectedSellPrice = price + price * OPENDEX_MARGIN;
+        const expectedSellPrice = price.plus(price.multipliedBy(OPENDEX_MARGIN));
         expect(openDexBroker.newOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             orderId: expect.any(String),
-            price: expectedSellPrice,
+            price: expectedSellPrice.toNumber(),
             baseAsset: 'BTC',
             quoteAsset: 'DAI',
             orderSide: OrderSide.Sell,
-            quantity: expectedSellQuantity,
+            quantity: expectedSellQuantity.toNumber(),
           }),
         );
         expect(mockOrder.start).toHaveBeenCalledTimes(2);
@@ -342,26 +338,26 @@ describe('ArbitrageTrade', () => {
           arbitrageTrade['openDexBuyOrder'] = undefined;
           arbitrageTrade['openDexSellOrder'] = undefined;
           arbitrageTrade['updatingPrice'] = false;
-          await arbitrageTrade['updateBinancePrice']('BTCUSDT', 11111);
+          await arbitrageTrade['updateBinancePrice'](new BigNumber('11111'));
           expect(openDexBroker.newOrder).toHaveBeenCalledTimes(2);
         });
 
       });
 
       describe('after 60 seconds', () => {
-        const basePrice = 7500;
+        const basePrice = new BigNumber('7500');
 
         beforeEach(async () => {
-          await arbitrageTrade['updateBinancePrice']('BTCUSDT', basePrice);
+          await arbitrageTrade['updateBinancePrice'](basePrice);
           jest.advanceTimersByTime(60000);
         });
 
         test('it updates the order', () => {
-          const expectedBuyPrice = parseFloat((basePrice - basePrice * OPENDEX_MARGIN).toFixed(8));
-          const expectedSellPrice = parseFloat((basePrice + basePrice * OPENDEX_MARGIN).toFixed(8));
+          const expectedBuyPrice = basePrice.minus(basePrice.multipliedBy(OPENDEX_MARGIN));
+          const expectedSellPrice = basePrice.plus(basePrice.multipliedBy(OPENDEX_MARGIN));
           // it updates the quantities
-          expect(arbitrageTrade['buyQuantity']).toEqual(0.13333333);
-          expect(arbitrageTrade['sellQuantity']).toEqual(0.000009);
+          expect(arbitrageTrade['buyQuantity'].toFixed()).toEqual('0.13333333333333333333');
+          expect(arbitrageTrade['sellQuantity'].toFixed()).toEqual('0.000009');
           // it caches the asset allocation
           expect(binanceBroker.getAssets).toHaveBeenCalledTimes(1);
           expect(openDexBroker.getAssets).toHaveBeenCalledTimes(2);
@@ -370,7 +366,7 @@ describe('ArbitrageTrade', () => {
           expect(openDexBroker.newOrder).toHaveBeenCalledWith(
             expect.objectContaining({
               orderId: expect.any(String),
-              price: expectedBuyPrice,
+              price: expectedBuyPrice.toNumber(),
               baseAsset: 'BTC',
               quoteAsset: 'DAI',
               orderSide: OrderSide.Buy,
@@ -379,7 +375,7 @@ describe('ArbitrageTrade', () => {
           expect(openDexBroker.newOrder).toHaveBeenCalledWith(
             expect.objectContaining({
               orderId: expect.any(String),
-              price: expectedSellPrice,
+              price: expectedSellPrice.toNumber(),
               baseAsset: 'BTC',
               quoteAsset: 'DAI',
               orderSide: OrderSide.Sell,

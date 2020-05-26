@@ -25,7 +25,7 @@ class TradeManager {
     this.logger.info('starting broker manager...');
     await this.opendex.start();
     await this.binance.start();
-    await this.addTrade('LTC', 'BTC');
+    await this.addTrade('ETH', 'BTC');
   }
 
   public close = async () => {
