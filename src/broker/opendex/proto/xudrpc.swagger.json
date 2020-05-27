@@ -17,7 +17,7 @@
   "paths": {
     "/v1/addcurrency": {
       "post": {
-        "summary": "Adds a currency to the list of supported currencies. Once added, the currency may be used for\nnew trading pairs.",
+        "summary": "Adds a currency to the list of supported currencies. Once added, the currency may be used for\nnew trading pairs.\nshell: xucli addcurrency \u003ccurrency\u003e \u003cswap_client\u003e [decimal_places] [token_address]",
         "operationId": "AddCurrency",
         "responses": {
           "200": {
@@ -44,7 +44,7 @@
     },
     "/v1/addpair": {
       "post": {
-        "summary": "Adds a trading pair to the list of supported trading pairs. The newly supported pair is\nadvertised to peers so they may begin sending orders for it.",
+        "summary": "Adds a trading pair to the list of supported trading pairs. The newly supported pair is\nadvertised to peers so they may begin sending orders for it.\nshell: xucli addpair \u003cbase_currency\u003e \u003cquote_currency\u003e",
         "operationId": "AddPair",
         "responses": {
           "200": {
@@ -71,20 +71,20 @@
     },
     "/v1/balance": {
       "get": {
-        "summary": "Gets the trading limits for one or all currencies.",
-        "operationId": "TradingLimits",
+        "summary": "Gets the total balance available across all payment channels and wallets for one or all currencies.\nshell: xucli getbalance [currency]",
+        "operationId": "GetBalance",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/xudrpcTradingLimitsResponse"
+              "$ref": "#/definitions/xudrpcGetBalanceResponse"
             }
           }
         },
         "parameters": [
           {
             "name": "currency",
-            "description": "The ticker symbol of the currency to query for, if unspecified then trading limits for all supported\ncurrencies are queried.",
+            "description": "The ticker symbol of the currency to query for, if unspecified then balances for all supported\ncurrencies are queried.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -97,7 +97,7 @@
     },
     "/v1/ban": {
       "post": {
-        "summary": "Bans a node and immediately disconnects from it. This can be used to prevent any connections\nto a specific node.",
+        "summary": "Bans a node and immediately disconnects from it. This can be used to prevent any connections\nto a specific node.\nshell: xucli ban \u003cnode_identifier\u003e",
         "operationId": "Ban",
         "responses": {
           "200": {
@@ -122,9 +122,26 @@
         ]
       }
     },
+    "/v1/closechannel": {
+      "post": {
+        "summary": "Closes any existing payment channels with a peer for the specified currency.\nshell: xucli closechannel \u003cnode_identifier\u003e \u003ccurrency\u003e [--force]",
+        "operationId": "CloseChannel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/xudrpcCloseChannelResponse"
+            }
+          }
+        },
+        "tags": [
+          "Xud"
+        ]
+      }
+    },
     "/v1/connect": {
       "post": {
-        "summary": "Attempts to connect to a node. Once connected, the node is added to the list of peers and\nbecomes available for swaps and trading. A handshake exchanges information about the peer's\nsupported trading and swap clients. Orders will be shared with the peer upon connection and\nupon new order placements.",
+        "summary": "Attempts to connect to a node. Once connected, the node is added to the list of peers and\nbecomes available for swaps and trading. A handshake exchanges information about the peer's\nsupported trading and swap clients. Orders will be shared with the peer upon connection and\nupon new order placements.\nshell: xucli connect \u003cnode_uri\u003e",
         "operationId": "Connect",
         "responses": {
           "200": {
@@ -151,7 +168,7 @@
     },
     "/v1/currencies": {
       "get": {
-        "summary": "Gets a list of this node's supported currencies.",
+        "summary": "Gets a list of this node's supported currencies.\nshell: xucli listcurrencies",
         "operationId": "ListCurrencies",
         "responses": {
           "200": {
@@ -161,6 +178,33 @@
             }
           }
         },
+        "tags": [
+          "Xud"
+        ]
+      }
+    },
+    "/v1/deposit": {
+      "post": {
+        "summary": "Gets an address to deposit a given currency into the xud wallets.\nshell: xucli deposit \u003ccurrency\u003e",
+        "operationId": "Deposit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/xudrpcDepositResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/xudrpcDepositRequest"
+            }
+          }
+        ],
         "tags": [
           "Xud"
         ]
@@ -195,7 +239,7 @@
     },
     "/v1/executeswap": {
       "post": {
-        "summary": "Execute a swap on a maker peer order",
+        "summary": "Executes a swap on a maker peer order.",
         "operationId": "ExecuteSwap",
         "responses": {
           "200": {
@@ -222,7 +266,7 @@
     },
     "/v1/info": {
       "get": {
-        "summary": "Gets general information about this node.",
+        "summary": "Gets general information about this node.\nshell: xucli getinfo",
         "operationId": "GetInfo",
         "responses": {
           "200": {
@@ -239,6 +283,7 @@
     },
     "/v1/listtrades": {
       "post": {
+        "summary": "Gets a list of completed trades.\nshell: xucli listtrades [limit]",
         "operationId": "ListTrades",
         "responses": {
           "200": {
@@ -265,7 +310,7 @@
     },
     "/v1/nodeinfo": {
       "get": {
-        "summary": "Gets general information about a node.",
+        "summary": "Gets general information about a node.\nshell: xucli getnodeinfo \u003cnode_identifier\u003e",
         "operationId": "GetNodeInfo",
         "responses": {
           "200": {
@@ -277,8 +322,8 @@
         },
         "parameters": [
           {
-            "name": "node_pub_key",
-            "description": "The node pub key of the node for which to get information.",
+            "name": "node_identifier",
+            "description": "The node pub key or alias of the node for which to get information.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -291,7 +336,7 @@
     },
     "/v1/openchannel": {
       "post": {
-        "summary": "Opens a payment channel to a peer with the given node pub key for the specified amount and currency.",
+        "summary": "Opens a payment channel to a peer for the specified amount and currency.\nshell: xucli openchannel \u003cnode_identifier\u003e \u003ccurrency\u003e \u003camount\u003e",
         "operationId": "OpenChannel",
         "responses": {
           "200": {
@@ -308,7 +353,7 @@
     },
     "/v1/orders": {
       "get": {
-        "summary": "Gets orders from the order book. This call returns the state of the order book at a given point\nin time, although it is not guaranteed to still be vaild by the time a response is received\nand processed by a client. It accepts an optional trading pair id parameter. If specified, only\norders for that particular trading pair are returned. Otherwise, all orders are returned. Orders\nare separated into buys and sells for each trading pair, but unsorted.",
+        "summary": "Gets orders from the order book. This call returns the state of the order book at a given point\nin time, although it is not guaranteed to still be vaild by the time a response is received\nand processed by a client. It accepts an optional trading pair id parameter. If specified, only\norders for that particular trading pair are returned. Otherwise, all orders are returned. Orders\nare separated into buys and sells for each trading pair, but unsorted.\nshell: xucli listorders [pair_id] [include_own_orders] [limit]",
         "operationId": "ListOrders",
         "responses": {
           "200": {
@@ -327,12 +372,17 @@
             "type": "string"
           },
           {
-            "name": "include_own_orders",
-            "description": "Whether own orders should be included in result or not.",
+            "name": "owner",
+            "description": "Whether only own, only peer or both orders should be included in result.",
             "in": "query",
             "required": false,
-            "type": "boolean",
-            "format": "boolean"
+            "type": "string",
+            "enum": [
+              "BOTH",
+              "OWN",
+              "PEER"
+            ],
+            "default": "BOTH"
           },
           {
             "name": "limit",
@@ -341,6 +391,14 @@
             "required": false,
             "type": "integer",
             "format": "int64"
+          },
+          {
+            "name": "include_aliases",
+            "description": "Whether to include the node aliases of owners of the orders.",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
           }
         ],
         "tags": [
@@ -350,7 +408,7 @@
     },
     "/v1/pairs": {
       "get": {
-        "summary": "Gets a list of this nodes suported trading pairs.",
+        "summary": "Gets a list of this nodes suported trading pairs.\nshell: xucli listpairs",
         "operationId": "ListPairs",
         "responses": {
           "200": {
@@ -367,7 +425,7 @@
     },
     "/v1/peers": {
       "get": {
-        "summary": "Gets a list of connected peers.",
+        "summary": "Gets a list of connected peers.\nshell: xucli listpeers",
         "operationId": "ListPeers",
         "responses": {
           "200": {
@@ -411,7 +469,7 @@
     },
     "/v1/placeordersync": {
       "post": {
-        "summary": "The synchronous non-streaming version of PlaceOrder.",
+        "summary": "The synchronous, non-streaming version of PlaceOrder.\nshell: xucli buy \u003cquantity\u003e \u003cpair_id\u003e \u003cprice\u003e [order_id] [stream]\nshell: xucli sell \u003cquantity\u003e \u003cpair_id\u003e \u003cprice\u003e [order_id] [stream]",
         "operationId": "PlaceOrderSync",
         "responses": {
           "200": {
@@ -438,7 +496,7 @@
     },
     "/v1/removecurrency": {
       "post": {
-        "summary": "Removes a currency from the list of supported currencies. Only currencies that are not in use\nfor any currently supported trading pairs may be removed. Once removed, the currency can no\nlonger be used for any supported trading pairs.",
+        "summary": "Removes a currency from the list of supported currencies. Only currencies that are not in use\nfor any currently supported trading pairs may be removed. Once removed, the currency can no\nlonger be used for any supported trading pairs.\nshell: xucli removecurrency \u003ccurrency\u003e",
         "operationId": "RemoveCurrency",
         "responses": {
           "200": {
@@ -465,7 +523,7 @@
     },
     "/v1/removeorder": {
       "post": {
-        "summary": "Removes an order from the order book by its local id. This should be called when an order is\ncanceled or filled outside of xud. Removed orders become immediately unavailable for swaps,\nand peers are notified that the order is no longer valid. Any portion of the order that is\non hold due to ongoing swaps will not be removed until after the swap attempts complete.",
+        "summary": "Removes an order from the order book by its local id. This should be called when an order is\ncanceled or filled outside of xud. Removed orders become immediately unavailable for swaps,\nand peers are notified that the order is no longer valid. Any portion of the order that is\non hold due to ongoing swaps will not be removed until after the swap attempts complete.\nshell: xucli removeorder \u003corder_id\u003e [quantity]",
         "operationId": "RemoveOrder",
         "responses": {
           "200": {
@@ -492,7 +550,7 @@
     },
     "/v1/removepair": {
       "post": {
-        "summary": "Removes a trading pair from the list of currently supported trading pair. This call will\neffectively cancel any standing orders for that trading pair. Peers are informed when a pair\nis no longer supported so that they will know to stop sending orders for it.",
+        "summary": "Removes a trading pair from the list of currently supported trading pair. This call will\neffectively cancel any standing orders for that trading pair. Peers are informed when a pair\nis no longer supported so that they will know to stop sending orders for it.\nshell: xucli removepair \u003cpair_id\u003e",
         "operationId": "RemovePair",
         "responses": {
           "200": {
@@ -519,7 +577,7 @@
     },
     "/v1/shutdown": {
       "post": {
-        "summary": "Begin gracefully shutting down xud.",
+        "summary": "Begin gracefully shutting down xud.\nshell: xucli shutdown",
         "operationId": "Shutdown",
         "responses": {
           "200": {
@@ -625,9 +683,35 @@
         ]
       }
     },
+    "/v1/tradinglimits": {
+      "get": {
+        "summary": "Gets the trading limits for one or all currencies.\nshell: xucli tradinglimits [currency]",
+        "operationId": "TradingLimits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/xudrpcTradingLimitsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The ticker symbol of the currency to query for, if unspecified then trading limits for all supported\ncurrencies are queried.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Xud"
+        ]
+      }
+    },
     "/v1/unban": {
       "post": {
-        "summary": "Removes a ban from a node manually and, optionally, attempts to connect to it.",
+        "summary": "Removes a ban from a node manually and, optionally, attempts to connect to it.\nshell: xucli unban \u003cnode_identifier\u003e [reconnect]",
         "operationId": "Unban",
         "responses": {
           "200": {
@@ -651,6 +735,33 @@
           "Xud"
         ]
       }
+    },
+    "/v1/withdraw": {
+      "post": {
+        "summary": "Withdraws a given currency from the xud wallets to a specified address.\nshell: xucli withdraw \u003camount\u003e \u003ccurrency\u003e \u003cdestination\u003e [fee]",
+        "operationId": "Withdraw",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/xudrpcWithdrawResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/xudrpcWithdrawRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Xud"
+        ]
+      }
     }
   },
   "definitions": {
@@ -661,6 +772,15 @@
         "RAIDEN"
       ],
       "default": "LND"
+    },
+    "ListOrdersRequestOwner": {
+      "type": "string",
+      "enum": [
+        "BOTH",
+        "OWN",
+        "PEER"
+      ],
+      "default": "BOTH"
     },
     "SwapSuccessRole": {
       "type": "string",
@@ -764,9 +884,9 @@
     "xudrpcBanRequest": {
       "type": "object",
       "properties": {
-        "node_pub_key": {
+        "node_identifier": {
           "type": "string",
-          "description": "The node pub key of the node to ban."
+          "description": "The node pub key or alias of the node to ban."
         }
       }
     },
@@ -811,6 +931,9 @@
         }
       }
     },
+    "xudrpcCloseChannelResponse": {
+      "type": "object"
+    },
     "xudrpcConnectRequest": {
       "type": "object",
       "properties": {
@@ -822,6 +945,23 @@
     },
     "xudrpcConnectResponse": {
       "type": "object"
+    },
+    "xudrpcConnextInfo": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "chain": {
+          "type": "string"
+        }
+      }
     },
     "xudrpcCreateNodeResponse": {
       "type": "object",
@@ -869,12 +1009,30 @@
         }
       }
     },
+    "xudrpcDepositRequest": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "The ticker symbol of the currency to deposit."
+        }
+      }
+    },
+    "xudrpcDepositResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The address to use to deposit funds."
+        }
+      }
+    },
     "xudrpcDiscoverNodesRequest": {
       "type": "object",
       "properties": {
-        "peer_pub_key": {
+        "node_identifier": {
           "type": "string",
-          "description": "The node pub key of the peer to discover nodes from."
+          "description": "The node pub key or alias of the peer to discover nodes from."
         }
       }
     },
@@ -975,6 +1133,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "connext": {
+          "$ref": "#/definitions/xudrpcConnextInfo"
         }
       }
     },
@@ -1046,7 +1207,7 @@
       "properties": {
         "limit": {
           "type": "integer",
-          "format": "int32",
+          "format": "int64",
           "title": "The maximum number of trades to return"
         }
       }
@@ -1095,6 +1256,19 @@
         }
       }
     },
+    "xudrpcNodeIdentifier": {
+      "type": "object",
+      "properties": {
+        "node_pub_key": {
+          "type": "string",
+          "title": "The pub key of this node"
+        },
+        "alias": {
+          "type": "string",
+          "title": "An alias for this node deterministically generated from the pub key"
+        }
+      }
+    },
     "xudrpcOpenChannelResponse": {
       "type": "object"
     },
@@ -1119,13 +1293,13 @@
           "type": "string",
           "description": "A UUID for this order."
         },
-        "peer_pub_key": {
-          "type": "string",
-          "description": "The node pub key of the peer that created this order."
+        "node_identifier": {
+          "$ref": "#/definitions/xudrpcNodeIdentifier",
+          "description": "The identifier of the node that created this order."
         },
         "local_id": {
           "type": "string",
-          "description": "The local id for this order."
+          "description": "The local id for this order, if applicable."
         },
         "created_at": {
           "type": "string",
@@ -1272,15 +1446,19 @@
         "raiden_address": {
           "type": "string",
           "title": "The raiden address for this peer"
+        },
+        "alias": {
+          "type": "string",
+          "title": "The alias for this peer's public key"
         }
       }
     },
     "xudrpcPlaceOrderEvent": {
       "type": "object",
       "properties": {
-        "internal_match": {
+        "match": {
           "$ref": "#/definitions/xudrpcOrder",
-          "description": "An own order (or portion thereof) that matched the newly placed order."
+          "description": "An order (or portion thereof) that matched the newly placed order."
         },
         "swap_success": {
           "$ref": "#/definitions/xudrpcSwapSuccess",
@@ -1323,7 +1501,12 @@
         },
         "replace_order_id": {
           "type": "string",
-          "description": "The local id of an existing order to be replaced. If provided, the order must be successfully found and removed before the new order is placed (otherwise an error is returned)."
+          "description": "The local id of an existing order to be replaced. If provided, the order must be successfully\nfound and removed before the new order is placed, otherwise an error is returned."
+        },
+        "immediate_or_cancel": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Whether the order must be filled immediately and not allowed to enter the order book."
         }
       }
     },
@@ -1424,6 +1607,23 @@
     },
     "xudrpcRemovePairResponse": {
       "type": "object"
+    },
+    "xudrpcRestoreNodeResponse": {
+      "type": "object",
+      "properties": {
+        "restored_lnds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The list of lnd clients that were initialized."
+        },
+        "restored_raiden": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Whether raiden was initialized."
+        }
+      }
     },
     "xudrpcShutdownRequest": {
       "type": "object"
@@ -1535,7 +1735,7 @@
         },
         "quantity": {
           "type": "string",
-          "format": "int64",
+          "format": "uint64",
           "description": "The quantity transacted in this trade."
         },
         "pair_id": {
@@ -1574,9 +1774,9 @@
     "xudrpcUnbanRequest": {
       "type": "object",
       "properties": {
-        "node_pub_key": {
+        "node_identifier": {
           "type": "string",
-          "description": "The node pub key of the peer to unban."
+          "description": "The node pub key or alias of the peer to unban."
         },
         "reconnect": {
           "type": "boolean",
@@ -1609,6 +1809,43 @@
             "type": "string"
           },
           "description": "The list of lnd clients that could not be unlocked."
+        }
+      }
+    },
+    "xudrpcWithdrawRequest": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "The ticker symbol of the currency to withdraw."
+        },
+        "destination": {
+          "type": "string",
+          "description": "The address to withdraw funds to."
+        },
+        "amount": {
+          "type": "string",
+          "format": "uint64",
+          "title": "The amount to withdraw denominated in satoshis"
+        },
+        "all": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Whether to withdraw all available funds for this currency.\nIf true, the amount field is ignored."
+        },
+        "fee": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The fee to use for the withdrawal transaction denominated in satoshis per byte."
+        }
+      }
+    },
+    "xudrpcWithdrawResponse": {
+      "type": "object",
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "description": "The id of the withdrawal transaction."
         }
       }
     }
