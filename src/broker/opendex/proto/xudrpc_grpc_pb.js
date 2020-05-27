@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 //
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var xudrpc_pb = require('./xudrpc_pb.js');
 var annotations_pb = require('./annotations_pb.js');
 
@@ -698,12 +698,12 @@ function deserialize_xudrpc_WithdrawResponse(buffer_arg) {
 }
 
 
-// A service for interacting with a locked or uninitalized xud node. 
+// A service for interacting with a locked or uninitalized xud node.
 var XudInitService = exports.XudInitService = {
   // Creates an xud identity node key and underlying wallets. The node key and
   // wallets are derived from a single seed and encrypted using a single
-  // password provided as a parameter to the call. 
-  // shell: xucli create 
+  // password provided as a parameter to the call.
+  // shell: xucli create
   createNode: {
     path: '/xudrpc.XudInit/CreateNode',
     requestStream: false,
@@ -716,7 +716,7 @@ var XudInitService = exports.XudInitService = {
     responseDeserialize: deserialize_xudrpc_CreateNodeResponse,
   },
   // Restores an xud instance and underlying wallets from a seed.
-  // shell: xucli restore [backup_directory] [raiden_database_path] 
+  // shell: xucli restore [backup_directory] [raiden_database_path]
   restoreNode: {
     path: '/xudrpc.XudInit/RestoreNode',
     requestStream: false,
@@ -729,7 +729,7 @@ var XudInitService = exports.XudInitService = {
     responseDeserialize: deserialize_xudrpc_RestoreNodeResponse,
   },
   // Unlocks and decrypts the xud node key and any underlying wallets.
-  // shell: xucli unlock 
+  // shell: xucli unlock
   unlockNode: {
     path: '/xudrpc.XudInit/UnlockNode',
     requestStream: false,
@@ -744,11 +744,11 @@ var XudInitService = exports.XudInitService = {
 };
 
 exports.XudInitClient = grpc.makeGenericClientConstructor(XudInitService);
-// The primary service for interacting with a running xud node. 
+// The primary service for interacting with a running xud node.
 var XudService = exports.XudService = {
   // Adds a currency to the list of supported currencies. Once added, the currency may be used for
   // new trading pairs.
-  // shell: xucli addcurrency <currency> <swap_client> [decimal_places] [token_address] 
+  // shell: xucli addcurrency <currency> <swap_client> [decimal_places] [token_address]
   addCurrency: {
     path: '/xudrpc.Xud/AddCurrency',
     requestStream: false,
@@ -762,7 +762,7 @@ var XudService = exports.XudService = {
   },
   // Adds a trading pair to the list of supported trading pairs. The newly supported pair is
   // advertised to peers so they may begin sending orders for it.
-  // shell: xucli addpair <base_currency> <quote_currency> 
+  // shell: xucli addpair <base_currency> <quote_currency>
   addPair: {
     path: '/xudrpc.Xud/AddPair',
     requestStream: false,
@@ -776,7 +776,7 @@ var XudService = exports.XudService = {
   },
   // Bans a node and immediately disconnects from it. This can be used to prevent any connections
   // to a specific node.
-  // shell: xucli ban <node_identifier> 
+  // shell: xucli ban <node_identifier>
   ban: {
     path: '/xudrpc.Xud/Ban',
     requestStream: false,
@@ -805,7 +805,7 @@ var XudService = exports.XudService = {
   // becomes available for swaps and trading. A handshake exchanges information about the peer's
   // supported trading and swap clients. Orders will be shared with the peer upon connection and
   // upon new order placements.
-  // shell: xucli connect <node_uri> 
+  // shell: xucli connect <node_uri>
   connect: {
     path: '/xudrpc.Xud/Connect',
     requestStream: false,
@@ -818,7 +818,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ConnectResponse,
   },
   // Gets an address to deposit a given currency into the xud wallets.
-  // shell: xucli deposit <currency> 
+  // shell: xucli deposit <currency>
   deposit: {
     path: '/xudrpc.Xud/Deposit',
     requestStream: false,
@@ -830,7 +830,7 @@ var XudService = exports.XudService = {
     responseSerialize: serialize_xudrpc_DepositResponse,
     responseDeserialize: deserialize_xudrpc_DepositResponse,
   },
-  // Discover nodes from a specific peer and apply new connections 
+  // Discover nodes from a specific peer and apply new connections
   discoverNodes: {
     path: '/xudrpc.Xud/DiscoverNodes',
     requestStream: false,
@@ -843,7 +843,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_DiscoverNodesResponse,
   },
   // Gets the total balance available across all payment channels and wallets for one or all currencies.
-  // shell: xucli getbalance [currency] 
+  // shell: xucli getbalance [currency]
   getBalance: {
     path: '/xudrpc.Xud/GetBalance',
     requestStream: false,
@@ -856,7 +856,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_GetBalanceResponse,
   },
   // Gets general information about this node.
-  // shell: xucli getinfo 
+  // shell: xucli getinfo
   getInfo: {
     path: '/xudrpc.Xud/GetInfo',
     requestStream: false,
@@ -869,7 +869,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_GetInfoResponse,
   },
   // Gets general information about a node.
-  // shell: xucli getnodeinfo <node_identifier> 
+  // shell: xucli getnodeinfo <node_identifier>
   getNodeInfo: {
     path: '/xudrpc.Xud/GetNodeInfo',
     requestStream: false,
@@ -886,7 +886,7 @@ var XudService = exports.XudService = {
   // and processed by a client. It accepts an optional trading pair id parameter. If specified, only
   // orders for that particular trading pair are returned. Otherwise, all orders are returned. Orders
   // are separated into buys and sells for each trading pair, but unsorted.
-  // shell: xucli listorders [pair_id] [include_own_orders] [limit] 
+  // shell: xucli listorders [pair_id] [include_own_orders] [limit]
   listOrders: {
     path: '/xudrpc.Xud/ListOrders',
     requestStream: false,
@@ -899,7 +899,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ListOrdersResponse,
   },
   // Gets a list of this node's supported currencies.
-  // shell: xucli listcurrencies 
+  // shell: xucli listcurrencies
   listCurrencies: {
     path: '/xudrpc.Xud/ListCurrencies',
     requestStream: false,
@@ -912,7 +912,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ListCurrenciesResponse,
   },
   // Gets a list of this nodes suported trading pairs.
-  // shell: xucli listpairs 
+  // shell: xucli listpairs
   listPairs: {
     path: '/xudrpc.Xud/ListPairs',
     requestStream: false,
@@ -925,7 +925,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ListPairsResponse,
   },
   // Gets a list of connected peers.
-  // shell: xucli listpeers 
+  // shell: xucli listpeers
   listPeers: {
     path: '/xudrpc.Xud/ListPeers',
     requestStream: false,
@@ -938,7 +938,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ListPeersResponse,
   },
   // Gets a list of completed trades.
-  // shell: xucli listtrades [limit] 
+  // shell: xucli listtrades [limit]
   listTrades: {
     path: '/xudrpc.Xud/ListTrades',
     requestStream: false,
@@ -951,7 +951,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ListTradesResponse,
   },
   // Opens a payment channel to a peer for the specified amount and currency.
-  // shell: xucli openchannel <node_identifier> <currency> <amount> 
+  // shell: xucli openchannel <node_identifier> <currency> <amount>
   openChannel: {
     path: '/xudrpc.Xud/OpenChannel',
     requestStream: false,
@@ -964,7 +964,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_OpenChannelResponse,
   },
   // Adds an order to the order book.
-  // If price is zero or unspecified a market order will get added. 
+  // If price is zero or unspecified a market order will get added.
   placeOrder: {
     path: '/xudrpc.Xud/PlaceOrder',
     requestStream: false,
@@ -978,7 +978,7 @@ var XudService = exports.XudService = {
   },
   // The synchronous, non-streaming version of PlaceOrder.
   // shell: xucli buy <quantity> <pair_id> <price> [order_id] [stream]
-  // shell: xucli sell <quantity> <pair_id> <price> [order_id] [stream] 
+  // shell: xucli sell <quantity> <pair_id> <price> [order_id] [stream]
   placeOrderSync: {
     path: '/xudrpc.Xud/PlaceOrderSync',
     requestStream: false,
@@ -990,7 +990,7 @@ var XudService = exports.XudService = {
     responseSerialize: serialize_xudrpc_PlaceOrderResponse,
     responseDeserialize: deserialize_xudrpc_PlaceOrderResponse,
   },
-  // Executes a swap on a maker peer order. 
+  // Executes a swap on a maker peer order.
   executeSwap: {
     path: '/xudrpc.Xud/ExecuteSwap',
     requestStream: false,
@@ -1005,7 +1005,7 @@ var XudService = exports.XudService = {
   // Removes a currency from the list of supported currencies. Only currencies that are not in use
   // for any currently supported trading pairs may be removed. Once removed, the currency can no
   // longer be used for any supported trading pairs.
-  // shell: xucli removecurrency <currency> 
+  // shell: xucli removecurrency <currency>
   removeCurrency: {
     path: '/xudrpc.Xud/RemoveCurrency',
     requestStream: false,
@@ -1021,7 +1021,7 @@ var XudService = exports.XudService = {
   // canceled or filled outside of xud. Removed orders become immediately unavailable for swaps,
   // and peers are notified that the order is no longer valid. Any portion of the order that is
   // on hold due to ongoing swaps will not be removed until after the swap attempts complete.
-  // shell: xucli removeorder <order_id> [quantity] 
+  // shell: xucli removeorder <order_id> [quantity]
   removeOrder: {
     path: '/xudrpc.Xud/RemoveOrder',
     requestStream: false,
@@ -1036,7 +1036,7 @@ var XudService = exports.XudService = {
   // Removes a trading pair from the list of currently supported trading pair. This call will
   // effectively cancel any standing orders for that trading pair. Peers are informed when a pair
   // is no longer supported so that they will know to stop sending orders for it.
-  // shell: xucli removepair <pair_id> 
+  // shell: xucli removepair <pair_id>
   removePair: {
     path: '/xudrpc.Xud/RemovePair',
     requestStream: false,
@@ -1049,7 +1049,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_RemovePairResponse,
   },
   // Begin gracefully shutting down xud.
-  // shell: xucli shutdown 
+  // shell: xucli shutdown
   shutdown: {
     path: '/xudrpc.Xud/Shutdown',
     requestStream: false,
@@ -1064,7 +1064,7 @@ var XudService = exports.XudService = {
   // Subscribes to orders being added to and removed from the order book. This call allows the client
   // to maintain an up-to-date view of the order book. For example, an exchange that wants to show
   // its users a real time view of the orders available to them would subscribe to this streaming
-  // call to be alerted as new orders are added and expired orders are removed. 
+  // call to be alerted as new orders are added and expired orders are removed.
   subscribeOrders: {
     path: '/xudrpc.Xud/SubscribeOrders',
     requestStream: false,
@@ -1080,7 +1080,7 @@ var XudService = exports.XudService = {
   // transmitted unless a flag is set to include swaps initiated by the local node. This call allows
   // the client to get real-time notifications when its orders are filled by a peer. It can be used
   // for tracking order executions, updating balances, and informing a trader when one of their orders
-  // is settled through the Exchange Union network. 
+  // is settled through the Exchange Union network.
   subscribeSwaps: {
     path: '/xudrpc.Xud/SubscribeSwaps',
     requestStream: false,
@@ -1095,7 +1095,7 @@ var XudService = exports.XudService = {
   // Subscribes to failed swaps. By default, only swaps that are initiated by a remote peer are
   // transmitted unless a flag is set to include swaps initiated by the local node. This call allows
   // the client to get real-time notifications when swap attempts are failing. It can be used for
-  // status monitoring, debugging, and testing purposes. 
+  // status monitoring, debugging, and testing purposes.
   subscribeSwapFailures: {
     path: '/xudrpc.Xud/SubscribeSwapFailures',
     requestStream: false,
@@ -1108,7 +1108,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_SwapFailure,
   },
   // Gets the trading limits for one or all currencies.
-  // shell: xucli tradinglimits [currency] 
+  // shell: xucli tradinglimits [currency]
   tradingLimits: {
     path: '/xudrpc.Xud/TradingLimits',
     requestStream: false,
@@ -1121,7 +1121,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_TradingLimitsResponse,
   },
   // Removes a ban from a node manually and, optionally, attempts to connect to it.
-  // shell: xucli unban <node_identifier> [reconnect] 
+  // shell: xucli unban <node_identifier> [reconnect]
   unban: {
     path: '/xudrpc.Xud/Unban',
     requestStream: false,
@@ -1134,7 +1134,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_UnbanResponse,
   },
   // Withdraws a given currency from the xud wallets to a specified address.
-  // shell: xucli withdraw <amount> <currency> <destination> [fee] 
+  // shell: xucli withdraw <amount> <currency> <destination> [fee]
   withdraw: {
     path: '/xudrpc.Xud/Withdraw',
     requestStream: false,

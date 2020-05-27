@@ -4,7 +4,7 @@ import {
   OrderSide as XudOrderSide,
   // PlaceOrderEvent,
 } from '../src/broker/opendex/proto/xudrpc_pb';
-const uuidv4 = require('uuid/v4');
+import { v4 as uuidv4 } from 'uuid';
 
 // This test suite is disabled by default because it requires xud to be up and running.
 // This is mainly used for development proposes as the api spec deals with mocked responses.

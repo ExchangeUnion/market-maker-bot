@@ -1,6 +1,6 @@
 import { Logger } from '../logger';
 import { ExchangeBroker } from '../broker/exchange';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { OrderSide, OrderType } from '../enums';
 import { OpenDexOrder } from '../broker/opendex/order';
 import { Balance } from '../broker/api';

@@ -41,13 +41,13 @@
     "eslint": "7.1.0",
     "eslint-plugin-jest": "23.13.2",
     "google-protobuf": "3.12.1",
-    "grpc": "1.24.2",
     "jest": "26.0.1",
     "nodemon": "2.0.4",
     "ts-jest": "26.0.0",
     "typescript": "3.9.3"
   },
   "dependencies": {
+    "@grpc/grpc-js": "1.0.4",
     "axios": "0.19.2",
     "axios-debug-log": "0.7.0",
     "bignumber.js": "9.0.0",

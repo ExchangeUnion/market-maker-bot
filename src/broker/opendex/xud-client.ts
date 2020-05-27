@@ -1,5 +1,9 @@
 import fs from 'fs';
-import grpc from 'grpc';
+import {
+  credentials,
+  ClientReadableStream,
+  ServiceError,
+} from '@grpc/grpc-js';
 import { XudClient } from './proto/xudrpc_grpc_pb';
 import {
   SwapSuccess,
@@ -48,11 +52,11 @@ class XudGrpcClient {
 
   public start = () => {
     const cert = fs.readFileSync(this.tlscertpath);
-    const credentials = grpc.credentials.createSsl(cert);
-    this.client = new XudClient(`${this.rpchost}:${this.rpcport}`, credentials);
+    const sslCredentials = credentials.createSsl(cert);
+    this.client = new XudClient(`${this.rpchost}:${this.rpcport}`, sslCredentials);
   }
 
-  public subscribeSwaps = (): grpc.ClientReadableStream<SwapSuccess> => {
+  public subscribeSwaps = (): ClientReadableStream<SwapSuccess> => {
     const swapsRequest = new SubscribeSwapsRequest();
     swapsRequest.setIncludeTaker(true);
     return this.client.subscribeSwaps(swapsRequest);
@@ -105,7 +109,7 @@ class XudGrpcClient {
   }
 
   private processResponse = (resolve: (value: unknown) => unknown, reject: (value: unknown) => unknown) => {
-    return (error: grpc.ServiceError | null, response: GrpcResponse) => {
+    return (error: ServiceError | null, response: GrpcResponse) => {
       if (error) {
         reject(error);
       } else {

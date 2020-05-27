@@ -7,13 +7,13 @@ import {
 } from '../api';
 import { Logger } from '../../logger';
 import { XudGrpcClient } from './xud-client';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import {
   OrderSide as XudOrderSide,
   PlaceOrderResponse,
   SwapSuccess,
  } from './proto/xudrpc_pb';
-import grpc from 'grpc';
+import { ClientReadableStream, status } from '@grpc/grpc-js';
 import { OrderSide } from '../../enums';
 import {
   MarketOrderRequest,
@@ -32,7 +32,7 @@ class OpenDexAPI extends ExchangeAPI {
   private swapSubscriptions = new Map<string, (swapSuccess: SwapSuccess.AsObject) => unknown >();
   private checkConnectionTimeout: ReturnType<typeof setTimeout> | undefined;
 
-  private swapsCompleteSubscription: grpc.ClientReadableStream<SwapSuccess> | undefined;
+  private swapsCompleteSubscription: ClientReadableStream<SwapSuccess> | undefined;
 
   constructor(
     { logger, certPath, rpchost, rpcport }:
@@ -65,7 +65,7 @@ class OpenDexAPI extends ExchangeAPI {
       // TODO: cancel all orders on other exchanges
     });
     this.swapsCompleteSubscription.on('error', (error: any) => {
-      if (error.code && error.code === grpc.status.CANCELLED) {
+      if (error.code && error.code === status.CANCELLED) {
         return;
       } else {
         this.logger.error(`failed to subscribe to xud swaps: ${error}`);

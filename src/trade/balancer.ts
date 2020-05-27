@@ -2,7 +2,7 @@ import { Logger } from '../logger';
 import { Balance } from '../broker/api';
 import { ExchangeBroker } from '../broker/exchange';
 import { BalancerTrade, BalancerOrder } from '../trade/balancer-trade';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { OrderType } from '../enums';
 import { OpenDexOrder } from '../broker/opendex/order';
 

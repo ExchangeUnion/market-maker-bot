@@ -3,7 +3,7 @@
 
 /* tslint:disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as xudrpc_pb from "./xudrpc_pb";
 import * as annotations_pb from "./annotations_pb";
 
