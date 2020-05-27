@@ -22,8 +22,6 @@ import {
 } from '../exchange';
 import { BinanceOrder } from './order';
 
-type PingResponse = {};
-
 const API_BASE_URL = 'https://api.binance.com';
 const ACCOUNT_URL = `${API_BASE_URL}/api/v3/account`;
 const TEST_ORDER_URL = `${API_BASE_URL}/api/v3/order/test`;
@@ -198,7 +196,7 @@ class BinanceAPI extends ExchangeAPI {
     }
   }
 
-  public ping = async (): Promise<PingResponse> => {
+  public ping = async (): Promise<unknown> => {
     const response = await axios.get(PING_URL);
     assert.equal(response.status, 200);
     return response.data;

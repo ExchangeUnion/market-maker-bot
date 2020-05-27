@@ -26,8 +26,6 @@ describe('BalancerTrade', () => {
       quoteAsset: 'BTC',
       baseAssetBalance: ltcBalance,
     });
-    // @ts-ignore
-    const checkLimitsSpy = jest.spyOn(trade, 'checkLimits');
     emitSpy = jest.spyOn(trade, 'emit');
     loggers.balancer.warn = jest.fn();
   });

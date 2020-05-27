@@ -10,12 +10,12 @@ import {
 import { Logger } from '../logger';
 
 interface Order { on(event: 'failure', listener: (failure: string) => void): this;
-  emit(event: 'failure', failure: string): boolean;
   on(event: 'fill', listener: (fill: string) => void): this;
-  emit(event: 'fill', fill: string): boolean;
   on(event: 'status', listener: (status: string) => void): this;
-  emit(event: 'status', status: string): boolean;
   on(event: 'complete', listener: (orderId: string, quantity: number) => void): this;
+  emit(event: 'failure', failure: string): boolean;
+  emit(event: 'fill', fill: string): boolean;
+  emit(event: 'status', status: string): boolean;
   emit(event: 'complete', orderId: string, quantity: number): boolean;
 }
 

@@ -7,11 +7,11 @@ export const getTsString = (dateFormat?: string): string => moment().format(date
 const SATOSHIS_PER_COIN = 10 ** 8;
 
 /** Returns a number of satoshis as a string representation of coins with up to 8 decimal places. */
-export const satsToCoinsStr = (satsQuantity: number) => {
+export const satsToCoinsStr = (satsQuantity: number): string => {
   return (satsQuantity / SATOSHIS_PER_COIN).toFixed(8).replace(/\.?0+$/, '');
 };
 
 /** Returns a number of coins as an integer number of satoshis. */
-export const coinsToSats = (coinsQuantity: number) => {
+export const coinsToSats = (coinsQuantity: number): number => {
   return Math.round(coinsQuantity * SATOSHIS_PER_COIN);
 };

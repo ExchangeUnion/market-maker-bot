@@ -3,7 +3,6 @@ import {
   Balance,
   BalanceProperties,
   CancelOrderRequest,
-  QueryOrderRequest,
   QueryOrderResponse,
 } from '../api';
 import { Logger } from '../../logger';
@@ -30,7 +29,7 @@ class OpenDexAPI extends ExchangeAPI {
   private rpchost: string;
   private rpcport: number;
   private xudClient!: XudGrpcClient;
-  private swapSubscriptions = new Map<string, Function>();
+  private swapSubscriptions = new Map<string, (swapSuccess: SwapSuccess.AsObject) => unknown >();
   private checkConnectionTimeout: ReturnType<typeof setTimeout> | undefined;
 
   private swapsCompleteSubscription: grpc.ClientReadableStream<SwapSuccess> | undefined;
@@ -185,11 +184,11 @@ class OpenDexAPI extends ExchangeAPI {
     }
   }
 
-  public subscribeSwap = (id: string, cb: Function) => {
+  public subscribeSwap = (id: string, cb: (swapSuccess: SwapSuccess.AsObject) => unknown) => {
     this.swapSubscriptions.set(id, cb);
   }
 
-  public queryOrder = async (_queryOrderRequest: QueryOrderRequest): Promise<QueryOrderResponse> => {
+  public queryOrder = async (): Promise<QueryOrderResponse> => {
     throw new Error('not implemented');
   }
 

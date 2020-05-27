@@ -16,7 +16,7 @@ import {
  } from './proto/xudrpc_pb';
 
 interface GrpcResponse {
-  toObject: Function;
+  toObject: () => unknown;
 }
 
 type XudOrderRequest = {
@@ -104,7 +104,7 @@ class XudGrpcClient {
     return removeOrderResponseObj as RemoveOrderResponse.AsObject;
   }
 
-  private processResponse = (resolve: Function, reject: Function) => {
+  private processResponse = (resolve: (value: unknown) => unknown, reject: (value: unknown) => unknown) => {
     return (error: grpc.ServiceError | null, response: GrpcResponse) => {
       if (error) {
         reject(error);

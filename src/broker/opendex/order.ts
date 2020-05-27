@@ -34,8 +34,7 @@ class OpenDexOrder extends Order {
       if (typeof this.price !== 'number') {
         throw new Error('Price must be a number.');
       }
-      // @ts-ignore
-      (orderRequest as LimitOrderRequest).price = this.price;
+      (orderRequest as unknown as LimitOrderRequest).price = this.price;
     }
     if (this.orderType === OrderType.Market) {
       (orderRequest as MarketOrderRequest).price = 'mkt';
