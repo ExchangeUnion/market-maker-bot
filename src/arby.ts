@@ -1,30 +1,17 @@
-import { Logger, Level } from './logger';
-import path from 'path';
+import { Logger } from './logger';
 import { ExchangeBroker } from './broker/exchange';
 import { TradeManager } from './trade/manager';
 import {
   ExchangeType,
 } from './enums';
-
-type Config = {
-  loglevel: string,
-  logpath: string,
-};
+import { loadConfig, Config } from './config';
 
 class Arby {
   private shuttingDown = false;
   private logger!: Logger;
-  private config: Config;
   private tradeManager!: TradeManager;
 
   constructor() {
-    require('dotenv').config();
-    const dataDir = process.env.DATA_DIR || __dirname;
-    this.config = {
-      loglevel: Level.Debug,
-      logpath: path.resolve(dataDir, 'arby.log'),
-    };
-
     process.on('SIGINT', () => {
       this.beginShutdown();
     });
@@ -34,8 +21,11 @@ class Arby {
     });
   }
 
-  public start = async () => {
-    const loggers = Logger.createLoggers(this.config.loglevel, this.config.logpath);
+  public start = async (config: Config) => {
+    const loggers = Logger.createLoggers(
+      config.LOG_LEVEL,
+      config.LOG_PATH,
+    );
     this.logger = loggers.global;
     this.logger.info('Starting Arby...');
     const openDexBroker = new ExchangeBroker({
@@ -79,6 +69,14 @@ class Arby {
 }
 
 if (!module.parent) {
-  const arby = new Arby();
-  void arby.start();
+  const config$ = loadConfig();
+  config$.subscribe({
+    next: (config: Config) => {
+      const arby = new Arby();
+      void arby.start(config);
+    },
+    error: (e) => {
+      console.log(e.message);
+    },
+  });
 }
