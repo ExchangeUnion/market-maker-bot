@@ -58,7 +58,7 @@ const checkConfigOptions = (config: DotenvParseOutput): Config => {
   return verifiedConfig as Config;
 };
 
-export const loadConfig = (): Observable<Config> => {
+export const getConfig$ = (): Observable<Config> => {
   return of(
     require('dotenv').config()
   ).pipe(

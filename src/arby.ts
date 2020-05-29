@@ -4,9 +4,14 @@ import { TradeManager } from './trade/manager';
 import {
   ExchangeType,
 } from './enums';
-import { loadConfig, Config } from './config';
+import { getConfig$, Config } from './config';
 import { Observable, Subject, from } from 'rxjs';
-import { take, mergeMap } from 'rxjs/operators';
+import {
+  take,
+  mergeMap,
+  mapTo,
+  takeUntil,
+} from 'rxjs/operators';
 
 const getStartShutdown$ = (): Observable<unknown> => {
   const shutdown$ = new Subject();
@@ -19,7 +24,7 @@ const getStartShutdown$ = (): Observable<unknown> => {
     );
 };
 
-const startArby = (config: Config) => {
+const getTradeManager$ = (config: Config): Observable<string> => {
   const loggers = Logger.createLoggers(
     config.LOG_LEVEL,
     config.LOG_PATH,
@@ -57,15 +62,37 @@ const startArby = (config: Config) => {
       loggers.global.info('Shutdown complete. Goodbye, Arby.');
     }
   });
-  tradeManager.start();
+  return from(tradeManager.start()).pipe(
+    mapTo('Shutdown complete. Goodbye, Arby.'),
+  );
+};
+
+export const startArby = (
+  {
+    config$,
+    shutdown$,
+    startTradeManager,
+  }:
+  {
+    config$: Observable<Config>
+    shutdown$: Observable<unknown>
+    startTradeManager: (config: Config) => Observable<string>,
+  },
+): Observable<any> => {
+  return config$.pipe(
+    mergeMap(startTradeManager),
+    takeUntil(shutdown$),
+  )
 };
 
 if (!module.parent) {
-  const config$ = loadConfig();
-  config$.subscribe({
-    next: (config: Config) => {
-      startArby(config);
-    },
-    error: (e) => console.log(e.message)
+  startArby({
+    config$: getConfig$(),
+    shutdown$: getStartShutdown$(),
+    startTradeManager: getTradeManager$
+  }).subscribe({
+    next: (val) => console.log(`arby$ next: ${val}`),
+    error: (e) => console.log(`arby$ error: ${e}`),
+    complete: () => console.log('arby$ complete'),
   });
 }
