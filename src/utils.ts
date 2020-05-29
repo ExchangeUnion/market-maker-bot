@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { Observable, Subject } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 /** Get the current date in the given dateFormat, if not provided formats with `YYYY-MM-DD hh:mm:ss.sss`.
  */
@@ -14,4 +16,15 @@ export const satsToCoinsStr = (satsQuantity: number): string => {
 /** Returns a number of coins as an integer number of satoshis. */
 export const coinsToSats = (coinsQuantity: number): number => {
   return Math.round(coinsQuantity * SATOSHIS_PER_COIN);
+};
+
+export const getStartShutdown$ = (): Observable<unknown> => {
+  const shutdown$ = new Subject();
+  process.on('SIGINT', () => shutdown$.next());
+  process.on('SIGTERM', () => shutdown$.next());
+  return shutdown$
+    .asObservable()
+    .pipe(
+      take(1),
+    );
 };

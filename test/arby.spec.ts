@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { startArby } from '../src/arby';
 import { Config } from '../src/config';
+
 describe('startArby', () => {
   let testScheduler: TestScheduler;
 
