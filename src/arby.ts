@@ -8,11 +8,11 @@ import { loadConfig, Config } from './config';
 import { Observable, Subject, from } from 'rxjs';
 import { take, mergeMap } from 'rxjs/operators';
 
-const monitorKillSignals = (): Observable<unknown> => {
-  const shutDown$ = new Subject();
-  process.on('SIGINT', () => shutDown$.next());
-  process.on('SIGTERM', () => shutDown$.next());
-  return shutDown$
+const getStartShutdown$ = (): Observable<unknown> => {
+  const shutdown$ = new Subject();
+  process.on('SIGINT', () => shutdown$.next());
+  process.on('SIGTERM', () => shutdown$.next());
+  return shutdown$
     .asObservable()
     .pipe(
       take(1),
@@ -43,7 +43,7 @@ const startArby = (config: Config) => {
     opendex: openDexBroker,
     binance: binanceBroker,
   });
-  const startShutdown$ = monitorKillSignals();
+  const startShutdown$ = getStartShutdown$();
   const shutdownComplete$ = startShutdown$.pipe(
     mergeMap(() => from(tradeManager.close()))
   );
