@@ -57,7 +57,7 @@ class TradeManager {
 
 }
 
-const startTradeManager = (config: Config): Observable<string> => {
+const getTrade$ = (config: Config): Observable<string> => {
   return new Observable(subscriber => {
     const loggers = Logger.createLoggers(
       config.LOG_LEVEL,
@@ -92,4 +92,4 @@ const startTradeManager = (config: Config): Observable<string> => {
 };
 
 
-export { startTradeManager, TradeManager };
+export { getTrade$, TradeManager };

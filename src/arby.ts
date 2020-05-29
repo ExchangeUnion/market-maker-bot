@@ -1,4 +1,4 @@
-import { startTradeManager } from './trade/manager';
+import { getTrade$ } from './trade/manager';
 import { getConfig$, Config } from './config';
 import { Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
@@ -8,23 +8,23 @@ export const startArby = (
   {
     config$,
     shutdown$,
-    startTradeManager,
+    trade$,
   }:
   {
     config$: Observable<Config>
     shutdown$: Observable<unknown>
-    startTradeManager: (config: Config) => Observable<string>,
+    trade$: (config: Config) => Observable<string>,
   },
 ): Observable<any> => {
   return config$.pipe(
-    mergeMap(startTradeManager),
+    mergeMap(trade$),
     takeUntil(shutdown$),
   )
 };
 
 if (!module.parent) {
   startArby({
-    startTradeManager,
+    trade$: getTrade$,
     config$: getConfig$(),
     shutdown$: getStartShutdown$(),
   }).subscribe({

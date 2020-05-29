@@ -16,14 +16,14 @@ describe('startArby', () => {
     testScheduler.run(helpers => {
       const { cold, expectObservable } = helpers;
       const config$ = cold('1000ms a') as Observable<Config>;
-      const startTradeManager = () => {
+      const getTrade$ = () => {
         return cold('b');
       };
       const shutdown$ = cold('');
       const arby$ = startArby({
         config$,
         shutdown$,
-        startTradeManager,
+        trade$: getTrade$,
       });
       const expected = '1000ms b'
       expectObservable(arby$).toBe(expected);
@@ -34,13 +34,13 @@ describe('startArby', () => {
     testScheduler.run(helpers => {
       const { cold, expectObservable } = helpers;
       const config$ = cold('a') as Observable<Config>;
-      const startTradeManager = () => {
+      const getTrade$ = () => {
         return cold('500ms b');
       };
       const shutdown$ = cold('10s c');
       const arby$ = startArby({
         config$,
-        startTradeManager,
+        trade$: getTrade$,
         shutdown$,
       });
       const expected = '500ms b 9499ms |'
