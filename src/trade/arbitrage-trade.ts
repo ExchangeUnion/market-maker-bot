@@ -58,7 +58,6 @@ class ArbitrageTrade {
   private updatingPrice = false;
   private closed = false;
   private binancePriceSubscription: Subscription | undefined;
-  private countdown$: Subscription | undefined;
 
   constructor(
     { logger, binance, opendex, baseAsset, quoteAsset }:
@@ -226,9 +225,6 @@ class ArbitrageTrade {
 
   public close = async () => {
     this.closed = true;
-    if (this.countdown$) {
-      this.countdown$.unsubscribe();
-    }
     if (this.binancePriceSubscription) {
       this.binancePriceSubscription.unsubscribe();
     }

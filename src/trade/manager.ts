@@ -2,8 +2,25 @@ import { ExchangeBroker } from '../broker/exchange';
 import { Logger } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, of, from } from 'rxjs';
+import {
+  tap,
+  map,
+  mergeMap,
+  concatMap,
+  concatMapTo,
+  switchMap,
+  exhaustMap,
+  filter,
+  publishBehavior,
+  refCount,
+  // concatMapTo,
+  takeUntil,
+  repeat,
+  take,
+} from 'rxjs/operators';
 import { Config } from '../config';
+import { BigNumber } from 'bignumber.js';
 
 class TradeManager {
   private logger: Logger;
@@ -91,5 +108,121 @@ const getTrade$ = (config: Config): Observable<string> => {
   }) as Observable<string>;
 };
 
+type ExchangeAssetAllocation = {
+  baseAssetBalance: BigNumber;
+  quoteAssetBalance: BigNumber;
+};
 
-export { getTrade$, TradeManager };
+type AssetAllocation = {
+  openDex: ExchangeAssetAllocation,
+  centralizedExchange: ExchangeAssetAllocation,
+};
+
+type TradeInfo = {
+  price: BigNumber;
+  assets: AssetAllocation,
+};
+
+const tradeInfoArrayToObject = ([
+  openDexAssets,
+  centralizedExchangeAssets,
+  centralizedExchangePrice,
+]: [
+  ExchangeAssetAllocation,
+  ExchangeAssetAllocation,
+  BigNumber
+]): TradeInfo => {
+  return {
+    price: centralizedExchangePrice,
+    assets: {
+      openDex: openDexAssets,
+      centralizedExchange: centralizedExchangeAssets,
+    }
+  };
+};
+
+const getOpenDEXcomplete$ = (
+  {
+    config,
+    tradeInfo$,
+    openDEXorders$,
+    openDEXorderFilled$,
+  }:
+  {
+    config: Config,
+    tradeInfo$: Observable<TradeInfo>
+    openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
+    openDEXorderFilled$: (config: Config) => Observable<boolean>
+  },
+): Observable<boolean> => {
+  return tradeInfo$.pipe(
+    // process it in order
+    concatMap((tradeInfo: TradeInfo) =>
+      // create orders based on latest trade info
+      openDEXorders$(config, tradeInfo)
+    ),
+    // wait for the order to be filled
+    mergeMap(() => openDEXorderFilled$(config)),
+    take(1),
+  );
+};
+
+const getNewTrade$ = (
+  {
+    config,
+    centralizedExchangeOrder$,
+    openDEXcomplete$,
+    shutdown$,
+  }: {
+    config: Config
+    openDEXcomplete$: Observable<boolean>
+    centralizedExchangeOrder$: (config: Config) => Observable<boolean>
+    shutdown$: Observable<string>
+  }
+): Observable<boolean> => {
+  return openDEXcomplete$.pipe(
+    concatMapTo(centralizedExchangeOrder$(config)),
+    repeat(),
+    takeUntil(shutdown$),
+  );
+};
+
+const getTradeInfo$ = (
+  {
+    config,
+    openDexAssets$,
+    centralizedExchangeAssets$,
+    centralizedExchangePrice$,
+  }:
+  {
+    config: Config,
+    openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
+    centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
+    centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
+  }
+): Observable<TradeInfo> => {
+  return combineLatest(
+    // wait for all the necessary tradeInfo
+    openDexAssets$(config),
+    centralizedExchangeAssets$(config),
+    centralizedExchangePrice$(config)
+  ).pipe(
+    // map it to an object
+    map(tradeInfoArrayToObject),
+    // emit the last value when subscribed
+    publishBehavior(null as unknown as TradeInfo),
+    // make a ConnectableObservable behave like a ordinary observable
+    refCount(),
+    // ignore initial null value
+    filter(v => !!v),
+  );
+};
+
+export {
+  getNewTrade$,
+  getTrade$,
+  getTradeInfo$,
+  getOpenDEXcomplete$,
+  TradeManager,
+  TradeInfo,
+};
