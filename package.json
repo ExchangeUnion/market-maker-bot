@@ -4,6 +4,7 @@
   "description": "market maker tools for opendex",
   "main": "index.js",
   "scripts": {
+    "start:arby": "npm run compile && node dist/arby.js",
     "dev:arby": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch\"",
     "dev:balancer": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch:balancer\"",
     "compile": "npm run lint && tsc && cross-os postcompile",
