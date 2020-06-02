@@ -8,7 +8,6 @@ import { DotenvParseOutput } from 'dotenv';
 
 export type Config = {
   LOG_LEVEL: Level;
-  LOG_PATH: string;
   BINANCE_API_KEY: string;
   BINANCE_API_SECRET: string;
   DATA_DIR: string;
@@ -20,7 +19,6 @@ export type Config = {
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
   'LOG_LEVEL',
-  'LOG_PATH',
   'BINANCE_API_KEY',
   'BINANCE_API_SECRET',
   'DATA_DIR',

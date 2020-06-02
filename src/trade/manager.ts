@@ -61,7 +61,7 @@ const getTrade$ = (config: Config): Observable<string> => {
   return new Observable(subscriber => {
     const loggers = Logger.createLoggers(
       config.LOG_LEVEL,
-      config.LOG_PATH,
+      `${config.DATA_DIR}/arby.log`,
     );
     loggers.global.info('Starting. Hello, Arby.');
     const openDexBroker = new ExchangeBroker({
