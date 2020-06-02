@@ -16,8 +16,6 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
-  MAXLTC: string;
-  MINLTC: string;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -40,19 +38,38 @@ const setLogLevel = (logLevel: string): Level => {
   }, Level.Trace);
 };
 
-const checkConfigOptions = (config: DotenvParseOutput): Config => {
-  if (!config) {
-    throw new Error('Configuration file is missing.');
-  }
-  const missingOptions = REQUIRED_CONFIGURATION_OPTIONS.reduce(
+const getEnvironmentConfig = (): DotenvParseOutput => {
+  const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.reduce(
+    (envConfig: DotenvParseOutput, configOption) => {
+      if (process.env[configOption]) {
+        return {
+          ...envConfig,
+          [configOption]: process.env[configOption]!,
+        };
+      }
+      return envConfig;
+    }, {});
+  return environmentConfig;
+};
+
+const getMissingOptions = (config: DotenvParseOutput): string => {
+  return REQUIRED_CONFIGURATION_OPTIONS.reduce(
     (missingOptions: string[], configOption) => {
       if (!config[configOption]) {
         return missingOptions.concat(configOption);
       }
       return missingOptions;
-    }, []);
-  if (missingOptions.length) {
-    throw new Error(`Incomplete configuration. Please add the following options to .env: ${missingOptions.join(', ')}`);
+    }, []).join(', ');
+};
+
+const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
+  const config = {
+    ...dotEnvConfig,
+    ...getEnvironmentConfig(),
+  };
+  const missingOptions = getMissingOptions(config);
+  if (missingOptions) {
+    throw new Error(`Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`);
   }
   const verifiedConfig = {
     ...config,
