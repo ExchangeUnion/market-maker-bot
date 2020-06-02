@@ -41,6 +41,9 @@ const setLogLevel = (logLevel: string): Level => {
 };
 
 const checkConfigOptions = (config: DotenvParseOutput): Config => {
+  if (!config) {
+    throw new Error('Configuration file is missing.');
+  }
   const missingOptions = REQUIRED_CONFIGURATION_OPTIONS.reduce(
     (missingOptions: string[], configOption) => {
       if (!config[configOption]) {
