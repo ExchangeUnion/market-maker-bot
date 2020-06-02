@@ -53,7 +53,15 @@ class XudGrpcClient {
   public start = () => {
     const cert = fs.readFileSync(this.tlscertpath);
     const sslCredentials = credentials.createSsl(cert);
-    this.client = new XudClient(`${this.rpchost}:${this.rpcport}`, sslCredentials);
+    const options = {
+      'grpc.ssl_target_name_override' : 'xud',
+      'grpc.default_authority': 'xud'
+    };
+    this.client = new XudClient(
+      `${this.rpchost}:${this.rpcport}`,
+      sslCredentials,
+      options,
+    );
   }
 
   public subscribeSwaps = (): ClientReadableStream<SwapSuccess> => {
