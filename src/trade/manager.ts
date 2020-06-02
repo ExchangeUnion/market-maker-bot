@@ -177,7 +177,7 @@ const getNewTrade$ = (
     config: Config
     openDEXcomplete$: Observable<boolean>
     centralizedExchangeOrder$: (config: Config) => Observable<boolean>
-    shutdown$: Observable<string>
+    shutdown$: Observable<unknown>
   }
 ): Observable<boolean> => {
   return openDEXcomplete$.pipe(

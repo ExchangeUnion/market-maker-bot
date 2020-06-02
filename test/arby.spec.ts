@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { startArby } from '../src/arby';
 import { Config } from '../src/config';
+import { getLoggers } from './utils';
 
 describe('startArby', () => {
   let testScheduler: TestScheduler;
@@ -17,16 +18,19 @@ describe('startArby', () => {
       const { cold, expectObservable } = helpers;
       const config$ = cold('1000ms a') as Observable<Config>;
       const getTrade$ = () => {
-        return cold('b');
+        return cold('b', { b: true });
       };
       const shutdown$ = cold('');
       const arby$ = startArby({
         config$,
+        getLoggers,
         shutdown$,
         trade$: getTrade$,
       });
       const expected = '1000ms b'
-      expectObservable(arby$).toBe(expected);
+      expectObservable(arby$).toBe(expected, {
+        b: true,
+      });
     });
   });
 
@@ -35,16 +39,19 @@ describe('startArby', () => {
       const { cold, expectObservable } = helpers;
       const config$ = cold('a') as Observable<Config>;
       const getTrade$ = () => {
-        return cold('500ms b');
+        return cold('500ms b', { b: true });
       };
       const shutdown$ = cold('10s c');
       const arby$ = startArby({
         config$,
+        getLoggers,
         trade$: getTrade$,
         shutdown$,
       });
       const expected = '500ms b 9499ms |'
-      expectObservable(arby$).toBe(expected);
+      expectObservable(arby$).toBe(expected, {
+        b: true,
+      });
     });
   });
 

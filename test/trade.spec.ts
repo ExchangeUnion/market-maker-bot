@@ -1,29 +1,14 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getNewTrade$, getOpenDEXcomplete$, getTradeInfo$, TradeInfo } from '../src/trade/manager';
-import { Config } from '../src/config';
-import { Level } from '../src/logger';
 import { BigNumber } from 'bignumber.js';
+import { testConfig } from './utils';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
   testScheduler = new TestScheduler((actual, expected) => {
     expect(actual).toEqual(expected);
   });
-};
-
-const testConfig = (): Config => {
-  return {
-    LOG_LEVEL: Level.Debug,
-    LOG_PATH: '',
-    BINANCE_API_KEY: '123',
-    BINANCE_API_SECRET: 'abc',
-    DATA_DIR: '',
-    OPENDEX_CERT_PATH: '/path/to/opendex.cert',
-    OPENDEX_RPC_HOST: 'localhost',
-    OPENDEX_RPC_PORT: '1234',
-    MARGIN: '0.06',
-  };
 };
 
 describe('tradeInfo$', () => {
