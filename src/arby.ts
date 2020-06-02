@@ -1,16 +1,26 @@
 import { getTrade$, getNewTrade$} from './trade/manager';
 import { getConfig$, Config } from './config';
 import { Observable, of } from 'rxjs';
-import { mergeMap, takeUntil, delay } from 'rxjs/operators';
+import { tap, mergeMap, takeUntil, delay } from 'rxjs/operators';
 import { getStartShutdown$ } from './utils';
 import { Logger, Loggers } from './logger';
 
-const getCentralizedExchangeOrder$ = (config: Config): Observable<boolean> => {
-  return of(true).pipe(delay(5000));
+const getCentralizedExchangeOrder$ = (
+  logger: Logger,
+): (config: Config) => Observable<boolean> => {
+  return (config: Config) => {
+    return of(true).pipe(
+      tap(() => logger.info('Starting centralized exchange order.')),
+      delay(5000)
+    );
+  };
 };
 
-const getOpenDEXcomplete$ = () => {
-  return of(true).pipe(delay(3000));
+const getOpenDEXcomplete$ = (logger: Logger) => {
+  return of(true).pipe(
+    delay(3000),
+    tap(() => logger.info('OpenDEX order filled.')),
+  );
 };
 
 export const startArby = (
@@ -45,8 +55,8 @@ export const startArby = (
       loggers.global.info('Starting. Hello, Arby.');
       return trade$({
         config,
-        centralizedExchangeOrder$: getCentralizedExchangeOrder$,
-        openDEXcomplete$: getOpenDEXcomplete$(),
+        centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
+        openDEXcomplete$: getOpenDEXcomplete$(loggers.opendex),
         shutdown$,
       });
     }),
