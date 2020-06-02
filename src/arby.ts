@@ -29,7 +29,13 @@ if (!module.parent) {
     shutdown$: getStartShutdown$(),
   }).subscribe({
     next: console.log,
-    error: (e) => console.log(`arby$ error: ${e}`),
+    error: (e) => {
+      if (e.message) {
+        console.log(`Error: ${e.message}`);
+      } else {
+        console.log(e);
+      }
+    },
     complete: () => console.log('Received shutdown signal.'),
   });
 }
