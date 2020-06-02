@@ -54,8 +54,8 @@ class XudGrpcClient {
     const cert = fs.readFileSync(this.tlscertpath);
     const sslCredentials = credentials.createSsl(cert);
     const options = {
-      'grpc.ssl_target_name_override' : 'xud',
-      'grpc.default_authority': 'xud'
+      'grpc.ssl_target_name_override' : 'localhost',
+      'grpc.default_authority': 'localhost'
     };
     this.client = new XudClient(
       `${this.rpchost}:${this.rpcport}`,
