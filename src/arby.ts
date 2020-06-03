@@ -21,7 +21,32 @@ const getCentralizedExchangeOrder$ = (
   };
 };
 
-const getOpenDEXcomplete$ = (logger: Logger) => {
+const getOpenDEXcomplete$ = (config: Config, logger: Logger) => {
+  // extract
+  /*
+  const xudClient$ = getXudClient$(config).pipe(
+    mergeMap((client) => {
+      return getOpenDEXassets$({
+        xudBalance$: getXudBalance$(client),
+        xudBalanceToExchangeAssetAllocation,
+        quoteAsset: 'ETH',
+        baseAsset: 'BTC',
+      })
+    })
+  );
+  xudClient$.subscribe({
+    next: (a) => {
+      console.log('got asset allocation', a);
+    },
+    error: (e) => {
+      console.log('got error', e);
+    },
+    complete: () => {
+      console.log('asset allocation complete');
+    }
+  });
+  */
+  // end/extract
   return of(true).pipe(
     delay(3000),
     tap(() => logger.info('OpenDEX order filled.')),
@@ -61,7 +86,7 @@ export const startArby = (
       return trade$({
         config,
         centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
-        openDEXcomplete$: getOpenDEXcomplete$(loggers.opendex),
+        openDEXcomplete$: getOpenDEXcomplete$(config, loggers.opendex),
         shutdown$,
       });
     }),
