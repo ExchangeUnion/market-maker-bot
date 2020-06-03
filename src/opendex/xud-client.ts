@@ -1,8 +1,13 @@
-import { Observable, of } from 'rxjs';
+import { Subscriber, Observable, of } from 'rxjs';
 import { Config } from '../config';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import fs from 'fs';
 import { credentials } from '@grpc/grpc-js';
+import {
+  GetBalanceRequest,
+  GetBalanceResponse,
+} from '../broker/opendex/proto/xudrpc_pb';
+import { ServiceError } from '@grpc/grpc-js';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const cert = fs.readFileSync(config.OPENDEX_CERT_PATH);
@@ -19,4 +24,26 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
   return of(client);
 };
 
-export { getXudClient$ };
+const processResponse = (subscriber: Subscriber<unknown>) => {
+  return (error: ServiceError | null, response: any) => {
+    if (error) {
+      subscriber.error(error);
+    } else {
+      subscriber.next(response);
+    }
+  };
+};
+
+const getXudBalance$ = (client: XudClient): Observable<GetBalanceResponse> => {
+  const request = new GetBalanceRequest();
+  const balance$ = new Observable((subscriber) => {
+    client.getBalance(request, processResponse(subscriber));
+  });
+  return balance$ as Observable<GetBalanceResponse>;
+};
+
+export {
+  getXudClient$,
+  getXudBalance$,
+  processResponse,
+};
