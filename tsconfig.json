@@ -20,7 +20,7 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "paths": {
-      "baseUrl": ".",
+      "baseUrl": ["."],
       "@proto/*": [ "src/broker/opendex/proto/*" ]
     }
   }
