@@ -24,17 +24,17 @@ describe('OpenDEX', () => {
       getChannelBalance: () => 20000000
     };
     const balancesMap = new Map();
-    const baseCurrency = 'ETH';
-    const quoteCurrency = 'BTC';
-    balancesMap.set(baseCurrency, ethBalance);
-    balancesMap.set(quoteCurrency, btcBalance);
+    const baseAsset = 'ETH';
+    const quoteAsset = 'BTC';
+    balancesMap.set(baseAsset, ethBalance);
+    balancesMap.set(quoteAsset, btcBalance);
     const getBalanceResponse = {
       getBalancesMap: () => balancesMap,
     } as unknown as GetBalanceResponse;
     expect(
       xudBalanceToExchangeAssetAllocation({
-        baseCurrency,
-        quoteCurrency,
+        baseAsset,
+        quoteAsset,
         balanceResponse: getBalanceResponse,
       })
     ).toEqual({
@@ -53,7 +53,7 @@ describe('OpenDEX', () => {
       };
       const expected = '1s (a|)'
       const xudBalanceToExchangeAssetAllocation =
-        ({ balance }: any) => balance;
+        ({ balanceResponse }: any) => balanceResponse;
       const xudBalance$ = cold(inputEvents.xudBalance$) as unknown as Observable<GetBalanceResponse>;
       const openDEXassets$ = getOpenDEXassets$({
         xudBalance$,

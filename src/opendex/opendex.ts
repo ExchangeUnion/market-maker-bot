@@ -8,25 +8,25 @@ const xudBalanceToExchangeAssetAllocation =
   (
     {
       balanceResponse,
-      baseCurrency,
-      quoteCurrency,
+      baseAsset,
+      quoteAsset,
     }:
     {
       balanceResponse: GetBalanceResponse
-      baseCurrency: string,
-      quoteCurrency: string
+      baseAsset: string,
+      quoteAsset: string
     }
   ):
   ExchangeAssetAllocation => {
     const balancesMap = balanceResponse.getBalancesMap();
     const baseAssetBalance = new BigNumber(
       balancesMap
-      .get(baseCurrency)
+      .get(baseAsset)
       .getChannelBalance()
     );
     const quoteAssetBalance = new BigNumber(
       balancesMap
-      .get(quoteCurrency)
+      .get(quoteAsset)
       .getChannelBalance()
     );
     return {
@@ -46,12 +46,12 @@ const getOpenDEXassets$ = (
     xudBalance$: Observable<GetBalanceResponse>,
     xudBalanceToExchangeAssetAllocation: (
       {
-        balance,
+        balanceResponse,
         quoteAsset,
         baseAsset,
       }:
       {
-        balance: GetBalanceResponse,
+        balanceResponse: GetBalanceResponse,
         quoteAsset: string,
         baseAsset: string
       }
@@ -61,9 +61,9 @@ const getOpenDEXassets$ = (
   }
 ): Observable<ExchangeAssetAllocation> => {
   return xudBalance$.pipe(
-    map((balance) => {
+    map((balanceResponse) => {
       return xudBalanceToExchangeAssetAllocation({
-        balance,
+        balanceResponse,
         quoteAsset,
         baseAsset,
       });

@@ -18,6 +18,10 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "esModuleInterop": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "baseUrl": ".",
+      "@proto/*": [ "src/broker/opendex/proto/*" ]
+    }
   }
 }

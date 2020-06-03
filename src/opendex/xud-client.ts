@@ -1,12 +1,12 @@
 import { Subscriber, Observable, of } from 'rxjs';
 import { Config } from '../config';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
+import { XudClient } from '@proto/xudrpc_grpc_pb';
 import fs from 'fs';
 import { credentials } from '@grpc/grpc-js';
 import {
   GetBalanceRequest,
   GetBalanceResponse,
-} from '../broker/opendex/proto/xudrpc_pb';
+} from '@proto/xudrpc_pb';
 import { ServiceError } from '@grpc/grpc-js';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {

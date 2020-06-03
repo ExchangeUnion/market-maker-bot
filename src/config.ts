@@ -15,6 +15,8 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
+  BASEASSET: string;
+  QUOTEASSET: string;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -25,6 +27,9 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'OPENDEX_CERT_PATH',
   'OPENDEX_RPC_HOST',
   'OPENDEX_RPC_PORT',
+  'MARGIN',
+  'BASEASSET',
+  'QUOTEASSET',
 ];
 
 const setLogLevel = (logLevel: string): Level => {

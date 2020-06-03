@@ -12,6 +12,8 @@ const testConfig = (): Config => {
     OPENDEX_RPC_HOST: 'localhost',
     OPENDEX_RPC_PORT: '1234',
     MARGIN: '0.06',
+    BASEASSET: 'ETH',
+    QUOTEASSET: 'BTC',
   };
 };
 

@@ -4,13 +4,13 @@
   "description": "market maker tools for opendex",
   "main": "index.js",
   "scripts": {
-    "start:arby": "npm run compile && node dist/arby.js",
+    "start:arby": "npm run compile && node dist/src/arby.js",
     "dev:arby": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch\"",
     "dev:balancer": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch:balancer\"",
     "compile": "npm run lint && tsc && cross-os postcompile",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "compile:watch": "tsc -w",
-    "nodemon:watch": "nodemon --watch dist -e js dist/arby.js",
+    "nodemon:watch": "nodemon --watch dist -e js dist/src/arby.js",
     "nodemon:watch:balancer": "nodemon --watch dist -e js dist/balancer.js",
     "test": "jest --forceExit",
     "test:watch": "jest --watch",
@@ -61,9 +61,9 @@
   },
   "cross-os": {
     "postcompile": {
-      "linux": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
-      "darwin": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
-      "win32": "xcopy /s src\\broker\\opendex\\proto\\*.js* dist\\broker\\opendex\\proto\\* >nul"
+      "linux": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/src/broker/opendex/proto",
+      "darwin": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/src/broker/opendex/proto",
+      "win32": "xcopy /s src\\broker\\opendex\\proto\\*.js* dist\\src\\broker\\opendex\\proto\\* >nul"
     }
   }
 }
