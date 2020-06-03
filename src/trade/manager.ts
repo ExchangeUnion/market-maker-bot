@@ -225,4 +225,5 @@ export {
   getOpenDEXcomplete$,
   TradeManager,
   TradeInfo,
+  ExchangeAssetAllocation,
 };
