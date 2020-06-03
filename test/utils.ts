@@ -8,7 +8,7 @@ const testConfig = (): Config => {
     BINANCE_API_KEY: '123',
     BINANCE_API_SECRET: 'abc',
     DATA_DIR: '',
-    OPENDEX_CERT_PATH: '/path/to/opendex.cert',
+    OPENDEX_CERT_PATH: `${__dirname}/../mock-data/tls.cert`,
     OPENDEX_RPC_HOST: 'localhost',
     OPENDEX_RPC_PORT: '1234',
     MARGIN: '0.06',
