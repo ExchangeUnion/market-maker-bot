@@ -49,7 +49,7 @@ const xudBalanceToExchangeAssetAllocation =
         quoteAssetBalance,
       }
     } catch(e) {
-      throw new Error(`OpenDEX balance did not include balance for base asset ${baseAsset} or quote asset ${quoteAsset}.`);
+      throw new Error(`OpenDEX balance does not include balance for base asset ${baseAsset} or quote asset ${quoteAsset}.`);
     }
 }
 
