@@ -160,13 +160,15 @@ describe('getTrade$', () => {
         );
       };
       const shutdown$ = cold(inputEvents.shutdown$);
-      const openDEXcomplete$ = cold(
-        inputEvents.openDEXcomplete$,
-        inputValues.openDEXcomplete$,
-      );
+      const getOpenDEXcomplete$ = () => {
+        return cold(
+          inputEvents.openDEXcomplete$,
+          inputValues.openDEXcomplete$,
+        );
+      };
       const trade$ = getNewTrade$({
         shutdown$,
-        openDEXcomplete$,
+        getOpenDEXcomplete$,
         config: testConfig(),
         centralizedExchangeOrder$: getCentralizedExchangeOrder$,
       });

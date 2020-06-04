@@ -21,7 +21,7 @@ const getCentralizedExchangeOrder$ = (
   };
 };
 
-const getOpenDEXcomplete$ = (config: Config, logger: Logger) => {
+const getOpenDEXcomplete$ = (config: Config) => {
   // extract
   /*
   const xudClient$ = getXudClient$(config).pipe(
@@ -49,7 +49,8 @@ const getOpenDEXcomplete$ = (config: Config, logger: Logger) => {
   // end/extract
   return of(true).pipe(
     delay(3000),
-    tap(() => logger.info('OpenDEX order filled.')),
+    tap(() => console.log('OpenDEX order filled'))
+    // tap(() => logger.info('OpenDEX order filled.')),
   );
 };
 
@@ -68,11 +69,11 @@ export const startArby = (
       {
         config,
         centralizedExchangeOrder$,
-        openDEXcomplete$,
+        getOpenDEXcomplete$,
         shutdown$,
       }: {
         config: Config
-        openDEXcomplete$: Observable<boolean>
+        getOpenDEXcomplete$: (config: Config) => Observable<boolean>
         centralizedExchangeOrder$: (config: Config) => Observable<boolean>
         shutdown$: Observable<unknown>
       }
@@ -86,7 +87,7 @@ export const startArby = (
       return trade$({
         config,
         centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
-        openDEXcomplete$: getOpenDEXcomplete$(config, loggers.opendex),
+        getOpenDEXcomplete$,
         shutdown$,
       });
     }),

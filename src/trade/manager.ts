@@ -171,16 +171,16 @@ const getNewTrade$ = (
   {
     config,
     centralizedExchangeOrder$,
-    openDEXcomplete$,
+    getOpenDEXcomplete$,
     shutdown$,
   }: {
     config: Config
-    openDEXcomplete$: Observable<boolean>
+    getOpenDEXcomplete$: (config: Config) => Observable<boolean>
     centralizedExchangeOrder$: (config: Config) => Observable<boolean>
     shutdown$: Observable<unknown>
   }
 ): Observable<boolean> => {
-  return openDEXcomplete$.pipe(
+  return getOpenDEXcomplete$(config).pipe(
     concatMapTo(centralizedExchangeOrder$(config)),
     repeat(),
     takeUntil(shutdown$),
