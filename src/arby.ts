@@ -1,4 +1,9 @@
-import { getTrade$, getNewTrade$} from './trade/manager';
+import {
+  getTrade$,
+  getNewTrade$,
+  GetTradeParams,
+  getOpenDEXcomplete$,
+} from './trade/manager';
 import { getConfig$, Config } from './config';
 import { Observable, of } from 'rxjs';
 import { tap, mergeMap, takeUntil, delay, mergeMapTo } from 'rxjs/operators';
@@ -21,39 +26,6 @@ const getCentralizedExchangeOrder$ = (
   };
 };
 
-const getOpenDEXcomplete$ = (config: Config) => {
-  // extract
-  /*
-  const xudClient$ = getXudClient$(config).pipe(
-    mergeMap((client) => {
-      return getOpenDEXassets$({
-        xudBalance$: getXudBalance$(client),
-        xudBalanceToExchangeAssetAllocation,
-        quoteAsset: 'ETH',
-        baseAsset: 'BTC',
-      })
-    })
-  );
-  xudClient$.subscribe({
-    next: (a) => {
-      console.log('got asset allocation', a);
-    },
-    error: (e) => {
-      console.log('got error', e);
-    },
-    complete: () => {
-      console.log('asset allocation complete');
-    }
-  });
-  */
-  // end/extract
-  return of(true).pipe(
-    delay(3000),
-    tap(() => console.log('OpenDEX order filled'))
-    // tap(() => logger.info('OpenDEX order filled.')),
-  );
-};
-
 export const startArby = (
   {
     config$,
@@ -72,13 +44,7 @@ export const startArby = (
         centralizedExchangeOrder$,
         getOpenDEXcomplete$,
         shutdown$,
-      }: {
-        config: Config
-        loggers: Loggers,
-        getOpenDEXcomplete$: (config: Config) => Observable<boolean>
-        centralizedExchangeOrder$: (config: Config) => Observable<boolean>
-        shutdown$: Observable<unknown>
-      }
+      }: GetTradeParams
     ) => Observable<boolean>,
   },
 ): Observable<any> => {
@@ -89,8 +55,8 @@ export const startArby = (
       return trade$({
         config,
         loggers,
-        centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
         getOpenDEXcomplete$,
+        centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
         shutdown$,
       });
     }),
@@ -113,13 +79,7 @@ if (!module.parent) {
     shutdown$: getStartShutdown$(),
   }).subscribe({
     next: (trade) => console.log(`Trade complete: ${trade}`),
-    error: (e) => {
-      if (e.message) {
-        console.log(`Error: ${e.message}`);
-      } else {
-        console.log(e);
-      }
-    },
+    error: console.log,
     complete: () => console.log('Received shutdown signal.'),
   });
 }

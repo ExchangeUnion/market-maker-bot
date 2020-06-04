@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OpenDEX xudBalanceToExchangeAssetAllocation error baseAssetBalance 1`] = `"OpenDEX balance did not include balance for base asset ETH or quote asset BTC."`;

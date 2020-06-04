@@ -21,7 +21,13 @@ import {
 } from 'rxjs/operators';
 import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
-import { getOpenDEXassets$, xudBalanceToExchangeAssetAllocation } from '../opendex/opendex';
+import {
+  logAssetBalance,
+  getOpenDEXassets$,
+  xudBalanceToExchangeAssetAllocation,
+  getOpenDEXorders$,
+  getOpenDEXorderFilled$,
+} from '../opendex/opendex';
 import {
   getXudClient$,
   getXudBalance$,
@@ -173,6 +179,8 @@ const getOpenDEXcomplete$ = (
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
       config,
+      logger,
+      logBalance: logAssetBalance,
       xudClient$: getXudClient$,
       xudBalance$: getXudBalance$,
       xudBalanceToExchangeAssetAllocation,
@@ -204,6 +212,16 @@ const getOpenDEXcomplete$ = (
   );
 };
 
+type GetTradeParams = {
+  config: Config
+  loggers: Loggers,
+  getOpenDEXcomplete$: (
+    { config, logger }: GetOpenDEXcompleteParams
+  ) => Observable<boolean>
+  centralizedExchangeOrder$: (config: Config) => Observable<boolean>
+  shutdown$: Observable<unknown>
+}
+
 const getNewTrade$ = (
   {
     config,
@@ -211,26 +229,14 @@ const getNewTrade$ = (
     centralizedExchangeOrder$,
     getOpenDEXcomplete$,
     shutdown$,
-  }: {
-    config: Config
-    loggers: Loggers,
-    getOpenDEXcomplete$: (
-      {
-        config,
-        logger,
-      }:
-      {
-        config: Config,
-        logger: Logger,
-      }
-    ) => Observable<boolean>
-    centralizedExchangeOrder$: (config: Config) => Observable<boolean>
-    shutdown$: Observable<unknown>
-  }
+  }: GetTradeParams
 ): Observable<boolean> => {
   return getOpenDEXcomplete$({
     config,
     logger: loggers.opendex,
+    tradeInfo$: getTradeInfo$,
+    openDEXorders$: getOpenDEXorders$,
+    openDEXorderFilled$: getOpenDEXorderFilled$,
   }).pipe(
     concatMapTo(centralizedExchangeOrder$(config)),
     repeat(),
@@ -278,4 +284,5 @@ export {
   TradeManager,
   TradeInfo,
   ExchangeAssetAllocation,
+  GetTradeParams,
 };

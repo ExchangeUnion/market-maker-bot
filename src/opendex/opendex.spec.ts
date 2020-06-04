@@ -49,7 +49,21 @@ describe('OpenDEX', () => {
     });
   });
 
-  test.only('getOpenDexAssets$', () => {
+  test('xudBalanceToExchangeAssetAllocation error baseAssetBalance', () => {
+    const balancesMap = new Map();
+    const getBalanceResponse = {
+      getBalancesMap: () => balancesMap,
+    } as unknown as GetBalanceResponse;
+    expect(() => {
+      xudBalanceToExchangeAssetAllocation({
+        baseAsset: 'ETH',
+        quoteAsset: 'BTC',
+        balanceResponse: getBalanceResponse,
+      })
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test('getOpenDexAssets$', () => {
     testScheduler.run(helpers => {
       const { cold, expectObservable } = helpers;
       const inputEvents = {
