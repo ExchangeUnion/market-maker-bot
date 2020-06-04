@@ -68,11 +68,13 @@ export const startArby = (
     trade$: (
       {
         config,
+        loggers,
         centralizedExchangeOrder$,
         getOpenDEXcomplete$,
         shutdown$,
       }: {
         config: Config
+        loggers: Loggers,
         getOpenDEXcomplete$: (config: Config) => Observable<boolean>
         centralizedExchangeOrder$: (config: Config) => Observable<boolean>
         shutdown$: Observable<unknown>
@@ -86,6 +88,7 @@ export const startArby = (
       loggers.global.info('Starting. Hello, Arby.');
       return trade$({
         config,
+        loggers,
         centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
         getOpenDEXcomplete$,
         shutdown$,

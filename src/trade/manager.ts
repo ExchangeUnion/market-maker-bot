@@ -1,5 +1,5 @@
 import { ExchangeBroker } from '../broker/exchange';
-import { Logger } from '../logger';
+import { Logger, Loggers } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
 import { Observable, combineLatest, of, from } from 'rxjs';
@@ -141,19 +141,22 @@ const tradeInfoArrayToObject = ([
   };
 };
 
+type GetOpenDEXcompleteParams = {
+  config: Config,
+  logger: Logger,
+  tradeInfo$: Observable<TradeInfo>
+  openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
+  openDEXorderFilled$: (config: Config) => Observable<boolean>
+};
+
 const getOpenDEXcomplete$ = (
   {
     config,
+    logger,
     tradeInfo$,
     openDEXorders$,
     openDEXorderFilled$,
-  }:
-  {
-    config: Config,
-    tradeInfo$: Observable<TradeInfo>
-    openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
-    openDEXorderFilled$: (config: Config) => Observable<boolean>
-  },
+  }: GetOpenDEXcompleteParams
 ): Observable<boolean> => {
   return tradeInfo$.pipe(
     // process it in order
@@ -170,17 +173,31 @@ const getOpenDEXcomplete$ = (
 const getNewTrade$ = (
   {
     config,
+    loggers,
     centralizedExchangeOrder$,
     getOpenDEXcomplete$,
     shutdown$,
   }: {
     config: Config
-    getOpenDEXcomplete$: (config: Config) => Observable<boolean>
+    loggers: Loggers,
+    getOpenDEXcomplete$: (
+      {
+        config,
+        logger,
+      }:
+      {
+        config: Config,
+        logger: Logger,
+      }
+    ) => Observable<boolean>
     centralizedExchangeOrder$: (config: Config) => Observable<boolean>
     shutdown$: Observable<unknown>
   }
 ): Observable<boolean> => {
-  return getOpenDEXcomplete$(config).pipe(
+  return getOpenDEXcomplete$({
+    config,
+    logger: loggers.opendex,
+  }).pipe(
     concatMapTo(centralizedExchangeOrder$(config)),
     repeat(),
     takeUntil(shutdown$),

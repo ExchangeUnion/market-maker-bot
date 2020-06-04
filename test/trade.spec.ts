@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getNewTrade$, getOpenDEXcomplete$, getTradeInfo$, TradeInfo } from '../src/trade/manager';
 import { BigNumber } from 'bignumber.js';
-import { testConfig } from './utils';
+import { testConfig, getLoggers } from './utils';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -122,6 +122,7 @@ describe('getOpenDEXcomplete$', () => {
       const tradeInfo$ = hot(inputEvents.tradeInfo$) as Observable<TradeInfo>;
       const trade$ = getOpenDEXcomplete$({
         config: testConfig(),
+        logger: getLoggers().opendex,
         tradeInfo$,
         openDEXorders$: getOpenDEXorders$,
         openDEXorderFilled$: getOpenDEXorderFilled$,
@@ -168,6 +169,7 @@ describe('getTrade$', () => {
       };
       const trade$ = getNewTrade$({
         shutdown$,
+        loggers: getLoggers(),
         getOpenDEXcomplete$,
         config: testConfig(),
         centralizedExchangeOrder$: getCentralizedExchangeOrder$,
