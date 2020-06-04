@@ -44,7 +44,7 @@ describe('XudClient', () => {
     });
   });
 
-  test.only('processResponse error', (done) => {
+  test('processResponse error', (done) => {
     expect.assertions(1);
     const errorValue = 'errorValue' as unknown as ServiceError;
     const source$ = new Observable((subscriber) => {

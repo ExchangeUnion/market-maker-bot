@@ -1,21 +1,25 @@
 import { getStartShutdown$ } from '../src/utils';
 
-describe('getStartShutdown$', () => {
+describe('Utils', () => {
 
-  it('completes on SIGINT', (done) => {
-    getStartShutdown$()
-      .subscribe({
-        complete: done
-      });
-    process.emit('SIGINT', 'SIGINT');
-  });
+  describe('getStartShutdown$', () => {
 
-  it('completes on SIGTERM', (done) => {
-    getStartShutdown$()
-      .subscribe({
-        complete: done
-      });
-    process.emit('SIGTERM', 'SIGTERM');
+    it('completes on SIGINT', (done) => {
+      getStartShutdown$()
+        .subscribe({
+          complete: done
+        });
+      process.emit('SIGINT', 'SIGINT');
+    });
+
+    it('completes on SIGTERM', (done) => {
+      getStartShutdown$()
+        .subscribe({
+          complete: done
+        });
+      process.emit('SIGTERM', 'SIGTERM');
+    });
+
   });
 
 });

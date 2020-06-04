@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { Observable, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { ExchangeAssetAllocation } from './trade/manager';
+import { Logger } from './logger';
 
 /** Get the current date in the given dateFormat, if not provided formats with `YYYY-MM-DD hh:mm:ss.sss`.
  */

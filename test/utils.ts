@@ -4,7 +4,7 @@ import { Level } from '../src/logger';
 
 const testConfig = (): Config => {
   return {
-    LOG_LEVEL: Level.Debug,
+    LOG_LEVEL: Level.Trace,
     BINANCE_API_KEY: '123',
     BINANCE_API_SECRET: 'abc',
     DATA_DIR: '',
@@ -20,13 +20,11 @@ const testConfig = (): Config => {
 const getLoggers = (): Loggers => {
   return {
     global: {
+      warn: () => {},
       info: () => {},
-      db: () => {},
-      stream: () => {},
-      binance: () => {},
-      opendex: () => {},
-      trademanager: () => {},
-      balancer: () => {},
+      verbose: () => {},
+      debug: () => {},
+      trace: () => {},
     }
   } as unknown as Loggers;
 };

@@ -119,11 +119,13 @@ describe('getOpenDEXcomplete$', () => {
           a: true,
         });
       };
-      const tradeInfo$ = hot(inputEvents.tradeInfo$) as Observable<TradeInfo>;
+      const getTradeInfo$ = () => {
+        return hot(inputEvents.tradeInfo$) as Observable<TradeInfo>;
+      };
       const trade$ = getOpenDEXcomplete$({
         config: testConfig(),
         logger: getLoggers().opendex,
-        tradeInfo$,
+        tradeInfo$: getTradeInfo$,
         openDEXorders$: getOpenDEXorders$,
         openDEXorderFilled$: getOpenDEXorderFilled$,
       });

@@ -21,6 +21,11 @@ import {
 } from 'rxjs/operators';
 import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
+import { getOpenDEXassets$, xudBalanceToExchangeAssetAllocation } from '../opendex/opendex';
+import {
+  getXudClient$,
+  getXudBalance$,
+} from '../opendex/xud-client';
 
 class TradeManager {
   private logger: Logger;
@@ -144,7 +149,14 @@ const tradeInfoArrayToObject = ([
 type GetOpenDEXcompleteParams = {
   config: Config,
   logger: Logger,
-  tradeInfo$: Observable<TradeInfo>
+  tradeInfo$: (
+    {
+      config,
+      openDexAssets$,
+      centralizedExchangeAssets$,
+      centralizedExchangePrice$,
+    }: GetTradeInfoParams
+  ) => Observable<TradeInfo>
   openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
   openDEXorderFilled$: (config: Config) => Observable<boolean>
 };
@@ -158,7 +170,29 @@ const getOpenDEXcomplete$ = (
     openDEXorderFilled$,
   }: GetOpenDEXcompleteParams
 ): Observable<boolean> => {
-  return tradeInfo$.pipe(
+  const openDEXassetsWithConfig = (config: Config) => {
+    return getOpenDEXassets$({
+      config,
+      xudClient$: getXudClient$,
+      xudBalance$: getXudBalance$,
+      xudBalanceToExchangeAssetAllocation,
+    });
+  };
+  const getCentralizedExchangeAssets$ = (config: Config) => {
+    return of({
+      baseAssetBalance: new BigNumber('123'),
+      quoteAssetBalance: new BigNumber('321'),
+    });
+  };
+  const getCentralizedExchangePrice$ = (config: Config) => {
+    return of(new BigNumber('10000'));
+  };
+  return tradeInfo$({
+    config,
+    openDexAssets$: openDEXassetsWithConfig,
+    centralizedExchangeAssets$: getCentralizedExchangeAssets$,
+    centralizedExchangePrice$: getCentralizedExchangePrice$,
+  }).pipe(
     // process it in order
     concatMap((tradeInfo: TradeInfo) =>
       // create orders based on latest trade info
@@ -204,19 +238,20 @@ const getNewTrade$ = (
   );
 };
 
+type GetTradeInfoParams = {
+  config: Config,
+  openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
+  centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
+  centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
+};
+
 const getTradeInfo$ = (
   {
     config,
     openDexAssets$,
     centralizedExchangeAssets$,
     centralizedExchangePrice$,
-  }:
-  {
-    config: Config,
-    openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-    centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-    centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
-  }
+  }: GetTradeInfoParams
 ): Observable<TradeInfo> => {
   return combineLatest(
     // wait for all the necessary tradeInfo
