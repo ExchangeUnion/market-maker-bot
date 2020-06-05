@@ -2,7 +2,6 @@ import {
   getTrade$,
   getNewTrade$,
   GetTradeParams,
-  getOpenDEXcomplete$,
 } from './trade/manager';
 import { getConfig$, Config } from './config';
 import { Observable, of } from 'rxjs';
@@ -14,6 +13,7 @@ import {
   getOpenDEXassets$,
   xudBalanceToExchangeAssetAllocation,
 } from './opendex/opendex';
+import { getOpenDEXcomplete$ } from './opendex/complete';
 
 const getCentralizedExchangeOrder$ = (
   logger: Logger,

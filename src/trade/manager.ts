@@ -2,10 +2,12 @@ import { ExchangeBroker } from '../broker/exchange';
 import { Logger, Loggers } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, concat, combineLatest } from 'rxjs';
 import {
   map,
+  tap,
   concatMapTo,
+  ignoreElements,
   filter,
   publishBehavior,
   refCount,
@@ -158,14 +160,18 @@ const getNewTrade$ = (
     shutdown$,
   }: GetTradeParams
 ): Observable<boolean> => {
-  return getOpenDEXcomplete$({
-    config,
-    logger: loggers.opendex,
-    tradeInfo$: getTradeInfo$,
-    openDEXorders$: getOpenDEXorders$,
-    openDEXorderFilled$: getOpenDEXorderFilled$,
-  }).pipe(
-    concatMapTo(centralizedExchangeOrder$(config)),
+  return concat(
+    getOpenDEXcomplete$({
+      config,
+      logger: loggers.opendex,
+      tradeInfo$: getTradeInfo$,
+      openDEXorders$: getOpenDEXorders$,
+      openDEXorderFilled$: getOpenDEXorderFilled$,
+    }).pipe(
+      ignoreElements(),
+    ),
+    centralizedExchangeOrder$(config),
+  ).pipe(
     repeat(),
     takeUntil(shutdown$),
   );

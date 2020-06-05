@@ -16,7 +16,7 @@ const logAssetBalance = (
   { logger, assetBalance }: LogAssetBalanceParams
 ): void => {
   const { baseAssetBalance, quoteAssetBalance } = assetBalance;
-  logger.trace(`Base asset balance ${baseAssetBalance.toFixed()} and quote asset balance ${quoteAssetBalance.toFixed()}}`)
+  logger.trace(`Base asset balance ${baseAssetBalance.toFixed()} and quote asset balance ${quoteAssetBalance.toFixed()}`)
 };
 
 const xudBalanceToExchangeAssetAllocation =
@@ -100,12 +100,18 @@ const getOpenDEXassets$ = (
 
 const getOpenDEXorders$ = (config: Config, tradeInfo: TradeInfo): Observable<boolean> => {
   // mock implementation
-  return of(true).pipe(delay(3000));
+  return of(true).pipe(
+    delay(3000),
+    tap(() => console.log('Mock orders have been submitted to OpenDEX.')),
+  );
 }
 
 const getOpenDEXorderFilled$ = (config: Config): Observable<boolean> => {
   // mock implementation
-  return of(true).pipe(delay(3000));
+  return of(true).pipe(
+    delay(10000),
+    tap(() => console.log('Mock OpenDEX orders have been filled.')),
+  );
 }
 
 export {

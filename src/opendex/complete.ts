@@ -1,7 +1,7 @@
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { TradeInfo, GetTradeInfoParams } from '../trade/manager';
-import { Observable, of } from 'rxjs';
+import { Observable, interval, of } from 'rxjs';
 import {
   logAssetBalance,
   getOpenDEXassets$,
@@ -11,6 +11,9 @@ import {
   distinctUntilChanged,
   exhaustMap,
   takeUntil,
+  mapTo,
+  map,
+  tap,
 } from 'rxjs/operators';
 import {
   getXudClient$,
@@ -53,13 +56,17 @@ const getOpenDEXcomplete$ = (
     });
   };
   const getCentralizedExchangeAssets$ = (config: Config) => {
-    return of({
-      baseAssetBalance: new BigNumber('123'),
-      quoteAssetBalance: new BigNumber('321'),
-    });
+    return interval(1000).pipe(
+      mapTo({
+        baseAssetBalance: new BigNumber('123'),
+        quoteAssetBalance: new BigNumber('321'),
+      })
+    );
   };
   const getCentralizedExchangePrice$ = (config: Config) => {
-    return of(new BigNumber('10000'));
+    return interval(1000).pipe(
+      map((v: number) => (new BigNumber(`${v+1}0000`))),
+    );
   };
   return tradeInfo$({
     config,
