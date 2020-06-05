@@ -2,37 +2,23 @@ import { ExchangeBroker } from '../broker/exchange';
 import { Logger, Loggers } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
-import { Observable, combineLatest, of, from } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import {
-  distinctUntilChanged,
-  tap,
   map,
-  mergeMap,
-  concatMap,
   concatMapTo,
-  switchMap,
-  exhaustMap,
   filter,
   publishBehavior,
   refCount,
-  // concatMapTo,
   takeUntil,
   repeat,
-  take,
 } from 'rxjs/operators';
 import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
 import {
-  logAssetBalance,
-  getOpenDEXassets$,
-  xudBalanceToExchangeAssetAllocation,
   getOpenDEXorders$,
   getOpenDEXorderFilled$,
 } from '../opendex/opendex';
-import {
-  getXudClient$,
-  getXudBalance$,
-} from '../opendex/xud-client';
+import { GetOpenDEXcompleteParams } from '../opendex/complete';
 
 class TradeManager {
   private logger: Logger;
@@ -153,69 +139,6 @@ const tradeInfoArrayToObject = ([
   };
 };
 
-type GetOpenDEXcompleteParams = {
-  config: Config,
-  logger: Logger,
-  tradeInfo$: (
-    {
-      config,
-      openDexAssets$,
-      centralizedExchangeAssets$,
-      centralizedExchangePrice$,
-    }: GetTradeInfoParams
-  ) => Observable<TradeInfo>
-  openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
-  openDEXorderFilled$: (config: Config) => Observable<boolean>
-};
-
-const getOpenDEXcomplete$ = (
-  {
-    config,
-    logger,
-    tradeInfo$,
-    openDEXorders$,
-    openDEXorderFilled$,
-  }: GetOpenDEXcompleteParams
-): Observable<boolean> => {
-  const openDEXassetsWithConfig = (config: Config) => {
-    return getOpenDEXassets$({
-      config,
-      logger,
-      logBalance: logAssetBalance,
-      xudClient$: getXudClient$,
-      xudBalance$: getXudBalance$,
-      xudBalanceToExchangeAssetAllocation,
-    });
-  };
-  const getCentralizedExchangeAssets$ = (config: Config) => {
-    return of({
-      baseAssetBalance: new BigNumber('123'),
-      quoteAssetBalance: new BigNumber('321'),
-    });
-  };
-  const getCentralizedExchangePrice$ = (config: Config) => {
-    return of(new BigNumber('10000'));
-  };
-  return tradeInfo$({
-    config,
-    openDexAssets$: openDEXassetsWithConfig,
-    centralizedExchangeAssets$: getCentralizedExchangeAssets$,
-    centralizedExchangePrice$: getCentralizedExchangePrice$,
-  }).pipe(
-    // only continue processing if trade information
-    // has changed
-    distinctUntilChanged(),
-    // ignore new trade information when creating orders
-    // is already in progress
-    exhaustMap((tradeInfo: TradeInfo) =>
-      // create orders based on latest trade info
-      openDEXorders$(config, tradeInfo)
-    ),
-    // wait for the order to be filled
-    takeUntil(openDEXorderFilled$(config)),
-  );
-};
-
 type GetTradeParams = {
   config: Config
   loggers: Loggers,
@@ -284,9 +207,9 @@ export {
   getNewTrade$,
   getTrade$,
   getTradeInfo$,
-  getOpenDEXcomplete$,
   TradeManager,
   TradeInfo,
   ExchangeAssetAllocation,
   GetTradeParams,
+  GetTradeInfoParams,
 };
