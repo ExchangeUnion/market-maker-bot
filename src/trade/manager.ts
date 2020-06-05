@@ -4,6 +4,7 @@ import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
 import { Observable, combineLatest, of, from } from 'rxjs';
 import {
+  distinctUntilChanged,
   tap,
   map,
   mergeMap,
@@ -201,14 +202,17 @@ const getOpenDEXcomplete$ = (
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,
     centralizedExchangePrice$: getCentralizedExchangePrice$,
   }).pipe(
-    // process it in order
-    concatMap((tradeInfo: TradeInfo) =>
+    // only continue processing if trade information
+    // has changed
+    distinctUntilChanged(),
+    // ignore new trade information when creating orders
+    // is already in progress
+    exhaustMap((tradeInfo: TradeInfo) =>
       // create orders based on latest trade info
       openDEXorders$(config, tradeInfo)
     ),
     // wait for the order to be filled
-    mergeMap(() => openDEXorderFilled$(config)),
-    take(1),
+    takeUntil(openDEXorderFilled$(config)),
   );
 };
 

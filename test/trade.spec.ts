@@ -104,11 +104,11 @@ describe('getOpenDEXcomplete$', () => {
     testScheduler.run(helpers => {
       const { cold, hot, expectObservable } = helpers;
       const inputEvents = {
-        tradeInfo$:                    'a ^ 1000ms a',
-        getOpenDEXorders$:             '1s a|',
-        openDEXorderFilled$:           '1s a',
+        tradeInfo$:          'a ^ 1000ms a 1500ms a 500ms b',
+        getOpenDEXorders$:   '1s a|',
+        openDEXorderFilled$: '10s a',
       };
-      const expected = '3s (a|)';
+      const expected = '2s a 2001ms a 5997ms |';
       const getOpenDEXorders$ = () => {
         return cold(inputEvents.getOpenDEXorders$, {
           a: true,
