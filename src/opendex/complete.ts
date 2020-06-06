@@ -64,8 +64,9 @@ const getOpenDEXcomplete$ = (
     );
   };
   const getCentralizedExchangePrice$ = (config: Config) => {
-    return interval(1000).pipe(
+    return interval(100).pipe(
       map((v: number) => (new BigNumber(`${v+1}0000`))),
+      tap((v) => console.log(`New price ${v}`)),
     );
   };
   return tradeInfo$({
