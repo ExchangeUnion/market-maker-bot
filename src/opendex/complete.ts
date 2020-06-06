@@ -1,7 +1,7 @@
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { TradeInfo } from '../trade/manager';
-import { GetTradeInfoParams } from '../trade/info';
+import { tradeInfoArrayToObject, GetTradeInfoParams } from '../trade/info';
 import { Observable, interval } from 'rxjs';
 import {
   logAssetBalance,
@@ -72,6 +72,7 @@ const getOpenDEXcomplete$ = (
   };
   return tradeInfo$({
     config,
+    tradeInfoArrayToObject,
     openDexAssets$: openDEXassetsWithConfig,
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,
     centralizedExchangePrice$: getCentralizedExchangePrice$,

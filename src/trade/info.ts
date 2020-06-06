@@ -84,6 +84,7 @@ const getTradeInfo$ = (
 
 export {
   getTradeInfo$,
+  tradeInfoArrayToObject,
   GetTradeInfoParams,
   TradeInfo,
   ExchangeAssetAllocation,
