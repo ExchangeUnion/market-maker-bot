@@ -12,8 +12,8 @@
     "compile:watch": "tsc -w",
     "nodemon:watch": "nodemon --watch dist -e js dist/src/arby.js",
     "nodemon:watch:balancer": "nodemon --watch dist -e js dist/balancer.js",
-    "test": "jest --forceExit",
-    "test:watch": "jest --watch",
+    "test": "npm run compile && jest --forceExit",
+    "test:watch": "npm run compile && jest --watch",
     "clean": "rm -Rf dist/* && npm i"
   },
   "repository": {
@@ -61,9 +61,9 @@
   },
   "cross-os": {
     "postcompile": {
-      "linux": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/src/broker/opendex/proto",
-      "darwin": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/src/broker/opendex/proto",
-      "win32": "xcopy /s src\\broker\\opendex\\proto\\*.js* dist\\src\\broker\\opendex\\proto\\* >nul"
+      "linux": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
+      "darwin": "rsync -am --include '*/' --include '*.js*' --exclude '*' src/broker/opendex/proto/ dist/broker/opendex/proto",
+      "win32": "xcopy /s src\\broker\\opendex\\proto\\*.js* dist\\broker\\opendex\\proto\\* >nul"
     }
   }
 }
