@@ -11,7 +11,7 @@ import {
 import { Config } from '../config';
 import {
   getOpenDEXorderFilled$,
-} from '../opendex/opendex';
+} from '../opendex/order-filled';
 import {
   createOpenDEXorders$,
 } from '../opendex/create-orders';
