@@ -12,38 +12,111 @@ const testSchedulerSetup = () => {
   });
 };
 
+type TradeInfoInputEvents = {
+  getOpenDEXassets$: string;
+  getCentralizedExchangeAssets$: string;
+  getCentralizedExchangePrice$: string;
+};
+
+const assertTradeInfo = (
+  inputEvents: TradeInfoInputEvents,
+  expected: string,
+) => {
+  testScheduler.run(helpers => {
+    const { cold, expectObservable } = helpers;
+    const getOpenDEXassets$ = () => {
+      return cold(inputEvents.getOpenDEXassets$) as Observable<ExchangeAssetAllocation>;
+    };
+    const getCentralizedExchangeAssets$ = () => {
+      return cold(inputEvents.getCentralizedExchangeAssets$) as Observable<ExchangeAssetAllocation>;
+    };
+    const getCentralizedExchangePrice$ = () => {
+      return cold(inputEvents.getCentralizedExchangePrice$) as Observable<BigNumber>;
+    };
+    const tradeInfoArrayToObject = (v: any) => v[0] as unknown as TradeInfo;
+    const tradeInfo$ = getTradeInfo$({
+      config: testConfig(),
+      openDexAssets$: getOpenDEXassets$,
+      centralizedExchangeAssets$: getCentralizedExchangeAssets$,
+      centralizedExchangePrice$: getCentralizedExchangePrice$,
+      tradeInfoArrayToObject,
+    });
+    expectObservable(tradeInfo$).toBe(expected);
+  });
+};
+
 describe('tradeInfo$', () => {
 
   beforeEach(testSchedulerSetup)
 
   it('emits TradeInfo events', () => {
-    testScheduler.run(helpers => {
-      const { cold, expectObservable } = helpers;
-      const inputEvents = {
-        getOpenDEXassets$:             '5s a',
-        getCentralizedExchangeAssets$: '6s a',
-        getCentralizedExchangePrice$:  '7s a 1s b 1s c',
-      };
-      const expected = '7s a 1s a 1s a';
-      const getOpenDEXassets$ = () => {
-        return cold(inputEvents.getOpenDEXassets$) as Observable<ExchangeAssetAllocation>;
-      };
-      const getCentralizedExchangeAssets$ = () => {
-        return cold(inputEvents.getCentralizedExchangeAssets$) as Observable<ExchangeAssetAllocation>;
-      };
-      const getCentralizedExchangePrice$ = () => {
-        return cold(inputEvents.getCentralizedExchangePrice$) as Observable<BigNumber>;
-      };
-      const tradeInfoArrayToObject = (v: any) => v[0] as unknown as TradeInfo;
-      const tradeInfo$ = getTradeInfo$({
-        config: testConfig(),
-        openDexAssets$: getOpenDEXassets$,
-        centralizedExchangeAssets$: getCentralizedExchangeAssets$,
-        centralizedExchangePrice$: getCentralizedExchangePrice$,
-        tradeInfoArrayToObject,
-      });
-      expectObservable(tradeInfo$).toBe(expected);
-    });
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$:  '7s a 1s b 1s c',
+    };
+    const expectedEvents =           '7s a 1s a 1s a';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('does not emit anything without OpenDEX assets', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$:  '7s a',
+    };
+    const expectedEvents =           '';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('does not emit anything without centralized exchange price', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$:  '',
+    };
+    const expectedEvents =           '';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('does not emit anything without centralized exchange assets', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a',
+      getCentralizedExchangeAssets$: '',
+      getCentralizedExchangePrice$:  '7s a',
+    };
+    const expectedEvents =           '';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('errors if OpenDEX assets error', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a 5s #',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$:  '7s a',
+    };
+    const expectedEvents =           '7s a 3s #';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('errors if centralized assets error', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a',
+      getCentralizedExchangeAssets$: '6s a 4s #',
+      getCentralizedExchangePrice$:  '7s a',
+    };
+    const expectedEvents =           '7s a 3s #';
+    assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+  it('errors if centralized exchange price errors', () => {
+    const inputEvents = {
+      getOpenDEXassets$:             '5s a',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$:  '7s a 3s #',
+    };
+    const expectedEvents =           '7s a 3s #';
+    assertTradeInfo(inputEvents, expectedEvents);
   });
 
 });
