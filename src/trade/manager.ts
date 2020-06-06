@@ -2,25 +2,19 @@ import { ExchangeBroker } from '../broker/exchange';
 import { Logger, Loggers } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
-import { Observable, concat, combineLatest } from 'rxjs';
+import { Observable, concat } from 'rxjs';
 import {
-  map,
-  tap,
-  concatMapTo,
   ignoreElements,
-  filter,
-  publishBehavior,
-  refCount,
   takeUntil,
   repeat,
 } from 'rxjs/operators';
 import { Config } from '../config';
-import { BigNumber } from 'bignumber.js';
 import {
   getOpenDEXorders$,
   getOpenDEXorderFilled$,
 } from '../opendex/opendex';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
+import { getTradeInfo$, TradeInfo } from './info';
 
 class TradeManager {
   private logger: Logger;
@@ -108,39 +102,6 @@ const getTrade$ = (config: Config): Observable<string> => {
   }) as Observable<string>;
 };
 
-type ExchangeAssetAllocation = {
-  baseAssetBalance: BigNumber;
-  quoteAssetBalance: BigNumber;
-};
-
-type AssetAllocation = {
-  openDex: ExchangeAssetAllocation,
-  centralizedExchange: ExchangeAssetAllocation,
-};
-
-type TradeInfo = {
-  price: BigNumber;
-  assets: AssetAllocation,
-};
-
-const tradeInfoArrayToObject = ([
-  openDexAssets,
-  centralizedExchangeAssets,
-  centralizedExchangePrice,
-]: [
-  ExchangeAssetAllocation,
-  ExchangeAssetAllocation,
-  BigNumber
-]): TradeInfo => {
-  return {
-    price: centralizedExchangePrice,
-    assets: {
-      openDex: openDexAssets,
-      centralizedExchange: centralizedExchangeAssets,
-    }
-  };
-};
-
 type GetTradeParams = {
   config: Config
   loggers: Loggers,
@@ -177,45 +138,10 @@ const getNewTrade$ = (
   );
 };
 
-type GetTradeInfoParams = {
-  config: Config,
-  openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-  centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-  centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
-};
-
-const getTradeInfo$ = (
-  {
-    config,
-    openDexAssets$,
-    centralizedExchangeAssets$,
-    centralizedExchangePrice$,
-  }: GetTradeInfoParams
-): Observable<TradeInfo> => {
-  return combineLatest(
-    // wait for all the necessary tradeInfo
-    openDexAssets$(config),
-    centralizedExchangeAssets$(config),
-    centralizedExchangePrice$(config)
-  ).pipe(
-    // map it to an object
-    map(tradeInfoArrayToObject),
-    // emit the last value when subscribed
-    publishBehavior(null as unknown as TradeInfo),
-    // make a ConnectableObservable behave like a ordinary observable
-    refCount(),
-    // ignore initial null value
-    filter(v => !!v),
-  );
-};
-
 export {
   getNewTrade$,
   getTrade$,
-  getTradeInfo$,
   TradeManager,
   TradeInfo,
-  ExchangeAssetAllocation,
   GetTradeParams,
-  GetTradeInfoParams,
 };

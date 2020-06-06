@@ -1,6 +1,7 @@
 import { Observable, of } from 'rxjs';
 import { tap, map, take, mergeMap, delay } from 'rxjs/operators';
-import { TradeInfo, ExchangeAssetAllocation } from '../trade/manager';
+import { TradeInfo } from '../trade/manager';
+import { ExchangeAssetAllocation } from '../trade/info';
 import { BigNumber } from 'bignumber.js';
 import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';

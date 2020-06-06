@@ -1,7 +1,8 @@
 import { Config } from '../config';
 import { Logger } from '../logger';
-import { TradeInfo, GetTradeInfoParams } from '../trade/manager';
-import { Observable, interval, of } from 'rxjs';
+import { TradeInfo } from '../trade/manager';
+import { GetTradeInfoParams } from '../trade/info';
+import { Observable, interval } from 'rxjs';
 import {
   logAssetBalance,
   getOpenDEXassets$,
