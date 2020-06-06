@@ -26,7 +26,7 @@ type TradeInfo = {
 };
 
 type AssetAllocation = {
-  openDex: ExchangeAssetAllocation,
+  openDEX: ExchangeAssetAllocation,
   centralizedExchange: ExchangeAssetAllocation,
 };
 
@@ -42,7 +42,7 @@ type TradeInfoArrayToObjectParams = [
 ];
 
 const tradeInfoArrayToObject = ([
-  openDexAssets,
+  openDEXassets,
   centralizedExchangeAssets,
   centralizedExchangePrice,
 ]: TradeInfoArrayToObjectParams
@@ -50,7 +50,7 @@ const tradeInfoArrayToObject = ([
   return {
     price: centralizedExchangePrice,
     assets: {
-      openDex: openDexAssets,
+      openDEX: openDEXassets,
       centralizedExchange: centralizedExchangeAssets,
     }
   };

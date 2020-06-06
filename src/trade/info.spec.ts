@@ -1,8 +1,12 @@
 import { TestScheduler } from 'rxjs/testing';
-import { getTradeInfo$ } from './info';
+import {
+  getTradeInfo$,
+  tradeInfoArrayToObject,
+  ExchangeAssetAllocation,
+  TradeInfo,
+} from './info';
 import { BigNumber } from 'bignumber.js';
 import { testConfig } from '../../test/utils';
-import { ExchangeAssetAllocation, TradeInfo } from './info';
 import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
@@ -117,6 +121,30 @@ describe('tradeInfo$', () => {
     };
     const expectedEvents =           '7s a 3s #';
     assertTradeInfo(inputEvents, expectedEvents);
+  });
+
+});
+
+describe('tradeInfoArrayToObject', () => {
+
+  it('converts trade info array to object', () => {
+    const openDEXassets = {
+      baseAssetBalance: new BigNumber('1.23'),
+      quoteAssetBalance: new BigNumber('3.33'),
+    };
+    const centralizedExchangeAssets = {
+      baseAssetBalance: new BigNumber('7.65'),
+      quoteAssetBalance: new BigNumber('13.37'),
+    };
+    const centralizedExchangePrice = new BigNumber('10000');
+    const tradeInfo = tradeInfoArrayToObject([
+      openDEXassets,
+      centralizedExchangeAssets,
+      centralizedExchangePrice,
+    ]);
+    expect(tradeInfo.price).toEqual(centralizedExchangePrice);
+    expect(tradeInfo.assets.openDEX).toEqual(openDEXassets);
+    expect(tradeInfo.assets.centralizedExchange).toEqual(centralizedExchangeAssets);
   });
 
 });
