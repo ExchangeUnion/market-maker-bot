@@ -10,9 +10,11 @@ import {
 } from 'rxjs/operators';
 import { Config } from '../config';
 import {
-  getOpenDEXorders$,
   getOpenDEXorderFilled$,
 } from '../opendex/opendex';
+import {
+  createOpenDEXorders$,
+} from '../opendex/create-orders';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { getTradeInfo$, TradeInfo } from './info';
 
@@ -126,7 +128,7 @@ const getNewTrade$ = (
       config,
       logger: loggers.opendex,
       tradeInfo$: getTradeInfo$,
-      openDEXorders$: getOpenDEXorders$,
+      openDEXorders$: createOpenDEXorders$,
       openDEXorderFilled$: getOpenDEXorderFilled$,
     }).pipe(
       ignoreElements(),

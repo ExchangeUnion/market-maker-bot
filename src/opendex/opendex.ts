@@ -1,6 +1,5 @@
 import { Observable, of } from 'rxjs';
 import { tap, map, take, mergeMap, delay } from 'rxjs/operators';
-import { TradeInfo } from '../trade/manager';
 import { ExchangeAssetAllocation } from '../trade/info';
 import { BigNumber } from 'bignumber.js';
 import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
@@ -99,14 +98,6 @@ const getOpenDEXassets$ = (
   )
 };
 
-const getOpenDEXorders$ = (config: Config, tradeInfo: TradeInfo): Observable<boolean> => {
-  // mock implementation
-  return of(true).pipe(
-    delay(3000),
-    tap(() => console.log('Mock orders have been submitted to OpenDEX.')),
-  );
-}
-
 const getOpenDEXorderFilled$ = (config: Config): Observable<boolean> => {
   // mock implementation
   return of(true).pipe(
@@ -119,6 +110,5 @@ export {
   getOpenDEXassets$,
   xudBalanceToExchangeAssetAllocation,
   logAssetBalance,
-  getOpenDEXorders$,
   getOpenDEXorderFilled$,
 };
