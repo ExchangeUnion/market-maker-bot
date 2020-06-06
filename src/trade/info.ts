@@ -13,6 +13,11 @@ type GetTradeInfoParams = {
   openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
   centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
   centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
+  tradeInfoArrayToObject: ([
+    openDexAssets,
+    centralizedExchangeAssets,
+    centralizedExchangePrice,
+  ]: TradeInfoArrayToObjectParams) => TradeInfo
 };
 
 type TradeInfo = {
@@ -30,15 +35,18 @@ type ExchangeAssetAllocation = {
   quoteAssetBalance: BigNumber;
 };
 
+type TradeInfoArrayToObjectParams = [
+  ExchangeAssetAllocation,
+  ExchangeAssetAllocation,
+  BigNumber
+];
+
 const tradeInfoArrayToObject = ([
   openDexAssets,
   centralizedExchangeAssets,
   centralizedExchangePrice,
-]: [
-  ExchangeAssetAllocation,
-  ExchangeAssetAllocation,
-  BigNumber
-]): TradeInfo => {
+]: TradeInfoArrayToObjectParams
+): TradeInfo => {
   return {
     price: centralizedExchangePrice,
     assets: {
@@ -54,7 +62,7 @@ const getTradeInfo$ = (
     openDexAssets$,
     centralizedExchangeAssets$,
     centralizedExchangePrice$,
-    // TODO: pass in tradeInfoArrayToObject as argument
+    tradeInfoArrayToObject,
   }: GetTradeInfoParams
 ): Observable<TradeInfo> => {
   return combineLatest(

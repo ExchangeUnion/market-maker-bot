@@ -2,6 +2,8 @@ import { TestScheduler } from 'rxjs/testing';
 import { getTradeInfo$ } from './info';
 import { BigNumber } from 'bignumber.js';
 import { testConfig } from '../../test/utils';
+import { ExchangeAssetAllocation, TradeInfo } from './info';
+import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -22,74 +24,25 @@ describe('tradeInfo$', () => {
         getCentralizedExchangeAssets$: '6s a',
         getCentralizedExchangePrice$:  '7s a 1s b 1s c',
       };
-      const expected = '7s a 1s b 1s c';
-      const inputValues = {
-        getCentralizedExchangePrice$: {
-          a: new BigNumber('10000'),
-          b: new BigNumber('11000'),
-          c: new BigNumber('12000'),
-        },
-        getOpenDEXassets$: {
-          a: {
-            baseAssetBalance: new BigNumber('1.23'),
-            quoteAssetBalance: new BigNumber('4.11'),
-          },
-        },
-        getCentralizedExchangeAssets$: {
-          a: {
-            baseAssetBalance: new BigNumber('3.44'),
-            quoteAssetBalance: new BigNumber('2.21'),
-          }
-        }
-      };
+      const expected = '7s a 1s a 1s a';
       const getOpenDEXassets$ = () => {
-        return cold(
-          inputEvents.getOpenDEXassets$,
-          inputValues.getOpenDEXassets$,
-        );
+        return cold(inputEvents.getOpenDEXassets$) as Observable<ExchangeAssetAllocation>;
       };
       const getCentralizedExchangeAssets$ = () => {
-        return cold(
-          inputEvents.getCentralizedExchangeAssets$,
-          inputValues.getCentralizedExchangeAssets$,
-        );
+        return cold(inputEvents.getCentralizedExchangeAssets$) as Observable<ExchangeAssetAllocation>;
       };
       const getCentralizedExchangePrice$ = () => {
-        return cold(inputEvents.getCentralizedExchangePrice$, {
-          a: inputValues.getCentralizedExchangePrice$.a,
-          b: inputValues.getCentralizedExchangePrice$.b,
-          c: inputValues.getCentralizedExchangePrice$.c,
-        });
+        return cold(inputEvents.getCentralizedExchangePrice$) as Observable<BigNumber>;
       };
+      const tradeInfoArrayToObject = (v: any) => v[0] as unknown as TradeInfo;
       const tradeInfo$ = getTradeInfo$({
         config: testConfig(),
         openDexAssets$: getOpenDEXassets$,
         centralizedExchangeAssets$: getCentralizedExchangeAssets$,
         centralizedExchangePrice$: getCentralizedExchangePrice$,
+        tradeInfoArrayToObject,
       });
-      expectObservable(tradeInfo$).toBe(expected, {
-        a: {
-          price: inputValues.getCentralizedExchangePrice$.a,
-          assets: {
-            openDex: inputValues.getOpenDEXassets$.a,
-            centralizedExchange: inputValues.getCentralizedExchangeAssets$.a,
-          }
-        },
-        b: {
-          price: inputValues.getCentralizedExchangePrice$.b,
-          assets: {
-            openDex: inputValues.getOpenDEXassets$.a,
-            centralizedExchange: inputValues.getCentralizedExchangeAssets$.a,
-          }
-        },
-        c: {
-          price: inputValues.getCentralizedExchangePrice$.c,
-          assets: {
-            openDex: inputValues.getOpenDEXassets$.a,
-            centralizedExchange: inputValues.getCentralizedExchangeAssets$.a,
-          }
-        }
-      });
+      expectObservable(tradeInfo$).toBe(expected);
     });
   });
 
