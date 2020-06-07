@@ -12,8 +12,9 @@
     "compile:watch": "tsc -w",
     "nodemon:watch": "nodemon --watch dist -e js dist/arby.js",
     "nodemon:watch:balancer": "nodemon --watch dist -e js dist/balancer.js",
-    "test": "npm run compile && jest --forceExit",
+    "test": "prettier --check src/ && npm run compile && jest --forceExit",
     "test:watch": "npm run compile && jest --watch",
+    "prettier": "prettier --write src/",
     "clean": "rm -Rf dist/* && npm i"
   },
   "repository": {
@@ -44,6 +45,7 @@
     "google-protobuf": "3.12.1",
     "jest": "26.0.1",
     "nodemon": "2.0.4",
+    "prettier": "2.0.5",
     "ts-jest": "26.0.0",
     "typescript": "3.9.3"
   },
