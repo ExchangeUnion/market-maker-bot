@@ -1,23 +1,23 @@
-import { Config } from '../config';
-import { Logger } from '../logger';
-import { TradeInfo } from '../trade/manager';
-import { tradeInfoArrayToObject, GetTradeInfoParams } from '../trade/info';
-import { Observable, interval } from 'rxjs';
-import {
-  logAssetBalance,
-  getOpenDEXassets$,
-  xudBalanceToExchangeAssetAllocation,
-} from '../opendex/opendex';
+import { BigNumber } from 'bignumber.js';
+import { interval, Observable } from 'rxjs';
 import {
   distinctUntilChanged,
   exhaustMap,
-  takeUntil,
-  mapTo,
   map,
+  mapTo,
+  takeUntil,
   tap,
 } from 'rxjs/operators';
-import { getXudClient$, getXudBalance$ } from '../opendex/xud-client';
-import { BigNumber } from 'bignumber.js';
+import { Config } from '../config';
+import { Logger } from '../logger';
+import {
+  getOpenDEXassets$,
+  logAssetBalance,
+  xudBalanceToExchangeAssetAllocation,
+} from '../opendex/opendex';
+import { getXudBalance$, getXudClient$ } from '../opendex/xud-client';
+import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
+import { TradeInfo } from '../trade/manager';
 
 type GetOpenDEXcompleteParams = {
   config: Config;

@@ -1,15 +1,10 @@
-import { getTrade$, getNewTrade$, GetTradeParams } from './trade/manager';
-import { getConfig$, Config } from './config';
 import { Observable, of } from 'rxjs';
-import { tap, mergeMap, takeUntil, delay, mergeMapTo } from 'rxjs/operators';
-import { getStartShutdown$ } from './utils';
+import { delay, mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
-import { getXudClient$, getXudBalance$ } from './opendex/xud-client';
-import {
-  getOpenDEXassets$,
-  xudBalanceToExchangeAssetAllocation,
-} from './opendex/opendex';
 import { getOpenDEXcomplete$ } from './opendex/complete';
+import { getNewTrade$, GetTradeParams } from './trade/manager';
+import { getStartShutdown$ } from './utils';
 
 const getCentralizedExchangeOrder$ = (
   logger: Logger
