@@ -4,7 +4,8 @@ import { take } from 'rxjs/operators';
 
 /** Get the current date in the given dateFormat, if not provided formats with `YYYY-MM-DD hh:mm:ss.sss`.
  */
-export const getTsString = (dateFormat?: string): string => moment().format(dateFormat || 'YYYY-MM-DD hh:mm:ss.sss');
+export const getTsString = (dateFormat?: string): string =>
+  moment().format(dateFormat || 'YYYY-MM-DD hh:mm:ss.sss');
 
 const SATOSHIS_PER_COIN = 10 ** 8;
 
@@ -22,9 +23,5 @@ export const getStartShutdown$ = (): Observable<unknown> => {
   const shutdown$ = new Subject();
   process.on('SIGINT', () => shutdown$.next());
   process.on('SIGTERM', () => shutdown$.next());
-  return shutdown$
-    .asObservable()
-    .pipe(
-      take(1),
-    );
+  return shutdown$.asObservable().pipe(take(1));
 };

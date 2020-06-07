@@ -22,19 +22,19 @@ describe('OpenDEX', () => {
 
   test('xudBalanceToExchangeAssetAllocation', () => {
     const ethBalance = {
-      getChannelBalance: () => 10000000
+      getChannelBalance: () => 10000000,
     };
     const btcBalance = {
-      getChannelBalance: () => 20000000
+      getChannelBalance: () => 20000000,
     };
     const balancesMap = new Map();
     const baseAsset = 'ETH';
     const quoteAsset = 'BTC';
     balancesMap.set(baseAsset, ethBalance);
     balancesMap.set(quoteAsset, btcBalance);
-    const getBalanceResponse = {
+    const getBalanceResponse = ({
       getBalancesMap: () => balancesMap,
-    } as unknown as GetBalanceResponse;
+    } as unknown) as GetBalanceResponse;
     expect(
       xudBalanceToExchangeAssetAllocation({
         baseAsset,
@@ -42,24 +42,22 @@ describe('OpenDEX', () => {
         balanceResponse: getBalanceResponse,
       })
     ).toEqual({
-      baseAssetBalance:
-        new BigNumber(ethBalance.getChannelBalance()),
-      quoteAssetBalance:
-        new BigNumber(btcBalance.getChannelBalance()),
+      baseAssetBalance: new BigNumber(ethBalance.getChannelBalance()),
+      quoteAssetBalance: new BigNumber(btcBalance.getChannelBalance()),
     });
   });
 
   test('xudBalanceToExchangeAssetAllocation error baseAssetBalance', () => {
     const balancesMap = new Map();
-    const getBalanceResponse = {
+    const getBalanceResponse = ({
       getBalancesMap: () => balancesMap,
-    } as unknown as GetBalanceResponse;
+    } as unknown) as GetBalanceResponse;
     expect(() => {
       xudBalanceToExchangeAssetAllocation({
         baseAsset: 'ETH',
         quoteAsset: 'BTC',
         balanceResponse: getBalanceResponse,
-      })
+      });
     }).toThrowErrorMatchingSnapshot();
   });
 
@@ -67,17 +65,21 @@ describe('OpenDEX', () => {
     testScheduler.run(helpers => {
       const { cold, expectObservable } = helpers;
       const inputEvents = {
-        xudBalance$:   '500ms a',
-        xudClient$:    '500ms a',
+        xudBalance$: '500ms a',
+        xudClient$: '500ms a',
       };
-      const expected = '1s (a|)'
-      const xudBalanceToExchangeAssetAllocation =
-        ({ balanceResponse }: any) => balanceResponse;
+      const expected = '1s (a|)';
+      const xudBalanceToExchangeAssetAllocation = ({ balanceResponse }: any) =>
+        balanceResponse;
       const getXudBalance$ = () => {
-        return cold(inputEvents.xudBalance$) as unknown as Observable<GetBalanceResponse>;
+        return (cold(inputEvents.xudBalance$) as unknown) as Observable<
+          GetBalanceResponse
+        >;
       };
       const getXudClient$ = () => {
-        return cold(inputEvents.xudClient$) as unknown as Observable<XudClient>;
+        return (cold(inputEvents.xudClient$) as unknown) as Observable<
+          XudClient
+        >;
       };
       const logBalance = () => {};
       const openDEXassets$ = getOpenDEXassets$({
@@ -93,7 +95,7 @@ describe('OpenDEX', () => {
   });
 
   describe('logAssetBalance', () => {
-    const logger = getLoggers().global as unknown as Logger;
+    const logger = (getLoggers().global as unknown) as Logger;
     logger.trace = jest.fn();
     const baseAssetBalance = '1.23456789';
     const quoteAssetBalance = '9.87654321';
@@ -113,5 +115,4 @@ describe('OpenDEX', () => {
       expect.stringContaining(quoteAssetBalance)
     );
   });
-
 });

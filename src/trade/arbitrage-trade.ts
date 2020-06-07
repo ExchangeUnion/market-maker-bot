@@ -59,16 +59,19 @@ class ArbitrageTrade {
   private closed = false;
   private binancePriceSubscription: Subscription | undefined;
 
-  constructor(
-    { logger, binance, opendex, baseAsset, quoteAsset }:
-    {
-      logger: Logger,
-      opendex: ExchangeBroker,
-      binance: ExchangeBroker,
-      baseAsset: string,
-      quoteAsset: string,
-    },
-  ) {
+  constructor({
+    logger,
+    binance,
+    opendex,
+    baseAsset,
+    quoteAsset,
+  }: {
+    logger: Logger;
+    opendex: ExchangeBroker;
+    binance: ExchangeBroker;
+    baseAsset: string;
+    quoteAsset: string;
+  }) {
     this.logger = logger;
     this.opendex = opendex;
     this.binance = binance;
@@ -77,10 +80,15 @@ class ArbitrageTrade {
   }
 
   public start = async () => {
-    const binanceTradingPair = `${CURRENCIES.Binance[this.baseAsset]}${CURRENCIES.Binance[this.quoteAsset]}`;
-    const openDexTradingPair = `${CURRENCIES.OpenDex[this.baseAsset]}${CURRENCIES.OpenDex[this.quoteAsset]}`;
+    const binanceTradingPair = `${CURRENCIES.Binance[this.baseAsset]}${
+      CURRENCIES.Binance[this.quoteAsset]
+    }`;
+    const openDexTradingPair = `${CURRENCIES.OpenDex[this.baseAsset]}${
+      CURRENCIES.OpenDex[this.quoteAsset]
+    }`;
 
-    this.binancePriceSubscription = this.binance.getPrice(binanceTradingPair)
+    this.binancePriceSubscription = this.binance
+      .getPrice(binanceTradingPair)
       // TODO: cancel all OpenDEX orders if the price stream is silent for too long
       .subscribe({
         next: (price: BigNumber) => {
@@ -88,8 +96,10 @@ class ArbitrageTrade {
         },
       });
 
-    this.logger.info(`looking for arbitrage trades for ${openDexTradingPair}...`);
-  }
+    this.logger.info(
+      `looking for arbitrage trades for ${openDexTradingPair}...`
+    );
+  };
 
   private updateBinancePrice = async (price: BigNumber) => {
     if (this.closed) {
@@ -104,11 +114,15 @@ class ArbitrageTrade {
       }
       this.updatingPrice = false;
     }
-  }
+  };
 
   private createOpenDexOrders = async () => {
-    const openDexTradingPair = `${CURRENCIES.OpenDex[this.baseAsset]}${CURRENCIES.OpenDex[this.quoteAsset]}`;
-    this.logger.info(`creating new orders for ${openDexTradingPair} using price of ${this.price}`);
+    const openDexTradingPair = `${CURRENCIES.OpenDex[this.baseAsset]}${
+      CURRENCIES.OpenDex[this.quoteAsset]
+    }`;
+    this.logger.info(
+      `creating new orders for ${openDexTradingPair} using price of ${this.price}`
+    );
     if (this.openDexBuyOrder) {
       await this.openDexBuyOrder.cancel();
     }
@@ -120,10 +134,13 @@ class ArbitrageTrade {
       if (!process.env.MARGIN) {
         throw new Error('environment variable MARGIN is required');
       }
-      if (this.buyQuantity.isLessThan(new BigNumber('0.00000001')) ||
+      if (
+        this.buyQuantity.isLessThan(new BigNumber('0.00000001')) ||
         this.sellQuantity.isLessThan(new BigNumber('0.00000001'))
       ) {
-        this.logger.warn(`buy quantity of ${this.buyQuantity} and sell quantity of ${this.sellQuantity} do not exceed the minimum required amount - please consider manual rebalancing`);
+        this.logger.warn(
+          `buy quantity of ${this.buyQuantity} and sell quantity of ${this.sellQuantity} do not exceed the minimum required amount - please consider manual rebalancing`
+        );
         await this.close();
         return;
       }
@@ -163,35 +180,40 @@ class ArbitrageTrade {
       this.openDexSellOrder.on('fill', () => {
         this.logger.info('sell order partially filled - init trade on Binance');
       });
-      this.updateOrdersTimer = setTimeout(this.createOpenDexOrders, ORDER_UPDATE_INTERVAL);
+      this.updateOrdersTimer = setTimeout(
+        this.createOpenDexOrders,
+        ORDER_UPDATE_INTERVAL
+      );
       await Promise.all([
         this.openDexBuyOrder.start(),
         this.openDexSellOrder.start(),
       ]);
     }
-  }
+  };
 
   private getAssets = async () => {
     let openDexBaseAssetMaxSell = new BigNumber('0');
     let openDexQuoteAssetMaxBuy = new BigNumber('0');
     this.openDexAssets = await this.opendex.getAssets();
-    this.openDexAssets.forEach((ownedAsset) => {
-      if (
-        CURRENCIES.OpenDex[this.baseAsset] === ownedAsset.asset
-      ) {
+    this.openDexAssets.forEach(ownedAsset => {
+      if (CURRENCIES.OpenDex[this.baseAsset] === ownedAsset.asset) {
         if (ownedAsset.maxsell) {
           openDexBaseAssetMaxSell = new BigNumber(
-            satsToCoinsStr(ownedAsset.maxsell),
+            satsToCoinsStr(ownedAsset.maxsell)
           );
         }
-        this.logger.info(`opendex baseAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`);
+        this.logger.info(
+          `opendex baseAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`
+        );
       } else if (CURRENCIES.OpenDex[this.quoteAsset] === ownedAsset.asset) {
         if (ownedAsset.maxbuy) {
           openDexQuoteAssetMaxBuy = new BigNumber(
-            satsToCoinsStr(ownedAsset.maxbuy),
+            satsToCoinsStr(ownedAsset.maxbuy)
           );
         }
-        this.logger.info(`opendex quoteAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`);
+        this.logger.info(
+          `opendex quoteAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked), ${ownedAsset.maxbuy} (maxbuy), ${ownedAsset.maxsell}`
+        );
       }
     });
     let binanceBaseAsset = new BigNumber('0');
@@ -199,29 +221,40 @@ class ArbitrageTrade {
     if (!this.binanceAssets.length) {
       this.binanceAssets = await this.binance.getAssets();
     }
-    this.binanceAssets.forEach((ownedAsset) => {
-      if (
-        CURRENCIES.Binance[this.baseAsset] === ownedAsset.asset
-      ) {
+    this.binanceAssets.forEach(ownedAsset => {
+      if (CURRENCIES.Binance[this.baseAsset] === ownedAsset.asset) {
         binanceBaseAsset = new BigNumber(ownedAsset.free);
-        this.logger.info(`binance baseAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked)`);
+        this.logger.info(
+          `binance baseAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked)`
+        );
       } else if (CURRENCIES.Binance[this.quoteAsset] === ownedAsset.asset) {
         binanceQuoteAsset = new BigNumber(ownedAsset.free);
-        this.logger.info(`binance quoteAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked)`);
+        this.logger.info(
+          `binance quoteAsset ${ownedAsset.asset}: ${ownedAsset.free} (free), ${ownedAsset.locked} (locked)`
+        );
       }
     });
-    this.sellQuantity = BigNumber.minimum(openDexBaseAssetMaxSell, binanceBaseAsset);
+    this.sellQuantity = BigNumber.minimum(
+      openDexBaseAssetMaxSell,
+      binanceBaseAsset
+    );
     if (this.sellQuantity.isGreaterThan(limits[this.baseAsset])) {
       this.sellQuantity = limits[this.baseAsset];
     }
-    this.logger.info(`setting ${this.baseAsset} sell quantity to ${this.sellQuantity}`);
-    this.buyQuantity =
-      (BigNumber.minimum(openDexQuoteAssetMaxBuy, binanceQuoteAsset).dividedBy(this.price!));
+    this.logger.info(
+      `setting ${this.baseAsset} sell quantity to ${this.sellQuantity}`
+    );
+    this.buyQuantity = BigNumber.minimum(
+      openDexQuoteAssetMaxBuy,
+      binanceQuoteAsset
+    ).dividedBy(this.price!);
     if (this.buyQuantity > limits[this.quoteAsset]) {
       this.buyQuantity = limits[this.quoteAsset];
     }
-    this.logger.info(`setting ${this.quoteAsset} buy quantity to ${this.buyQuantity}`);
-  }
+    this.logger.info(
+      `setting ${this.quoteAsset} buy quantity to ${this.buyQuantity}`
+    );
+  };
 
   public close = async () => {
     this.closed = true;
@@ -239,19 +272,23 @@ class ArbitrageTrade {
       orderCancelPromises.push(this.openDexSellOrder.cancel());
     }
     await Promise.all(orderCancelPromises);
-  }
+  };
 
   private orderComplete = async (orderId: string, quantity: number) => {
     // TODO: cancel order update interval when executing asymmetric trades
     // TODO: logic to handle when limit order isn't filled within a certain timeframe
-    const quantityInCoins = new BigNumber(
-      satsToCoinsStr(quantity),
-    );
+    const quantityInCoins = new BigNumber(satsToCoinsStr(quantity));
     if (quantityInCoins.isLessThan(limits[this.baseAsset])) {
-      this.logger.warn(`skipping asymmetric trade because quantity of ${quantityInCoins} is smaller than minimum allowed ${limits[this.baseAsset]}`);
+      this.logger.warn(
+        `skipping asymmetric trade because quantity of ${quantityInCoins} is smaller than minimum allowed ${
+          limits[this.baseAsset]
+        }`
+      );
       return;
     }
-    this.logger.info(`order ${orderId} was successfully swapped - init trade on Binance`);
+    this.logger.info(
+      `order ${orderId} was successfully swapped - init trade on Binance`
+    );
     if (this.openDexBuyOrder && this.openDexBuyOrder.orderId === orderId) {
       const binanceSellOrder = this.binance.newOrder({
         quantity: quantityInCoins.toNumber(), // change the API to accept string instead
@@ -263,13 +300,17 @@ class ArbitrageTrade {
         price: this.price!.toNumber(), // change the API to accept string instead
       });
       binanceSellOrder.on('complete', (orderId: string) => {
-        this.logger.info(`binance sell order ${orderId} complete - arbitrage trade finished`);
+        this.logger.info(
+          `binance sell order ${orderId} complete - arbitrage trade finished`
+        );
       });
       binanceSellOrder.on('failure', (reason: string) => {
         this.logger.info(`sell order failed: ${reason}`);
       });
       binanceSellOrder.on('fill', () => {
-        this.logger.info('sell order partially filled - arbitrage trade complete');
+        this.logger.info(
+          'sell order partially filled - arbitrage trade complete'
+        );
       });
       await binanceSellOrder.start();
     }
@@ -284,18 +325,21 @@ class ArbitrageTrade {
         price: this.price!.toNumber(), // change the API to accept string instead
       });
       binanceBuyOrder.on('complete', (orderId: string) => {
-        this.logger.info(`binance sell order ${orderId} complete - arbitrage trade finished`);
+        this.logger.info(
+          `binance sell order ${orderId} complete - arbitrage trade finished`
+        );
       });
       binanceBuyOrder.on('failure', (reason: string) => {
         this.logger.info(`sell order failed: ${reason}`);
       });
       binanceBuyOrder.on('fill', () => {
-        this.logger.info('sell order partially filled - arbitrage trade complete');
+        this.logger.info(
+          'sell order partially filled - arbitrage trade complete'
+        );
       });
       await binanceBuyOrder.start();
     }
-  }
-
+  };
 }
 
 export { ArbitrageTrade };

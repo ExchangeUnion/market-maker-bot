@@ -1,33 +1,30 @@
 import { Observable, combineLatest } from 'rxjs';
-import {
-  map,
-  filter,
-  publishBehavior,
-  refCount,
-} from 'rxjs/operators';
+import { map, filter, publishBehavior, refCount } from 'rxjs/operators';
 import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
 
 type GetTradeInfoParams = {
-  config: Config,
-  openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-  centralizedExchangeAssets$: (config: Config) => Observable<ExchangeAssetAllocation>
-  centralizedExchangePrice$: (config: Config) => Observable<BigNumber>
+  config: Config;
+  openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>;
+  centralizedExchangeAssets$: (
+    config: Config
+  ) => Observable<ExchangeAssetAllocation>;
+  centralizedExchangePrice$: (config: Config) => Observable<BigNumber>;
   tradeInfoArrayToObject: ([
     openDexAssets,
     centralizedExchangeAssets,
     centralizedExchangePrice,
-  ]: TradeInfoArrayToObjectParams) => TradeInfo
+  ]: TradeInfoArrayToObjectParams) => TradeInfo;
 };
 
 type TradeInfo = {
   price: BigNumber;
-  assets: AssetAllocation,
+  assets: AssetAllocation;
 };
 
 type AssetAllocation = {
-  openDEX: ExchangeAssetAllocation,
-  centralizedExchange: ExchangeAssetAllocation,
+  openDEX: ExchangeAssetAllocation;
+  centralizedExchange: ExchangeAssetAllocation;
 };
 
 type ExchangeAssetAllocation = {
@@ -45,26 +42,23 @@ const tradeInfoArrayToObject = ([
   openDEXassets,
   centralizedExchangeAssets,
   centralizedExchangePrice,
-]: TradeInfoArrayToObjectParams
-): TradeInfo => {
+]: TradeInfoArrayToObjectParams): TradeInfo => {
   return {
     price: centralizedExchangePrice,
     assets: {
       openDEX: openDEXassets,
       centralizedExchange: centralizedExchangeAssets,
-    }
+    },
   };
 };
 
-const getTradeInfo$ = (
-  {
-    config,
-    openDexAssets$,
-    centralizedExchangeAssets$,
-    centralizedExchangePrice$,
-    tradeInfoArrayToObject,
-  }: GetTradeInfoParams
-): Observable<TradeInfo> => {
+const getTradeInfo$ = ({
+  config,
+  openDexAssets$,
+  centralizedExchangeAssets$,
+  centralizedExchangePrice$,
+  tradeInfoArrayToObject,
+}: GetTradeInfoParams): Observable<TradeInfo> => {
   return combineLatest(
     // wait for all the necessary tradeInfo
     openDexAssets$(config),
@@ -74,11 +68,11 @@ const getTradeInfo$ = (
     // map it to an object
     map(tradeInfoArrayToObject),
     // emit the last value when subscribed
-    publishBehavior(null as unknown as TradeInfo),
+    publishBehavior((null as unknown) as TradeInfo),
     // make a ConnectableObservable behave like a ordinary observable
     refCount(),
     // ignore initial null value
-    filter(v => !!v),
+    filter(v => !!v)
   );
 };
 

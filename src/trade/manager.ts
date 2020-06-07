@@ -3,18 +3,10 @@ import { Logger, Loggers } from '../logger';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { ExchangeType } from '../enums';
 import { Observable, concat } from 'rxjs';
-import {
-  ignoreElements,
-  takeUntil,
-  repeat,
-} from 'rxjs/operators';
+import { ignoreElements, takeUntil, repeat } from 'rxjs/operators';
 import { Config } from '../config';
-import {
-  getOpenDEXorderFilled$,
-} from '../opendex/order-filled';
-import {
-  createOpenDEXorders$,
-} from '../opendex/create-orders';
+import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
+import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { getTradeInfo$, TradeInfo } from './info';
 
@@ -24,14 +16,15 @@ class TradeManager {
   private binance: ExchangeBroker;
   private trades = new Map<string, ArbitrageTrade>();
 
-  constructor(
-    { logger, binance, opendex }:
-    {
-      logger: Logger,
-      opendex: ExchangeBroker,
-      binance: ExchangeBroker,
-    },
-  ) {
+  constructor({
+    logger,
+    binance,
+    opendex,
+  }: {
+    logger: Logger;
+    opendex: ExchangeBroker;
+    binance: ExchangeBroker;
+  }) {
     this.logger = logger;
     this.opendex = opendex;
     this.binance = binance;
@@ -42,19 +35,16 @@ class TradeManager {
     await this.opendex.start();
     await this.binance.start();
     await this.addTrade('ETH', 'BTC');
-  }
+  };
 
   public close = async () => {
     const tradeClosePromises: Promise<any>[] = [];
-    this.trades.forEach((trade) => {
+    this.trades.forEach(trade => {
       tradeClosePromises.push(trade.close());
     });
     await Promise.all(tradeClosePromises);
-    await Promise.all([
-      this.opendex.close(),
-      this.binance.close(),
-    ]);
-  }
+    await Promise.all([this.opendex.close(), this.binance.close()]);
+  };
 
   private addTrade = async (baseAsset: string, quoteAsset: string) => {
     const trade = new ArbitrageTrade({
@@ -66,15 +56,14 @@ class TradeManager {
     });
     this.trades.set(`${baseAsset}${quoteAsset}`, trade);
     await trade.start();
-  }
-
+  };
 }
 
 const getTrade$ = (config: Config): Observable<string> => {
   return new Observable(subscriber => {
     const loggers = Logger.createLoggers(
       config.LOG_LEVEL,
-      `${config.DATA_DIR}/arby.log`,
+      `${config.DATA_DIR}/arby.log`
     );
     loggers.global.info('Starting. Hello, Arby.');
     const openDexBroker = new ExchangeBroker({
@@ -105,24 +94,23 @@ const getTrade$ = (config: Config): Observable<string> => {
 };
 
 type GetTradeParams = {
-  config: Config
-  loggers: Loggers,
-  getOpenDEXcomplete$: (
-    { config, logger }: GetOpenDEXcompleteParams
-  ) => Observable<boolean>
-  centralizedExchangeOrder$: (config: Config) => Observable<boolean>
-  shutdown$: Observable<unknown>
-}
-
-const getNewTrade$ = (
-  {
+  config: Config;
+  loggers: Loggers;
+  getOpenDEXcomplete$: ({
     config,
-    loggers,
-    centralizedExchangeOrder$,
-    getOpenDEXcomplete$,
-    shutdown$,
-  }: GetTradeParams
-): Observable<boolean> => {
+    logger,
+  }: GetOpenDEXcompleteParams) => Observable<boolean>;
+  centralizedExchangeOrder$: (config: Config) => Observable<boolean>;
+  shutdown$: Observable<unknown>;
+};
+
+const getNewTrade$ = ({
+  config,
+  loggers,
+  centralizedExchangeOrder$,
+  getOpenDEXcomplete$,
+  shutdown$,
+}: GetTradeParams): Observable<boolean> => {
   return concat(
     getOpenDEXcomplete$({
       config,
@@ -130,20 +118,9 @@ const getNewTrade$ = (
       tradeInfo$: getTradeInfo$,
       openDEXorders$: createOpenDEXorders$,
       openDEXorderFilled$: getOpenDEXorderFilled$,
-    }).pipe(
-      ignoreElements(),
-    ),
-    centralizedExchangeOrder$(config),
-  ).pipe(
-    repeat(),
-    takeUntil(shutdown$),
-  );
+    }).pipe(ignoreElements()),
+    centralizedExchangeOrder$(config)
+  ).pipe(repeat(), takeUntil(shutdown$));
 };
 
-export {
-  getNewTrade$,
-  getTrade$,
-  TradeManager,
-  TradeInfo,
-  GetTradeParams,
-};
+export { getNewTrade$, getTrade$, TradeManager, TradeInfo, GetTradeParams };

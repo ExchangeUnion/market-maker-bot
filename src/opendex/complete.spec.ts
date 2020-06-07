@@ -12,15 +12,14 @@ const testSchedulerSetup = () => {
 };
 
 describe('getOpenDEXcomplete$', () => {
-
-  beforeEach(testSchedulerSetup)
+  beforeEach(testSchedulerSetup);
 
   it('emits when OpenDEX order filled', () => {
     testScheduler.run(helpers => {
       const { cold, hot, expectObservable } = helpers;
       const inputEvents = {
-        tradeInfo$:          'a ^ 1000ms a 1500ms a 500ms b',
-        getOpenDEXorders$:   '1s a|',
+        tradeInfo$: 'a ^ 1000ms a 1500ms a 500ms b',
+        getOpenDEXorders$: '1s a|',
         openDEXorderFilled$: '10s a',
       };
       const expected = '2s a 2001ms a 5997ms |';
@@ -47,5 +46,4 @@ describe('getOpenDEXcomplete$', () => {
       expectObservable(trade$).toBe(expected, { a: true });
     });
   });
-
 });

@@ -16,13 +16,13 @@ class BalancerTradeManager {
   private activeOrder?: OpenDexOrder;
   private static UPDATE_ASSETS_INTERVAL = 10000;
 
-  constructor(
-    { logger, opendex }:
-    {
-      logger: Logger,
-      opendex: ExchangeBroker,
-    },
-  ) {
+  constructor({
+    logger,
+    opendex,
+  }: {
+    logger: Logger;
+    opendex: ExchangeBroker;
+  }) {
     this.logger = logger;
     this.opendex = opendex;
   }
@@ -30,33 +30,40 @@ class BalancerTradeManager {
   public start = async () => {
     await this.opendex.start();
     this.assets = await this.opendex.getAssets();
-    this.updateAssetsTimer = setTimeout(this.updateAssets, BalancerTradeManager.UPDATE_ASSETS_INTERVAL);
+    this.updateAssetsTimer = setTimeout(
+      this.updateAssets,
+      BalancerTradeManager.UPDATE_ASSETS_INTERVAL
+    );
     await this.addTrade('LTC', 'BTC');
     this.logger.info('Balancer Trade Manager started.');
-  }
+  };
 
   private updateAssets = async () => {
     this.assets = await this.opendex.getAssets();
-    this.trades.forEach((trade) => {
+    this.trades.forEach(trade => {
       const baseAssetBalance = this.getBalanceForAsset(trade.baseAsset);
       trade.setAssets(baseAssetBalance);
     });
-    this.updateAssetsTimer = setTimeout(this.updateAssets, BalancerTradeManager.UPDATE_ASSETS_INTERVAL);
-  }
+    this.updateAssetsTimer = setTimeout(
+      this.updateAssets,
+      BalancerTradeManager.UPDATE_ASSETS_INTERVAL
+    );
+  };
 
   private getBalanceForAsset = (asset: string): Balance => {
     if (!this.assets) {
-      throw new Error('cannot get balance for asset before asset balances have been fetched');
+      throw new Error(
+        'cannot get balance for asset before asset balances have been fetched'
+      );
     }
-    const assetBalance = this.assets
-      .filter((balance) => {
-        return balance.asset === asset;
-      });
+    const assetBalance = this.assets.filter(balance => {
+      return balance.asset === asset;
+    });
     if (assetBalance.length !== 1) {
       throw new Error('cannot add a trade with unknown baseAssetBalanace');
     }
     return assetBalance[0];
-  }
+  };
 
   private addTrade = async (baseAsset: string, quoteAsset: string) => {
     const trade = new BalancerTrade({
@@ -68,12 +75,16 @@ class BalancerTradeManager {
     this.trades.set(`${baseAsset}${quoteAsset}`, trade);
     trade.on('order', this.handleOrder);
     await trade.start();
-  }
+  };
 
   private handleOrder = async (balancerOrder: BalancerOrder) => {
-    this.logger.info(`need to rebalance, received order ${JSON.stringify(balancerOrder)}`);
+    this.logger.info(
+      `need to rebalance, received order ${JSON.stringify(balancerOrder)}`
+    );
     if (this.activeOrder) {
-      this.logger.warn('ignoring rebalance request because active order exists');
+      this.logger.warn(
+        'ignoring rebalance request because active order exists'
+      );
       return;
     }
     const openDexOrder = {
@@ -106,7 +117,7 @@ class BalancerTradeManager {
       this.activeOrder = undefined;
     });
     this.activeOrder.start();
-  }
+  };
 
   public close = async () => {
     if (this.updateAssetsTimer) {
@@ -116,13 +127,13 @@ class BalancerTradeManager {
       clearTimeout(this.orderTimeout);
     }
     const tradeClosePromises: Promise<any>[] = [];
-    this.trades.forEach((trade) => {
+    this.trades.forEach(trade => {
       tradeClosePromises.push(trade.close());
     });
     await Promise.all(tradeClosePromises);
     await this.opendex.close();
     this.logger.info('Balancer Trade Manager closed.');
-  }
+  };
 }
 
 export { BalancerTradeManager };

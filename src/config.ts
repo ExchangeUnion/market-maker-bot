@@ -1,7 +1,4 @@
-import {
-  Observable,
-  of,
-} from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { pluck, map } from 'rxjs/operators';
 import { Level } from './logger';
 import { DotenvParseOutput } from 'dotenv';
@@ -51,7 +48,9 @@ const getEnvironmentConfig = (): DotenvParseOutput => {
         };
       }
       return envConfig;
-    }, {});
+    },
+    {}
+  );
   return environmentConfig;
 };
 
@@ -62,7 +61,9 @@ const getMissingOptions = (config: DotenvParseOutput): string => {
         return missingOptions.concat(configOption);
       }
       return missingOptions;
-    }, []).join(', ');
+    },
+    []
+  ).join(', ');
 };
 
 const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
@@ -72,7 +73,9 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   };
   const missingOptions = getMissingOptions(config);
   if (missingOptions) {
-    throw new Error(`Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`);
+    throw new Error(
+      `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
+    );
   }
   const verifiedConfig = {
     ...config,
@@ -82,9 +85,7 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
 };
 
 export const getConfig$ = (): Observable<Config> => {
-  return of(
-    require('dotenv').config()
-  ).pipe(
+  return of(require('dotenv').config()).pipe(
     pluck('parsed'),
     map(checkConfigOptions)
   );

@@ -16,36 +16,29 @@ import {
   map,
   tap,
 } from 'rxjs/operators';
-import {
-  getXudClient$,
-  getXudBalance$,
-} from '../opendex/xud-client';
+import { getXudClient$, getXudBalance$ } from '../opendex/xud-client';
 import { BigNumber } from 'bignumber.js';
 
 type GetOpenDEXcompleteParams = {
-  config: Config,
-  logger: Logger,
-  tradeInfo$: (
-    {
-      config,
-      openDexAssets$,
-      centralizedExchangeAssets$,
-      centralizedExchangePrice$,
-    }: GetTradeInfoParams
-  ) => Observable<TradeInfo>
-  openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>
-  openDEXorderFilled$: (config: Config) => Observable<boolean>
+  config: Config;
+  logger: Logger;
+  tradeInfo$: ({
+    config,
+    openDexAssets$,
+    centralizedExchangeAssets$,
+    centralizedExchangePrice$,
+  }: GetTradeInfoParams) => Observable<TradeInfo>;
+  openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>;
+  openDEXorderFilled$: (config: Config) => Observable<boolean>;
 };
 
-const getOpenDEXcomplete$ = (
-  {
-    config,
-    logger,
-    tradeInfo$,
-    openDEXorders$,
-    openDEXorderFilled$,
-  }: GetOpenDEXcompleteParams
-): Observable<boolean> => {
+const getOpenDEXcomplete$ = ({
+  config,
+  logger,
+  tradeInfo$,
+  openDEXorders$,
+  openDEXorderFilled$,
+}: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
       config,
@@ -66,8 +59,8 @@ const getOpenDEXcomplete$ = (
   };
   const getCentralizedExchangePrice$ = (config: Config) => {
     return interval(100).pipe(
-      map((v: number) => (new BigNumber(`${v+1}0000`))),
-      tap((v) => console.log(`New price ${v}`)),
+      map((v: number) => new BigNumber(`${v + 1}0000`)),
+      tap(v => console.log(`New price ${v}`))
     );
   };
   return tradeInfo$({
@@ -87,11 +80,8 @@ const getOpenDEXcomplete$ = (
       openDEXorders$(config, tradeInfo)
     ),
     // wait for the order to be filled
-    takeUntil(openDEXorderFilled$(config)),
+    takeUntil(openDEXorderFilled$(config))
   );
 };
 
-export {
-  getOpenDEXcomplete$,
-  GetOpenDEXcompleteParams,
-};
+export { getOpenDEXcomplete$, GetOpenDEXcompleteParams };

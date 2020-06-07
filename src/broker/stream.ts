@@ -1,7 +1,10 @@
 import { EventEmitter } from 'events';
 
 interface Stream {
-  on(event: 'price', listener: (tradingPair: string, price: number) => void): this;
+  on(
+    event: 'price',
+    listener: (tradingPair: string, price: number) => void
+  ): this;
   emit(event: 'price', tradingPair: string, price: number): boolean;
 }
 

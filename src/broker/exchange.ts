@@ -1,8 +1,4 @@
-import {
-  ExchangeType,
-  OrderType,
-  OrderSide,
-} from '../enums';
+import { ExchangeType, OrderType, OrderSide } from '../enums';
 import { getBinancePriceStream } from './binance/stream';
 import { OpenDexStream } from './opendex/stream';
 import { OpenDexOrder } from './opendex/order';
@@ -15,24 +11,24 @@ import { Observable } from 'rxjs';
 import { BigNumber } from 'bignumber.js';
 
 export type OrderRequest = {
-  orderId: string,
-  baseAsset: string,
-  quoteAsset: string,
-  orderType: OrderType,
-  orderSide: OrderSide,
-  quantity: number,
+  orderId: string;
+  baseAsset: string;
+  quoteAsset: string;
+  orderType: OrderType;
+  orderSide: OrderSide;
+  quantity: number;
 };
 
 export type StopLimitOrderRequest = LimitOrderRequest & {
-  stopPrice: number,
+  stopPrice: number;
 };
 
 export type MarketOrderRequest = OrderRequest & {
-  price: string,
+  price: string;
 };
 
 export type LimitOrderRequest = OrderRequest & {
-  price: number,
+  price: number;
 };
 
 class ExchangeBroker {
@@ -46,26 +42,23 @@ class ExchangeBroker {
   private logger: Logger;
   private api!: ExchangeAPI;
 
-  constructor(
-    {
-      exchange,
-      apiKey,
-      apiSecret,
-      certPath,
-      logger,
-      rpchost,
-      rpcport,
-    }:
-    {
-      exchange: ExchangeType,
-      logger: Logger,
-      apiKey?: string,
-      apiSecret?: string,
-      certPath?: string,
-      rpchost?: string,
-      rpcport?: number,
-    },
-  ) {
+  constructor({
+    exchange,
+    apiKey,
+    apiSecret,
+    certPath,
+    logger,
+    rpchost,
+    rpcport,
+  }: {
+    exchange: ExchangeType;
+    logger: Logger;
+    apiKey?: string;
+    apiSecret?: string;
+    certPath?: string;
+    rpchost?: string;
+    rpcport?: number;
+  }) {
     this.exchange = exchange;
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
@@ -92,16 +85,14 @@ class ExchangeBroker {
       });
     }
     await this.api.start();
-  }
+  };
 
   public getAssets = async (): Promise<Balance[]> => {
     const ownedAssets = await this.api.getAssets();
     return ownedAssets;
-  }
+  };
 
-  public getPrice = (
-    tradingPair: string,
-  ): Observable<BigNumber> => {
+  public getPrice = (tradingPair: string): Observable<BigNumber> => {
     const priceStream = this.priceStreams.get(tradingPair);
     if (priceStream) {
       return priceStream;
@@ -115,33 +106,37 @@ class ExchangeBroker {
       }
     }
     return this.priceStreams.get(tradingPair)!;
-  }
+  };
 
   public newOrder = (
-    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest,
+    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest
   ): BinanceOrder | OpenDexOrder => {
     return this.api.newOrder(orderRequest);
-  }
+  };
 
   public close = async () => {
     if (this.api) {
       await this.api.stop();
     }
-  }
+  };
 
   private checkConfig = () => {
     if (
       this.exchange === ExchangeType.Binance &&
       (!this.apiKey || !this.apiSecret)
     ) {
-      throw new Error('Binance exchange type requires you to specify the apiKey and apiSecret');
+      throw new Error(
+        'Binance exchange type requires you to specify the apiKey and apiSecret'
+      );
     } else if (
       this.exchange === ExchangeType.OpenDEX &&
       (!this.certPath || !this.rpchost || !this.rpcport)
     ) {
-      throw new Error('OpenDEX exchange type requires you to specify the certPath, rpchost and rpcport');
+      throw new Error(
+        'OpenDEX exchange type requires you to specify the certPath, rpchost and rpcport'
+      );
     }
-  }
+  };
 }
 
 export { ExchangeBroker };

@@ -1,8 +1,4 @@
-import {
-  getTrade$,
-  getNewTrade$,
-  GetTradeParams,
-} from './trade/manager';
+import { getTrade$, getNewTrade$, GetTradeParams } from './trade/manager';
 import { getConfig$, Config } from './config';
 import { Observable, of } from 'rxjs';
 import { tap, mergeMap, takeUntil, delay, mergeMapTo } from 'rxjs/operators';
@@ -16,8 +12,8 @@ import {
 import { getOpenDEXcomplete$ } from './opendex/complete';
 
 const getCentralizedExchangeOrder$ = (
-  logger: Logger,
-): (config: Config) => Observable<boolean> => {
+  logger: Logger
+): ((config: Config) => Observable<boolean>) => {
   return (config: Config) => {
     return of(true).pipe(
       tap(() => logger.info('Starting centralized exchange order.')),
@@ -26,49 +22,43 @@ const getCentralizedExchangeOrder$ = (
   };
 };
 
-export const startArby = (
-  {
-    config$,
-    getLoggers,
+export const startArby = ({
+  config$,
+  getLoggers,
+  shutdown$,
+  trade$,
+}: {
+  config$: Observable<Config>;
+  getLoggers: (config: Config) => Loggers;
+  shutdown$: Observable<unknown>;
+  trade$: ({
+    config,
+    loggers,
+    centralizedExchangeOrder$,
+    getOpenDEXcomplete$,
     shutdown$,
-    trade$,
-  }:
-  {
-    config$: Observable<Config>
-    getLoggers: (config: Config) => Loggers
-    shutdown$: Observable<unknown>
-    trade$: (
-      {
-        config,
-        loggers,
-        centralizedExchangeOrder$,
-        getOpenDEXcomplete$,
-        shutdown$,
-      }: GetTradeParams
-    ) => Observable<boolean>,
-  },
-): Observable<any> => {
+  }: GetTradeParams) => Observable<boolean>;
+}): Observable<any> => {
   return config$.pipe(
-    mergeMap((config: Config) =>{
+    mergeMap((config: Config) => {
       const loggers = getLoggers(config);
       loggers.global.info('Starting. Hello, Arby.');
       return trade$({
         config,
         loggers,
         getOpenDEXcomplete$,
-        centralizedExchangeOrder$: getCentralizedExchangeOrder$(loggers.binance),
+        centralizedExchangeOrder$: getCentralizedExchangeOrder$(
+          loggers.binance
+        ),
         shutdown$,
       });
     }),
-    takeUntil(shutdown$),
-  )
+    takeUntil(shutdown$)
+  );
 };
 
 const getLoggers = (config: Config) => {
-  return Logger.createLoggers(
-    config.LOG_LEVEL,
-    `${config.DATA_DIR}/arby.log`,
-  );
+  return Logger.createLoggers(config.LOG_LEVEL, `${config.DATA_DIR}/arby.log`);
 };
 
 if (!module.parent) {
@@ -78,7 +68,7 @@ if (!module.parent) {
     getLoggers,
     shutdown$: getStartShutdown$(),
   }).subscribe({
-    next: (trade) => console.log(`Trade complete: ${trade}`),
+    next: trade => console.log(`Trade complete: ${trade}`),
     error: console.log,
     complete: () => console.log('Received shutdown signal.'),
   });

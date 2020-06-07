@@ -1,11 +1,5 @@
-import {
-  OrderType,
-  OrderStatus,
-} from '../../enums';
-import {
-  LimitOrderRequest,
-  StopLimitOrderRequest,
-} from '../exchange';
+import { OrderType, OrderStatus } from '../../enums';
+import { LimitOrderRequest, StopLimitOrderRequest } from '../exchange';
 import { BinanceAPI } from './api';
 import { Order } from '../order';
 
@@ -36,10 +30,12 @@ class BinanceOrder extends Order {
         this.checkOrder();
       }, 1000);
     } catch (e) {
-      this.logger.info(`failed to start the order: ${JSON.stringify(orderRequest)}`);
+      this.logger.info(
+        `failed to start the order: ${JSON.stringify(orderRequest)}`
+      );
       this.emit('failure', e);
     }
-  }
+  };
 
   public cancel = async () => {
     if (!this.orderId) {
@@ -60,13 +56,10 @@ class BinanceOrder extends Order {
       this.emit('status', OrderStatus.Canceled);
       clearInterval(this.checkOrderInterval);
     }
-  }
+  };
 
   private checkOrder = async () => {
-    if (
-      !this.orderId ||
-      this.status === OrderStatus.Filled
-    ) {
+    if (!this.orderId || this.status === OrderStatus.Filled) {
       return;
     }
     try {
@@ -88,8 +81,7 @@ class BinanceOrder extends Order {
       clearInterval(this.checkOrderInterval);
       this.emit('failure', e);
     }
-  }
-
+  };
 }
 
 export { BinanceOrder };

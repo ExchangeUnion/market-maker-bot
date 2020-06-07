@@ -2,13 +2,11 @@ import { Logger, Level } from './logger';
 import path from 'path';
 import { ExchangeBroker } from './broker/exchange';
 import { BalancerTradeManager } from './trade/balancer';
-import {
-  ExchangeType,
-} from './enums';
+import { ExchangeType } from './enums';
 
 type Config = {
-  loglevel: string,
-  logpath: string,
+  loglevel: string;
+  logpath: string;
 };
 
 class Balancer {
@@ -35,7 +33,10 @@ class Balancer {
   }
 
   public start = async () => {
-    const loggers = Logger.createLoggers(this.config.loglevel, this.config.logpath);
+    const loggers = Logger.createLoggers(
+      this.config.loglevel,
+      this.config.logpath
+    );
     this.logger = loggers.global;
     this.logger.info('Starting Balancer...');
     const openDexBroker = new ExchangeBroker({
@@ -50,12 +51,12 @@ class Balancer {
       opendex: openDexBroker,
     });
     await this.balancerManager.start();
-  }
+  };
 
   public beginShutdown = () => {
     // we begin the shutdown process but return a response before it completes.
-    void (this.shutdown());
-  }
+    void this.shutdown();
+  };
 
   private shutdown = async () => {
     if (this.shuttingDown) {
@@ -67,7 +68,7 @@ class Balancer {
     await this.balancerManager.close();
 
     this.logger.info('Balancer has been shutdown gracefully');
-  }
+  };
 }
 
 if (!module.parent) {

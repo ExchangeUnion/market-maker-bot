@@ -12,7 +12,7 @@ import {
   OrderSide as XudOrderSide,
   PlaceOrderResponse,
   SwapSuccess,
- } from './proto/xudrpc_pb';
+} from './proto/xudrpc_pb';
 import { ClientReadableStream, status } from '@grpc/grpc-js';
 import { OrderSide } from '../../enums';
 import {
@@ -29,20 +29,27 @@ class OpenDexAPI extends ExchangeAPI {
   private rpchost: string;
   private rpcport: number;
   private xudClient!: XudGrpcClient;
-  private swapSubscriptions = new Map<string, (swapSuccess: SwapSuccess.AsObject) => unknown >();
+  private swapSubscriptions = new Map<
+    string,
+    (swapSuccess: SwapSuccess.AsObject) => unknown
+  >();
   private checkConnectionTimeout: ReturnType<typeof setTimeout> | undefined;
 
-  private swapsCompleteSubscription: ClientReadableStream<SwapSuccess> | undefined;
+  private swapsCompleteSubscription:
+    | ClientReadableStream<SwapSuccess>
+    | undefined;
 
-  constructor(
-    { logger, certPath, rpchost, rpcport }:
-    {
-      logger: Logger,
-      certPath: string,
-      rpchost: string,
-      rpcport: number,
-    },
-  ) {
+  constructor({
+    logger,
+    certPath,
+    rpchost,
+    rpcport,
+  }: {
+    logger: Logger;
+    certPath: string;
+    rpchost: string;
+    rpcport: number;
+  }) {
     super();
     this.logger = logger;
     this.certPath = certPath;
@@ -72,7 +79,7 @@ class OpenDexAPI extends ExchangeAPI {
       }
     });
     this.logger.info('OpenDEX API started');
-  }
+  };
 
   private waitForConnection = () => {
     return new Promise((resolve, reject) => {
@@ -82,7 +89,9 @@ class OpenDexAPI extends ExchangeAPI {
           resolve();
         } catch (e) {
           if (e.code === 14) {
-            this.logger.warn('could not verify connection to xud, retrying in 5 sec...');
+            this.logger.warn(
+              'could not verify connection to xud, retrying in 5 sec...'
+            );
             this.checkConnectionTimeout = setTimeout(verifyConnection, 5000);
           } else {
             reject();
@@ -91,7 +100,7 @@ class OpenDexAPI extends ExchangeAPI {
       };
       verifyConnection();
     });
-  }
+  };
 
   public stop = async () => {
     if (this.checkConnectionTimeout) {
@@ -100,26 +109,22 @@ class OpenDexAPI extends ExchangeAPI {
     if (this.swapsCompleteSubscription) {
       this.swapsCompleteSubscription.cancel();
     }
-  }
+  };
 
   public getAssets = async (): Promise<Balance[]> => {
     const getBalanceResponse = await this.xudClient.getBalance();
     const assetsMap = new Map<string, BalanceProperties>();
-    getBalanceResponse.balancesMap.forEach((balance) => {
+    getBalanceResponse.balancesMap.forEach(balance => {
       const asset = balance[0];
-      const free = parseFloat(
-        satsToCoinsStr(balance[1].channelBalance),
-      );
-      const locked = parseFloat(
-        satsToCoinsStr(balance[1].walletBalance),
-      );
+      const free = parseFloat(satsToCoinsStr(balance[1].channelBalance));
+      const locked = parseFloat(satsToCoinsStr(balance[1].walletBalance));
       assetsMap.set(asset, {
         free,
         locked,
       });
     });
     const tradingLimitsResponse = await this.xudClient.tradingLimits();
-    tradingLimitsResponse.limitsMap.forEach((limit) => {
+    tradingLimitsResponse.limitsMap.forEach(limit => {
       const asset = limit[0];
       const maxbuy = limit[1].maxbuy;
       const maxsell = limit[1].maxsell;
@@ -141,10 +146,10 @@ class OpenDexAPI extends ExchangeAPI {
       });
     });
     return balances;
-  }
+  };
 
   public newOrder = (
-    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest,
+    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest
   ): OpenDexOrder => {
     const orderId = uuidv4();
     const order = new OpenDexOrder({
@@ -154,16 +159,17 @@ class OpenDexAPI extends ExchangeAPI {
       logger: this.logger,
     });
     return order;
-  }
+  };
 
   public startOrder = async (
-    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest,
+    orderRequest: MarketOrderRequest | LimitOrderRequest | StopLimitOrderRequest
   ): Promise<PlaceOrderResponse.AsObject> => {
     const pairId = `${orderRequest.baseAsset}/${orderRequest.quoteAsset}`;
     const quantityInSatoshis = coinsToSats(orderRequest.quantity);
-    const xudOrderSide = orderRequest.orderSide === OrderSide.Buy
-      ? XudOrderSide.BUY
-      : XudOrderSide.SELL;
+    const xudOrderSide =
+      orderRequest.orderSide === OrderSide.Buy
+        ? XudOrderSide.BUY
+        : XudOrderSide.SELL;
     const xudOrderRequest = {
       pairId,
       orderId: orderRequest.orderId,
@@ -173,31 +179,37 @@ class OpenDexAPI extends ExchangeAPI {
     };
     const placeOrderResponse = await this.xudClient.newOrder(xudOrderRequest);
     return placeOrderResponse;
-  }
+  };
 
-  public cancelOrder = async (cancelOrderRequest: CancelOrderRequest): Promise<boolean> => {
+  public cancelOrder = async (
+    cancelOrderRequest: CancelOrderRequest
+  ): Promise<boolean> => {
     try {
       await this.xudClient.removeOrder(cancelOrderRequest.orderId);
       return true;
     } catch (e) {
       return false;
     }
-  }
+  };
 
-  public subscribeSwap = (id: string, cb: (swapSuccess: SwapSuccess.AsObject) => unknown) => {
+  public subscribeSwap = (
+    id: string,
+    cb: (swapSuccess: SwapSuccess.AsObject) => unknown
+  ) => {
     this.swapSubscriptions.set(id, cb);
-  }
+  };
 
   public queryOrder = async (): Promise<QueryOrderResponse> => {
     throw new Error('not implemented');
-  }
+  };
 
   private onSwapComplete = (swapSuccess: SwapSuccess) => {
     const swapSuccessObject = swapSuccess.toObject();
-    const swapSubscription = this.swapSubscriptions.get(swapSuccessObject.localId);
+    const swapSubscription = this.swapSubscriptions.get(
+      swapSuccessObject.localId
+    );
     swapSubscription && swapSubscription(swapSuccessObject);
-  }
-
+  };
 }
 
 export { OpenDexAPI };

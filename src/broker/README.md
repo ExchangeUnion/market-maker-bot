@@ -1,4 +1,5 @@
 # ExchangeBroker
+
 The exchange module is responsible for all the interactions between the system and its configured exchanges.
 
 ```
@@ -18,13 +19,16 @@ const openDexBroker = new ExchangeBroker({
 ## Basic information
 
 ### Price stream
+
 Get the current tradingpair's price stream
+
 ```
 const btcUsdPriceStream = broker.getPrice('BTCUSDT');
 btcUsdPriceStream.on('price', handlePriceChange);
 ```
 
 ### Asset allocation
+
 ```
 const ownedAssets = broker.getAssets();
 ->
@@ -38,11 +42,13 @@ const ownedAssets = broker.getAssets();
 ```
 
 ## Orders
+
 The system should support entering basic orders (market and limit) to the orderbook automatically. Orders should also be revocable. The system should be designed in a way that allows for advanced order types to be added in the future.
 
 ### Creating an order
 
 #### Market
+
 ```
 const order = broker.newOrder({
   baseAsset: 'DAI',
@@ -54,6 +60,7 @@ const order = broker.newOrder({
 ```
 
 #### Limit
+
 ```
 const order = broker.newOrder({
   baseAsset: 'DAI',
@@ -66,6 +73,7 @@ const order = broker.newOrder({
 ```
 
 #### Stop-Limit
+
 ```
 const order = broker.newOrder({
   baseAsset: 'DAI',
@@ -79,6 +87,7 @@ const order = broker.newOrder({
 ```
 
 #### Events
+
 ```
 order.on('failure', e => console.log('failure', e));
 order.on('fill', fill => console.log('fill', fill));
@@ -87,12 +96,15 @@ order.on('status', newStatus => console.log('status', newStatus));
 ```
 
 ### Start the order
+
 Once the order has been created and event listeners attached
+
 ```
 order.start();
 ```
 
 ### Cancel the order
+
 ```
 order.cancel();
 ```

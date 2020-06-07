@@ -4,14 +4,17 @@ import { Observable } from 'rxjs';
 import BigNumber from 'bignumber.js';
 import { timeout, retry } from 'rxjs/operators';
 
-const getBinancePriceStream = (tradingPair: string, logger: Logger): Observable<BigNumber> => {
-  const priceObservable: Observable<BigNumber> = new Observable((observer) => {
+const getBinancePriceStream = (
+  tradingPair: string,
+  logger: Logger
+): Observable<BigNumber> => {
+  const priceObservable: Observable<BigNumber> = new Observable(observer => {
     const url = `wss://stream.binance.com:9443/ws/${tradingPair.toLowerCase()}@aggTrade`;
     const socket = new WebSocket(url);
     socket.onopen = () => {
       logger.info(`${tradingPair} established connection to ${url}`);
     };
-    socket.on('error', (e) => {
+    socket.on('error', e => {
       logger.error(`error from the socket ${e}`);
     });
     const heartbeat = () => {
@@ -19,7 +22,9 @@ const getBinancePriceStream = (tradingPair: string, logger: Logger): Observable<
     };
     socket.onclose = (event: WebSocket.CloseEvent) => {
       if (event.reason) {
-        logger.info(`${tradingPair} stream closed with reason: ${event.reason}`);
+        logger.info(
+          `${tradingPair} stream closed with reason: ${event.reason}`
+        );
       } else {
         logger.info(`${tradingPair} stream closed`);
       }
@@ -36,13 +41,12 @@ const getBinancePriceStream = (tradingPair: string, logger: Logger): Observable<
       socket.terminate();
     };
   });
-  return priceObservable
-    .pipe(
-      // if we have not received a price value in 20 seconds we'll error
-      timeout(20000),
-      // restart on error
-      retry(),
-    );
+  return priceObservable.pipe(
+    // if we have not received a price value in 20 seconds we'll error
+    timeout(20000),
+    // restart on error
+    retry()
+  );
 };
 
 export { getBinancePriceStream };
