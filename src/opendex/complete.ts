@@ -10,20 +10,19 @@ import {
 } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
+import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
+import { TradeInfo } from '../trade/manager';
 import {
   getOpenDEXassets$,
   logAssetBalance,
   xudBalanceToExchangeAssetAllocation,
 } from './assets';
-import { getXudClient$ } from './xud/client';
-import { createXudOrder$ } from './xud/create-order';
-import { removeXudOrder$ } from './xud/remove-order';
-import { listXudOrders$ } from './xud/list-orders';
-import { getXudBalance$ } from './xud/balance';
-import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
-import { TradeInfo } from '../trade/manager';
 import { CreateOpenDEXordersParams } from './create-orders';
 import { tradeInfoToOpenDEXorders } from './orders';
+import { removeOpenDEXorders$ } from './remove-orders';
+import { getXudBalance$ } from './xud/balance';
+import { getXudClient$ } from './xud/client';
+import { createXudOrder$ } from './xud/create-order';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -98,9 +97,8 @@ const getOpenDEXcomplete$ = ({
         logger,
         getTradeInfo,
         getXudClient$,
-        listXudOrders$,
-        removeXudOrder$,
         createXudOrder$,
+        removeOpenDEXorders$,
         tradeInfoToOpenDEXorders,
       });
     }),

@@ -6,10 +6,10 @@ describe('processListorders', () => {
   it('returns list of order ids from ListOrdersResponse', () => {
     const ordersMap = new Map();
     const sellOrder = {
-      getId: () => '123',
+      getLocalId: () => '123',
     };
     const buyOrder = {
-      getId: () => '321',
+      getLocalId: () => '321',
     };
     const orders = {
       getBuyOrdersList: () => [sellOrder],

@@ -17,6 +17,7 @@ type RemoveOpenDEXordersInputEvents = {
   getXudClient$: string;
   listXudOrders$: string;
   removeXudOrder$: string;
+  activeOrderIds: string[];
 };
 
 const assertRemoveOpenDEXorders = (
@@ -40,13 +41,17 @@ const assertRemoveOpenDEXorders = (
         RemoveOrderResponse
       >;
     };
+    const processListorders = () => inputEvents.activeOrderIds;
     const removeOrders$ = removeOpenDEXorders$({
       config: testConfig(),
       getXudClient$,
       listXudOrders$,
       removeXudOrder$,
+      processListorders,
     });
-    expectObservable(removeOrders$).toBe(expected);
+    expectObservable(removeOrders$).toBe(expected, {
+      a: null,
+    });
   });
 };
 
@@ -57,9 +62,10 @@ describe('removeOpenDEXorders$', () => {
     const inputEvents = {
       getXudClient$: '1s a',
       listXudOrders$: '1s a',
-      removeXudOrder$: '1s a',
+      removeXudOrder$: '1s (a|)',
+      activeOrderIds: ['a', 'b', 'c'],
     };
-    const expectedEvents = '2s a';
+    const expectedEvents = '3s a';
     assertRemoveOpenDEXorders(inputEvents, expectedEvents);
   });
 });

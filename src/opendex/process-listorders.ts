@@ -18,9 +18,9 @@ const processListorders = ({
   const orderIds = buyOrders
     .concat(sellOrders)
     .reduce((allOrderIds: string[], currentOrder: Order) => {
-      return allOrderIds.concat(currentOrder.getId());
+      return allOrderIds.concat(currentOrder.getLocalId());
     }, []);
   return orderIds;
 };
 
-export { processListorders };
+export { processListorders, ProcessListOrdersParams };

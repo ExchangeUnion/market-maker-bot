@@ -29,9 +29,11 @@ describe('XudClient', () => {
     const source$ = new Observable(subscriber => {
       processResponse(subscriber)(null, nextValue);
     });
-    source$.subscribe(actualNextValue => {
-      expect(actualNextValue).toEqual(nextValue);
-      done();
+    source$.subscribe({
+      next: actualNextValue => {
+        expect(actualNextValue).toEqual(nextValue);
+        done();
+      },
     });
   });
 
