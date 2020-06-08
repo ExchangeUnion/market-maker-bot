@@ -16,9 +16,12 @@ import {
   xudBalanceToExchangeAssetAllocation,
 } from './assets';
 import { getXudClient$ } from './xud/client';
+import { createXudOrder$ } from './xud/create-order';
 import { getXudBalance$ } from './xud/balance';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
 import { TradeInfo } from '../trade/manager';
+import { CreateOpenDEXordersParams } from './create-orders';
+import { tradeInfoToOpenDEXorders } from './orders';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -29,10 +32,14 @@ type GetOpenDEXcompleteParams = {
     centralizedExchangeAssets$,
     centralizedExchangePrice$,
   }: GetTradeInfoParams) => Observable<TradeInfo>;
-  createOpenDEXorders$: (
-    config: Config,
-    tradeInfo: TradeInfo
-  ) => Observable<boolean>;
+  createOpenDEXorders$: ({
+    config,
+    logger,
+    getTradeInfo,
+    tradeInfoToOpenDEXorders,
+    getXudClient$,
+    createXudOrder$,
+  }: CreateOpenDEXordersParams) => Observable<boolean>;
   openDEXorderFilled$: (config: Config) => Observable<boolean>;
 };
 
@@ -79,10 +86,20 @@ const getOpenDEXcomplete$ = ({
     distinctUntilChanged(),
     // ignore new trade information when creating orders
     // is already in progress
-    exhaustMap((tradeInfo: TradeInfo) =>
+    exhaustMap((tradeInfo: TradeInfo) => {
+      const getTradeInfo = () => {
+        return tradeInfo;
+      };
       // create orders based on latest trade info
-      createOpenDEXorders$(config, tradeInfo)
-    ),
+      return createOpenDEXorders$({
+        config,
+        logger,
+        getTradeInfo,
+        getXudClient$,
+        createXudOrder$,
+        tradeInfoToOpenDEXorders,
+      });
+    }),
     // wait for the order to be filled
     takeUntil(openDEXorderFilled$(config))
   );
