@@ -1,12 +1,12 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
-import { testConfig } from '../../test/utils';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import { GetBalanceRequest } from '../broker/opendex/proto/xudrpc_pb';
-import { getXudBalance$, getXudClient$, processResponse } from './xud-client';
+import { testConfig } from '../../../test/utils';
+import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
+import { GetBalanceRequest } from '../../broker/opendex/proto/xudrpc_pb';
+import { getXudBalance$, getXudClient$, processResponse } from './client';
 
-jest.mock('../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
+jest.mock('../../broker/opendex/proto/xudrpc_pb');
 
 describe('XudClient', () => {
   test('getXudClient$', done => {
