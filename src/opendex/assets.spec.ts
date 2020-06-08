@@ -10,6 +10,7 @@ import { BigNumber } from 'bignumber.js';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import { testConfig, getLoggers } from '../../test/utils';
 import { Logger } from '../logger';
+import { satsToCoinsStr } from '../utils';
 
 describe('OpenDEX', () => {
   let testScheduler: TestScheduler;
@@ -42,8 +43,12 @@ describe('OpenDEX', () => {
         balanceResponse: getBalanceResponse,
       })
     ).toEqual({
-      baseAssetBalance: new BigNumber(ethBalance.getChannelBalance()),
-      quoteAssetBalance: new BigNumber(btcBalance.getChannelBalance()),
+      baseAssetBalance: new BigNumber(
+        satsToCoinsStr(ethBalance.getChannelBalance())
+      ),
+      quoteAssetBalance: new BigNumber(
+        satsToCoinsStr(btcBalance.getChannelBalance())
+      ),
     });
   });
 

@@ -6,6 +6,7 @@ import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { ExchangeAssetAllocation } from '../trade/info';
+import { satsToCoinsStr } from '../utils';
 
 type LogAssetBalanceParams = {
   logger: Logger;
@@ -34,10 +35,10 @@ const xudBalanceToExchangeAssetAllocation = ({
   const balancesMap = balanceResponse.getBalancesMap();
   try {
     const baseAssetBalance = new BigNumber(
-      balancesMap.get(baseAsset).getChannelBalance()
+      satsToCoinsStr(balancesMap.get(baseAsset).getChannelBalance())
     );
     const quoteAssetBalance = new BigNumber(
-      balancesMap.get(quoteAsset).getChannelBalance()
+      satsToCoinsStr(balancesMap.get(quoteAsset).getChannelBalance())
     );
     return {
       baseAssetBalance,
