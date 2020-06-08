@@ -1,14 +1,15 @@
+import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { testConfig, getLoggers } from '../../test/utils';
-import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
-import BigNumber from 'bignumber.js';
-import { TradeInfo } from '../trade/info';
+import { getLoggers, testConfig } from '../../test/utils';
+import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import {
+  ListOrdersResponse,
   PlaceOrderResponse,
   RemoveOrderResponse,
 } from '../broker/opendex/proto/xudrpc_pb';
-import { Observable } from 'rxjs';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
+import { TradeInfo } from '../trade/info';
+import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
+import { ListXudOrdersResponse } from './xud/list-orders';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -20,6 +21,7 @@ const testSchedulerSetup = () => {
 type CreateOpenDEXordersInputEvents = {
   xudClient$: string;
   xudOrder$: string;
+  listXudOrders$: string;
   removeXudOrder$: string;
 };
 
@@ -40,6 +42,11 @@ const assertCreateOpenDEXorders = (
         RemoveOrderResponse
       >;
     };
+    const listXudOrders$ = () => {
+      return cold(inputEvents.listXudOrders$) as Observable<
+        ListXudOrdersResponse
+      >;
+    };
     const getXudClient$ = () => {
       return cold(inputEvents.xudClient$) as Observable<XudClient>;
     };
@@ -51,6 +58,7 @@ const assertCreateOpenDEXorders = (
       getXudClient$,
       createXudOrder$,
       removeXudOrder$,
+      listXudOrders$,
       tradeInfoToOpenDEXorders,
       logger: getLoggers().global,
       config: testConfig(),
@@ -67,10 +75,11 @@ describe('createOpenDEXorders$', () => {
   it('creates buy orders', () => {
     const inputEvents = {
       xudClient$: '1s a',
+      listXudOrders$: '1s a',
       removeXudOrder$: '1s a',
       xudOrder$: '1s a',
     };
-    const expected = '3s (a|)';
+    const expected = '4s (a|)';
     assertCreateOpenDEXorders(inputEvents, expected);
   });
 });

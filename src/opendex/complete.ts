@@ -18,6 +18,7 @@ import {
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
 import { removeXudOrder$ } from './xud/remove-order';
+import { listXudOrders$ } from './xud/list-orders';
 import { getXudBalance$ } from './xud/balance';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
 import { TradeInfo } from '../trade/manager';
@@ -97,6 +98,7 @@ const getOpenDEXcomplete$ = ({
         logger,
         getTradeInfo,
         getXudClient$,
+        listXudOrders$,
         removeXudOrder$,
         createXudOrder$,
         tradeInfoToOpenDEXorders,

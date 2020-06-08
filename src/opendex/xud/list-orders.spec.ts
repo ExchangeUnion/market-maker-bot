@@ -7,7 +7,7 @@ jest.mock('../../broker/opendex/proto/xudrpc_pb');
 
 describe('listXudOrders$', () => {
   test('success', done => {
-    expect.assertions(2);
+    expect.assertions(3);
     const expectedResponse = 'expectedResponse';
     const client = ({
       listOrders: (req: any, cb: any) => {
@@ -16,7 +16,8 @@ describe('listXudOrders$', () => {
     } as unknown) as XudClient;
     const listOrders$ = listXudOrders$(client);
     listOrders$.subscribe(actualResponse => {
-      expect(actualResponse).toEqual(expectedResponse);
+      expect(actualResponse.client).toEqual(expect.any(Object));
+      expect(actualResponse.orders).toEqual(expectedResponse);
       expect(ListOrdersRequest).toHaveBeenCalledTimes(1);
       done();
     });
