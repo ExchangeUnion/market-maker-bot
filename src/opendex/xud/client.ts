@@ -3,10 +3,6 @@ import { Config } from '../../config';
 import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import fs from 'fs';
 import { credentials } from '@grpc/grpc-js';
-import {
-  GetBalanceRequest,
-  GetBalanceResponse,
-} from '../../broker/opendex/proto/xudrpc_pb';
 import { ServiceError } from '@grpc/grpc-js';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
@@ -34,12 +30,4 @@ const processResponse = (subscriber: Subscriber<unknown>) => {
   };
 };
 
-const getXudBalance$ = (client: XudClient): Observable<GetBalanceResponse> => {
-  const request = new GetBalanceRequest();
-  const balance$ = new Observable(subscriber => {
-    client.getBalance(request, processResponse(subscriber));
-  });
-  return balance$ as Observable<GetBalanceResponse>;
-};
-
-export { getXudClient$, getXudBalance$, processResponse };
+export { getXudClient$, processResponse };
