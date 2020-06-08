@@ -3,7 +3,10 @@ import { testConfig, getLoggers } from '../../test/utils';
 import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
 import BigNumber from 'bignumber.js';
 import { TradeInfo } from '../trade/info';
-import { PlaceOrderResponse } from '../broker/opendex/proto/xudrpc_pb';
+import {
+  PlaceOrderResponse,
+  RemoveOrderResponse,
+} from '../broker/opendex/proto/xudrpc_pb';
 import { Observable } from 'rxjs';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 
@@ -17,6 +20,7 @@ const testSchedulerSetup = () => {
 type CreateOpenDEXordersInputEvents = {
   xudClient$: string;
   xudOrder$: string;
+  removeXudOrder$: string;
 };
 
 const assertCreateOpenDEXorders = (
@@ -31,6 +35,11 @@ const assertCreateOpenDEXorders = (
     const createXudOrder$ = () => {
       return cold(inputEvents.xudOrder$) as Observable<PlaceOrderResponse>;
     };
+    const removeXudOrder$ = () => {
+      return cold(inputEvents.removeXudOrder$) as Observable<
+        RemoveOrderResponse
+      >;
+    };
     const getXudClient$ = () => {
       return cold(inputEvents.xudClient$) as Observable<XudClient>;
     };
@@ -41,6 +50,7 @@ const assertCreateOpenDEXorders = (
       getTradeInfo,
       getXudClient$,
       createXudOrder$,
+      removeXudOrder$,
       tradeInfoToOpenDEXorders,
       logger: getLoggers().global,
       config: testConfig(),
@@ -57,9 +67,10 @@ describe('createOpenDEXorders$', () => {
   it('creates buy orders', () => {
     const inputEvents = {
       xudClient$: '1s a',
+      removeXudOrder$: '1s a',
       xudOrder$: '1s a',
     };
-    const expected = '2s (a|)';
+    const expected = '3s (a|)';
     assertCreateOpenDEXorders(inputEvents, expected);
   });
 });
