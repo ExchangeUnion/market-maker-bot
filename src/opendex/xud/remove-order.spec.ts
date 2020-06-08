@@ -5,7 +5,7 @@ import { removeXudOrder$ } from './remove-order';
 jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
 jest.mock('../../broker/opendex/proto/xudrpc_pb');
 
-describe('createXudOrder$', () => {
+describe('removeXudOrder$', () => {
   test('success', done => {
     expect.assertions(3);
     const expectedResponse = 'expectedResponse';
