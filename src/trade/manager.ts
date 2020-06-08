@@ -114,9 +114,9 @@ const getNewTrade$ = ({
   return concat(
     getOpenDEXcomplete$({
       config,
+      createOpenDEXorders$,
       logger: loggers.opendex,
       tradeInfo$: getTradeInfo$,
-      openDEXorders$: createOpenDEXorders$,
       openDEXorderFilled$: getOpenDEXorderFilled$,
     }).pipe(ignoreElements()),
     centralizedExchangeOrder$(config)

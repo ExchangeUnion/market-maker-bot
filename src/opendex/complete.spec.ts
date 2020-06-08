@@ -23,7 +23,7 @@ describe('getOpenDEXcomplete$', () => {
         openDEXorderFilled$: '10s a',
       };
       const expected = '2s a 2001ms a 5997ms |';
-      const getOpenDEXorders$ = () => {
+      const createOpenDEXorders$ = () => {
         return cold(inputEvents.getOpenDEXorders$, {
           a: true,
         });
@@ -40,7 +40,7 @@ describe('getOpenDEXcomplete$', () => {
         config: testConfig(),
         logger: getLoggers().opendex,
         tradeInfo$: getTradeInfo$,
-        openDEXorders$: getOpenDEXorders$,
+        createOpenDEXorders$,
         openDEXorderFilled$: getOpenDEXorderFilled$,
       });
       expectObservable(trade$).toBe(expected, { a: true });

@@ -29,7 +29,10 @@ type GetOpenDEXcompleteParams = {
     centralizedExchangeAssets$,
     centralizedExchangePrice$,
   }: GetTradeInfoParams) => Observable<TradeInfo>;
-  openDEXorders$: (config: Config, tradeInfo: TradeInfo) => Observable<boolean>;
+  createOpenDEXorders$: (
+    config: Config,
+    tradeInfo: TradeInfo
+  ) => Observable<boolean>;
   openDEXorderFilled$: (config: Config) => Observable<boolean>;
 };
 
@@ -37,7 +40,7 @@ const getOpenDEXcomplete$ = ({
   config,
   logger,
   tradeInfo$,
-  openDEXorders$,
+  createOpenDEXorders$,
   openDEXorderFilled$,
 }: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
@@ -78,7 +81,7 @@ const getOpenDEXcomplete$ = ({
     // is already in progress
     exhaustMap((tradeInfo: TradeInfo) =>
       // create orders based on latest trade info
-      openDEXorders$(config, tradeInfo)
+      createOpenDEXorders$(config, tradeInfo)
     ),
     // wait for the order to be filled
     takeUntil(openDEXorderFilled$(config))
