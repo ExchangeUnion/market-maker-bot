@@ -14,7 +14,7 @@ import {
   getOpenDEXassets$,
   logAssetBalance,
   xudBalanceToExchangeAssetAllocation,
-} from '../opendex/opendex';
+} from './assets';
 import { getXudClient$ } from './xud/client';
 import { getXudBalance$ } from './xud/balance';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';

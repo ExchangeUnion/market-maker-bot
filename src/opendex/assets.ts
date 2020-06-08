@@ -1,11 +1,11 @@
-import { Observable } from 'rxjs';
-import { tap, map, take, mergeMap } from 'rxjs/operators';
-import { ExchangeAssetAllocation } from '../trade/info';
 import { BigNumber } from 'bignumber.js';
-import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
+import { Observable } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
+import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { Logger } from '../logger';
+import { ExchangeAssetAllocation } from '../trade/info';
 
 type LogAssetBalanceParams = {
   logger: Logger;
@@ -82,8 +82,7 @@ const getOpenDEXassets$ = ({
         baseAsset: config.BASEASSET,
       });
     }),
-    tap(assetBalance => logBalance({ assetBalance, logger })),
-    take(1)
+    tap(assetBalance => logBalance({ assetBalance, logger }))
   );
 };
 

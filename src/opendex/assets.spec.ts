@@ -3,7 +3,7 @@ import {
   getOpenDEXassets$,
   xudBalanceToExchangeAssetAllocation,
   logAssetBalance,
-} from './opendex';
+} from './assets';
 import { Observable } from 'rxjs';
 import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { BigNumber } from 'bignumber.js';
@@ -68,7 +68,7 @@ describe('OpenDEX', () => {
         xudBalance$: '500ms a',
         xudClient$: '500ms a',
       };
-      const expected = '1s (a|)';
+      const expected = '1s a';
       const xudBalanceToExchangeAssetAllocation = ({ balanceResponse }: any) =>
         balanceResponse;
       const getXudBalance$ = () => {
