@@ -79,5 +79,4 @@ describe('removeOpenDEXorders$', () => {
     const expectedEvents = '2s a';
     assertRemoveOpenDEXorders(inputEvents, expectedEvents);
   });
-
 });
