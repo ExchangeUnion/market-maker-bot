@@ -30,7 +30,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         orderSide: OrderSide.BUY,
         pairId: 'ETH/BTC',
         price: 123,
-        orderId: '123-orderid',
+        orderId: 'arby-buy-order',
       })
     );
     const expectedSellQuantity = coinsToSats(new BigNumber('15').toNumber());
@@ -40,7 +40,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         orderSide: OrderSide.SELL,
         pairId: 'ETH/BTC',
         price: 123,
-        orderId: '123-orderid',
+        orderId: 'arby-sell-order',
       })
     );
   });

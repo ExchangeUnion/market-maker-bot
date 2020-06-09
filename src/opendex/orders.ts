@@ -34,7 +34,7 @@ const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
     orderSide: OrderSide.BUY,
     pairId: 'ETH/BTC',
     price: 123,
-    orderId: '123-orderid',
+    orderId: 'arby-buy-order',
   };
   const sellQuantity = coinsToSats(
     BigNumber.minimum(
@@ -47,7 +47,7 @@ const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
     orderSide: OrderSide.SELL,
     pairId: 'ETH/BTC',
     price: 123,
-    orderId: '123-orderid',
+    orderId: 'arby-sell-order',
   };
   return {
     buyOrder,
