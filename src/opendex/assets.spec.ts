@@ -2,12 +2,16 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../../test/utils';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
+import {
+  GetBalanceResponse,
+  TradingLimitsResponse,
+} from '../broker/opendex/proto/xudrpc_pb';
 import { getOpenDEXassets$ } from './assets';
 
 type OpenDEXassetsInputEvents = {
   xudClient$: string;
   xudBalance$: string;
+  xudTradingLimits$: string;
 };
 
 let testScheduler: TestScheduler;
@@ -25,6 +29,11 @@ const assertOpenDEXassets = (
         GetBalanceResponse
       >;
     };
+    const getXudTradingLimits$ = () => {
+      return (cold(inputEvents.xudTradingLimits$) as unknown) as Observable<
+        TradingLimitsResponse
+      >;
+    };
     const getXudClient$ = () => {
       return (cold(inputEvents.xudClient$) as unknown) as Observable<XudClient>;
     };
@@ -35,6 +44,7 @@ const assertOpenDEXassets = (
       logger: getLoggers().global,
       xudClient$: getXudClient$,
       xudBalance$: getXudBalance$,
+      xudTradingLimits$: getXudTradingLimits$,
       xudBalanceToExchangeAssetAllocation,
     });
     expectObservable(openDEXassets$).toBe(expected);
@@ -52,8 +62,9 @@ describe('getOpenDEXassets$', () => {
     const inputEvents = {
       xudBalance$: '500ms a',
       xudClient$: '500ms a',
+      xudTradingLimits$: '1s a',
     };
-    const expected = '1s a';
+    const expected = '1500ms a';
     assertOpenDEXassets(inputEvents, expected);
   });
 });

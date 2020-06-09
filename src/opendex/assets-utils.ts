@@ -15,7 +15,7 @@ const logAssetBalance = ({
 }: LogAssetBalanceParams): void => {
   const { baseAssetBalance, quoteAssetBalance } = assetBalance;
   logger.trace(
-    `Base asset balance ${baseAssetBalance.toFixed()} and quote asset balance ${quoteAssetBalance.toFixed()}`
+    `Tradable base asset balance ${baseAssetBalance.toFixed()} and quote asset balance ${quoteAssetBalance.toFixed()}`
   );
 };
 

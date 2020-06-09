@@ -23,6 +23,7 @@ import { removeOpenDEXorders$ } from './remove-orders';
 import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
+import { getXudTradingLimits$ } from './xud/trading-limits';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -58,6 +59,7 @@ const getOpenDEXcomplete$ = ({
       logBalance: logAssetBalance,
       xudClient$: getXudClient$,
       xudBalance$: getXudBalance$,
+      xudTradingLimits$: getXudTradingLimits$,
       xudBalanceToExchangeAssetAllocation,
     });
   };
