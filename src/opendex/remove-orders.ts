@@ -30,8 +30,10 @@ const removeOpenDEXorders$ = ({
 }: RemoveOpenDEXordersParams): Observable<null> => {
   return getXudClient$(config).pipe(
     mergeMap(client => {
+      // get a list of all orders
       return listXudOrders$(client).pipe(
         map(({ client, orders }) => {
+          // create a list of active order ids
           const orderIds = processListorders({
             config,
             listOrdersResponse: orders,
@@ -42,14 +44,17 @@ const removeOpenDEXorders$ = ({
     }),
     mergeMap(({ client, orderIds }) => {
       if (orderIds.length) {
+        // remove all active orders
         const removeOrders$ = orderIds.map(orderId => {
           return removeXudOrder$({
             client,
             orderId,
           });
         });
+        // wait for all remove order requests to complete
         return forkJoin(removeOrders$).pipe(mapTo(null));
       } else {
+        // continue without removing anything
         return of(null);
       }
     })
