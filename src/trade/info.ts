@@ -1,15 +1,20 @@
 import { Observable, combineLatest } from 'rxjs';
-import { map, filter, publishBehavior, refCount } from 'rxjs/operators';
+import { map, filter, publishBehavior, refCount, tap } from 'rxjs/operators';
 import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
+import { CentralizedExchangePriceParams } from 'src/centralized/exchange-price';
+import { Loggers } from 'src/logger';
 
 type GetTradeInfoParams = {
   config: Config;
+  loggers: Loggers;
   openDexAssets$: (config: Config) => Observable<OpenDEXassetAllocation>;
   centralizedExchangeAssets$: (
     config: Config
   ) => Observable<ExchangeAssetAllocation>;
-  centralizedExchangePrice$: (config: Config) => Observable<BigNumber>;
+  centralizedExchangePrice$: ({
+    config: Config,
+  }: CentralizedExchangePriceParams) => Observable<BigNumber>;
   tradeInfoArrayToObject: ([
     openDexAssets,
     centralizedExchangeAssets,
@@ -61,6 +66,7 @@ const tradeInfoArrayToObject = ([
 
 const getTradeInfo$ = ({
   config,
+  loggers,
   openDexAssets$,
   centralizedExchangeAssets$,
   centralizedExchangePrice$,
@@ -70,7 +76,10 @@ const getTradeInfo$ = ({
     // wait for all the necessary tradeInfo
     openDexAssets$(config),
     centralizedExchangeAssets$(config),
-    centralizedExchangePrice$(config)
+    centralizedExchangePrice$({
+      config,
+      logger: loggers.centralized,
+    }).pipe(tap(price => loggers.centralized.trace(`New price: ${price}`)))
   ).pipe(
     // map it to an object
     map(tradeInfoArrayToObject),

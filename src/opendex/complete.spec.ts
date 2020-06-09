@@ -38,7 +38,7 @@ describe('getOpenDEXcomplete$', () => {
       };
       const trade$ = getOpenDEXcomplete$({
         config: testConfig(),
-        logger: getLoggers().opendex,
+        loggers: getLoggers(),
         tradeInfo$: getTradeInfo$,
         createOpenDEXorders$,
         openDEXorderFilled$: getOpenDEXorderFilled$,

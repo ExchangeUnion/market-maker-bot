@@ -3,13 +3,12 @@ import { interval, Observable } from 'rxjs';
 import {
   distinctUntilChanged,
   exhaustMap,
-  map,
   mapTo,
   takeUntil,
-  tap,
 } from 'rxjs/operators';
+import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
-import { Logger } from '../logger';
+import { Loggers } from '../logger';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
 import { TradeInfo } from '../trade/manager';
 import { getOpenDEXassets$ } from './assets';
@@ -24,7 +23,7 @@ import { getXudTradingLimits$ } from './xud/trading-limits';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
-  logger: Logger;
+  loggers: Loggers;
   tradeInfo$: ({
     config,
     openDexAssets$,
@@ -44,7 +43,7 @@ type GetOpenDEXcompleteParams = {
 
 const getOpenDEXcomplete$ = ({
   config,
-  logger,
+  loggers,
   tradeInfo$,
   createOpenDEXorders$,
   openDEXorderFilled$,
@@ -52,7 +51,7 @@ const getOpenDEXcomplete$ = ({
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
       config,
-      logger,
+      logger: loggers.opendex,
       parseOpenDEXassets,
       logBalance: logAssetBalance,
       xudClient$: getXudClient$,
@@ -60,6 +59,7 @@ const getOpenDEXcomplete$ = ({
       xudTradingLimits$: getXudTradingLimits$,
     });
   };
+  // Mock centralized exchange assets for testing
   const getCentralizedExchangeAssets$ = (config: Config) => {
     return interval(1000).pipe(
       mapTo({
@@ -68,14 +68,9 @@ const getOpenDEXcomplete$ = ({
       })
     );
   };
-  const getCentralizedExchangePrice$ = (config: Config) => {
-    return interval(100).pipe(
-      map((v: number) => new BigNumber(`${v + 1}0000`)),
-      tap(v => console.log(`New price ${v}`))
-    );
-  };
   return tradeInfo$({
     config,
+    loggers,
     tradeInfoArrayToObject,
     openDexAssets$: openDEXassetsWithConfig,
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,
@@ -93,7 +88,7 @@ const getOpenDEXcomplete$ = ({
       // create orders based on latest trade info
       return createOpenDEXorders$({
         config,
-        logger,
+        logger: loggers.opendex,
         getTradeInfo,
         getXudClient$,
         createXudOrder$,

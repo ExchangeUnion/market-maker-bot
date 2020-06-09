@@ -22,7 +22,7 @@ const logAssetBalance = ({ logger, assets }: LogAssetBalanceParams): void => {
     quoteAssetMaxsell,
   } = assets;
   logger.trace(
-    `Base asset balance ${baseAssetBalance.toFixed()} (maxbuy: ${baseAssetMaxbuy.toFixed()}, maxsell: ${baseAssetMaxsell.toFixed()}) and quote asset balance ${quoteAssetBalance.toFixed()} (maxbuy: ${quoteAssetMaxbuy.toFixed()}, maxsell: ${quoteAssetMaxsell.toFixed()}.`
+    `Base asset balance ${baseAssetBalance.toFixed()} (maxbuy: ${baseAssetMaxbuy.toFixed()}, maxsell: ${baseAssetMaxsell.toFixed()}) and quote asset balance ${quoteAssetBalance.toFixed()} (maxbuy: ${quoteAssetMaxbuy.toFixed()}, maxsell: ${quoteAssetMaxsell.toFixed()}).`
   );
 };
 

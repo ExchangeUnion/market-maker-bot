@@ -98,7 +98,7 @@ type GetTradeParams = {
   loggers: Loggers;
   getOpenDEXcomplete$: ({
     config,
-    logger,
+    loggers,
   }: GetOpenDEXcompleteParams) => Observable<boolean>;
   centralizedExchangeOrder$: (config: Config) => Observable<boolean>;
   shutdown$: Observable<unknown>;
@@ -115,7 +115,7 @@ const getNewTrade$ = ({
     getOpenDEXcomplete$({
       config,
       createOpenDEXorders$,
-      logger: loggers.opendex,
+      loggers,
       tradeInfo$: getTradeInfo$,
       openDEXorderFilled$: getOpenDEXorderFilled$,
     }).pipe(ignoreElements()),

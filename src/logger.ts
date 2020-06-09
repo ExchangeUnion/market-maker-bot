@@ -26,7 +26,8 @@ export enum Context {
   DB = 'DB',
   Stream = 'Stream',
   Binance = 'Binance',
-  OpenDex = 'OpenDex',
+  OpenDex = 'OpenDEX',
+  Centralized = 'Centralized',
   TradeManager = 'TradeManager',
   Balancer = 'Balancer',
 }
@@ -36,6 +37,7 @@ type Loggers = {
   db: Logger;
   stream: Logger;
   binance: Logger;
+  centralized: Logger;
   opendex: Logger;
   trademanager: Logger;
   balancer: Logger;
@@ -113,6 +115,7 @@ class Logger {
       db: new Logger({ ...object, context: Context.DB }),
       stream: new Logger({ ...object, context: Context.Stream }),
       binance: new Logger({ ...object, context: Context.Binance }),
+      centralized: new Logger({ ...object, context: Context.Centralized }),
       opendex: new Logger({ ...object, context: Context.OpenDex }),
       trademanager: new Logger({ ...object, context: Context.TradeManager }),
       balancer: new Logger({ ...object, context: Context.Balancer }),

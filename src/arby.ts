@@ -43,7 +43,7 @@ export const startArby = ({
         loggers,
         getOpenDEXcomplete$,
         centralizedExchangeOrder$: getCentralizedExchangeOrder$(
-          loggers.binance
+          loggers.centralized
         ),
         shutdown$,
       });

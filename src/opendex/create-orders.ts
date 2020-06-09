@@ -75,7 +75,7 @@ const createOpenDEXorders$ = ({
       const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));
       return ordersComplete$;
     }),
-    tap(() => logger.trace('OpenDEX orders created.')),
+    tap(() => logger.trace('OpenDEX orders updated.')),
     take(1)
   );
 };

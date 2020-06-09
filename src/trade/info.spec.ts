@@ -7,7 +7,7 @@ import {
   OpenDEXassetAllocation,
 } from './info';
 import { BigNumber } from 'bignumber.js';
-import { testConfig } from '../../test/utils';
+import { testConfig, getLoggers } from '../../test/utils';
 import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
@@ -47,6 +47,7 @@ const assertTradeInfo = (
     const tradeInfoArrayToObject = (v: any) => (v[0] as unknown) as TradeInfo;
     const tradeInfo$ = getTradeInfo$({
       config: testConfig(),
+      loggers: getLoggers(),
       openDexAssets$: getOpenDEXassets$,
       centralizedExchangeAssets$: getCentralizedExchangeAssets$,
       centralizedExchangePrice$: getCentralizedExchangePrice$,
