@@ -7,7 +7,7 @@ import {
 } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { Logger } from '../logger';
-import { ExchangeAssetAllocation } from '../trade/info';
+import { ExchangeAssetAllocation, OpenDEXassetAllocation } from '../trade/info';
 import {
   LogAssetBalanceParams,
   ParseOpenDEXassetsParams,
@@ -16,7 +16,7 @@ import {
 type GetOpenDEXassetsParams = {
   config: Config;
   logger: Logger;
-  logBalance: ({ logger, assetBalance }: LogAssetBalanceParams) => void;
+  logBalance: ({ logger, assets }: LogAssetBalanceParams) => void;
   xudClient$: (config: Config) => Observable<XudClient>;
   xudBalance$: (client: XudClient) => Observable<GetBalanceResponse>;
   xudTradingLimits$: (client: XudClient) => Observable<TradingLimitsResponse>;
@@ -25,7 +25,7 @@ type GetOpenDEXassetsParams = {
     tradingLimitsResponse,
     quoteAsset,
     baseAsset,
-  }: ParseOpenDEXassetsParams) => ExchangeAssetAllocation;
+  }: ParseOpenDEXassetsParams) => OpenDEXassetAllocation;
 };
 
 const getOpenDEXassets$ = ({
@@ -49,7 +49,7 @@ const getOpenDEXassets$ = ({
         baseAsset: config.BASEASSET,
       });
     }),
-    tap(assetBalance => logBalance({ assetBalance, logger }))
+    tap(assets => logBalance({ assets, logger }))
   );
 };
 

@@ -91,14 +91,22 @@ describe('OpenDEX.assets-utils', () => {
     const logger = (getLoggers().global as unknown) as Logger;
     logger.trace = jest.fn();
     const baseAssetBalance = '1.23456789';
+    const baseAssetMaxsell = '0.617283945';
+    const baseAssetMaxbuy = '0.33';
     const quoteAssetBalance = '9.87654321';
-    const assetBalance = {
+    const quoteAssetMaxbuy = '0.55';
+    const quoteAssetMaxsell = '0.44';
+    const assets = {
       baseAssetBalance: new BigNumber(baseAssetBalance),
+      baseAssetMaxsell: new BigNumber(baseAssetMaxsell),
+      baseAssetMaxbuy: new BigNumber(baseAssetMaxbuy),
       quoteAssetBalance: new BigNumber(quoteAssetBalance),
+      quoteAssetMaxbuy: new BigNumber(quoteAssetMaxbuy),
+      quoteAssetMaxsell: new BigNumber(quoteAssetMaxsell),
     };
     logAssetBalance({
       logger,
-      assetBalance,
+      assets,
     });
     expect(logger.trace).toHaveBeenCalledTimes(1);
     expect(logger.trace).toHaveBeenCalledWith(

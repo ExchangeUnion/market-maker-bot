@@ -4,21 +4,25 @@ import {
   TradingLimitsResponse,
 } from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
-import { ExchangeAssetAllocation, OpenDEXassetAllocation } from '../trade/info';
+import { OpenDEXassetAllocation } from '../trade/info';
 import { satsToCoinsStr } from '../utils';
 
 type LogAssetBalanceParams = {
   logger: Logger;
-  assetBalance: ExchangeAssetAllocation;
+  assets: OpenDEXassetAllocation;
 };
 
-const logAssetBalance = ({
-  logger,
-  assetBalance,
-}: LogAssetBalanceParams): void => {
-  const { baseAssetBalance, quoteAssetBalance } = assetBalance;
+const logAssetBalance = ({ logger, assets }: LogAssetBalanceParams): void => {
+  const {
+    baseAssetBalance,
+    baseAssetMaxbuy,
+    baseAssetMaxsell,
+    quoteAssetBalance,
+    quoteAssetMaxbuy,
+    quoteAssetMaxsell,
+  } = assets;
   logger.trace(
-    `Tradable base asset balance ${baseAssetBalance.toFixed()} and quote asset balance ${quoteAssetBalance.toFixed()}`
+    `Base asset balance ${baseAssetBalance.toFixed()} (maxbuy: ${baseAssetMaxbuy.toFixed()}, maxsell: ${baseAssetMaxsell.toFixed()}) and quote asset balance ${quoteAssetBalance.toFixed()} (maxbuy: ${quoteAssetMaxbuy.toFixed()}, maxsell: ${quoteAssetMaxsell.toFixed()}.`
   );
 };
 
