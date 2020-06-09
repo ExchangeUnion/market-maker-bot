@@ -1,6 +1,8 @@
 import { CreateXudOrderParams } from './xud/create-order';
 import { TradeInfo } from '../trade/manager';
 import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
+import BigNumber from 'bignumber.js';
+import { coinsToSats } from '../utils';
 
 type OpenDEXorder = Omit<CreateXudOrderParams, 'client'>;
 
@@ -10,15 +12,38 @@ type OpenDEXorders = {
 };
 
 const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
+  const { centralizedExchange, openDEX } = tradeInfo.assets;
+  const {
+    baseAssetMaxsell: openDEXbaseAssetMaxsell,
+    quoteAssetMaxbuy: openDEXquoteAssetMaxbuy,
+  } = openDEX;
+  const {
+    baseAssetBalance: centralizedExchangeBaseAssetBalance,
+    quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
+  } = centralizedExchange;
+  const buyQuantity = coinsToSats(
+    BigNumber.minimum(
+      openDEXquoteAssetMaxbuy,
+      centralizedExchangeQuoteAssetBalance
+    )
+      .dividedBy(tradeInfo.price)
+      .toNumber()
+  );
   const buyOrder = {
-    quantity: 1000,
+    quantity: buyQuantity,
     orderSide: OrderSide.BUY,
     pairId: 'ETH/BTC',
     price: 123,
     orderId: '123-orderid',
   };
+  const sellQuantity = coinsToSats(
+    BigNumber.minimum(
+      openDEXbaseAssetMaxsell,
+      centralizedExchangeBaseAssetBalance
+    ).toNumber()
+  );
   const sellOrder = {
-    quantity: 1000,
+    quantity: sellQuantity,
     orderSide: OrderSide.SELL,
     pairId: 'ETH/BTC',
     price: 123,
