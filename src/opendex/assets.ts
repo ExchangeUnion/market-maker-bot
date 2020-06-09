@@ -1,4 +1,4 @@
-import { Observable, combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import {
@@ -7,7 +7,7 @@ import {
 } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { Logger } from '../logger';
-import { ExchangeAssetAllocation, OpenDEXassetAllocation } from '../trade/info';
+import { OpenDEXassetAllocation } from '../trade/info';
 import {
   LogAssetBalanceParams,
   ParseOpenDEXassetsParams,
@@ -36,7 +36,7 @@ const getOpenDEXassets$ = ({
   xudBalance$,
   xudTradingLimits$,
   parseOpenDEXassets,
-}: GetOpenDEXassetsParams): Observable<ExchangeAssetAllocation> => {
+}: GetOpenDEXassetsParams): Observable<OpenDEXassetAllocation> => {
   return xudClient$(config).pipe(
     mergeMap(client => {
       return combineLatest(xudBalance$(client), xudTradingLimits$(client));

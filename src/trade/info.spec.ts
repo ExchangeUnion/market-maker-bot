@@ -4,6 +4,7 @@ import {
   tradeInfoArrayToObject,
   ExchangeAssetAllocation,
   TradeInfo,
+  OpenDEXassetAllocation,
 } from './info';
 import { BigNumber } from 'bignumber.js';
 import { testConfig } from '../../test/utils';
@@ -30,7 +31,7 @@ const assertTradeInfo = (
     const { cold, expectObservable } = helpers;
     const getOpenDEXassets$ = () => {
       return cold(inputEvents.getOpenDEXassets$) as Observable<
-        ExchangeAssetAllocation
+        OpenDEXassetAllocation
       >;
     };
     const getCentralizedExchangeAssets$ = () => {
@@ -133,7 +134,11 @@ describe('tradeInfoArrayToObject', () => {
   it('converts trade info array to object', () => {
     const openDEXassets = {
       baseAssetBalance: new BigNumber('1.23'),
+      baseAssetMaxbuy: new BigNumber('0.615'),
+      baseAssetMaxsell: new BigNumber('0.615'),
       quoteAssetBalance: new BigNumber('3.33'),
+      quoteAssetMaxbuy: new BigNumber('1.665'),
+      quoteAssetMaxsell: new BigNumber('1.665'),
     };
     const centralizedExchangeAssets = {
       baseAssetBalance: new BigNumber('7.65'),

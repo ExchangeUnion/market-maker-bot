@@ -5,7 +5,7 @@ import { BigNumber } from 'bignumber.js';
 
 type GetTradeInfoParams = {
   config: Config;
-  openDexAssets$: (config: Config) => Observable<ExchangeAssetAllocation>;
+  openDexAssets$: (config: Config) => Observable<OpenDEXassetAllocation>;
   centralizedExchangeAssets$: (
     config: Config
   ) => Observable<ExchangeAssetAllocation>;
@@ -23,7 +23,7 @@ type TradeInfo = {
 };
 
 type AssetAllocation = {
-  openDEX: ExchangeAssetAllocation;
+  openDEX: OpenDEXassetAllocation;
   centralizedExchange: ExchangeAssetAllocation;
 };
 
@@ -40,7 +40,7 @@ type ExchangeAssetAllocation = {
 };
 
 type TradeInfoArrayToObjectParams = [
-  ExchangeAssetAllocation,
+  OpenDEXassetAllocation,
   ExchangeAssetAllocation,
   BigNumber
 ];
