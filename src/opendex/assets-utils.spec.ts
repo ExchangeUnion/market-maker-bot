@@ -3,13 +3,10 @@ import { getLoggers } from '../../test/utils';
 import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
 import { satsToCoinsStr } from '../utils';
-import {
-  logAssetBalance,
-  xudBalanceToExchangeAssetAllocation,
-} from './assets-utils';
+import { logAssetBalance, getOpenDEXtradableAssets } from './assets-utils';
 
 describe('OpenDEX.assets-utils', () => {
-  test('xudBalanceToExchangeAssetAllocation success', () => {
+  test('getOpenDEXtradableAssets success', () => {
     const ethBalance = {
       getChannelBalance: () => 10000000,
     };
@@ -25,7 +22,7 @@ describe('OpenDEX.assets-utils', () => {
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
     expect(
-      xudBalanceToExchangeAssetAllocation({
+      getOpenDEXtradableAssets({
         baseAsset,
         quoteAsset,
         balanceResponse: getBalanceResponse,
@@ -46,7 +43,7 @@ describe('OpenDEX.assets-utils', () => {
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
     expect(() => {
-      xudBalanceToExchangeAssetAllocation({
+      getOpenDEXtradableAssets({
         baseAsset: 'ETH',
         quoteAsset: 'BTC',
         balanceResponse: getBalanceResponse,

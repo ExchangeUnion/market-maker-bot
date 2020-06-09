@@ -19,7 +19,7 @@ const logAssetBalance = ({
   );
 };
 
-const xudBalanceToExchangeAssetAllocation = ({
+const getOpenDEXtradableAssets = ({
   balanceResponse,
   baseAsset,
   quoteAsset,
@@ -47,8 +47,4 @@ const xudBalanceToExchangeAssetAllocation = ({
   }
 };
 
-export {
-  xudBalanceToExchangeAssetAllocation,
-  logAssetBalance,
-  LogAssetBalanceParams,
-};
+export { getOpenDEXtradableAssets, logAssetBalance, LogAssetBalanceParams };

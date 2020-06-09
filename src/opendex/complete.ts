@@ -13,10 +13,7 @@ import { Logger } from '../logger';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
 import { TradeInfo } from '../trade/manager';
 import { getOpenDEXassets$ } from './assets';
-import {
-  logAssetBalance,
-  xudBalanceToExchangeAssetAllocation,
-} from './assets-utils';
+import { logAssetBalance, getOpenDEXtradableAssets } from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';
 import { tradeInfoToOpenDEXorders } from './orders';
 import { removeOpenDEXorders$ } from './remove-orders';
@@ -56,11 +53,11 @@ const getOpenDEXcomplete$ = ({
     return getOpenDEXassets$({
       config,
       logger,
+      getOpenDEXtradableAssets,
       logBalance: logAssetBalance,
       xudClient$: getXudClient$,
       xudBalance$: getXudBalance$,
       xudTradingLimits$: getXudTradingLimits$,
-      xudBalanceToExchangeAssetAllocation,
     });
   };
   const getCentralizedExchangeAssets$ = (config: Config) => {

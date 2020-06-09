@@ -17,7 +17,7 @@ type GetOpenDEXassetsParams = {
   xudClient$: (config: Config) => Observable<XudClient>;
   xudBalance$: (client: XudClient) => Observable<GetBalanceResponse>;
   xudTradingLimits$: (client: XudClient) => Observable<TradingLimitsResponse>;
-  xudBalanceToExchangeAssetAllocation: ({
+  getOpenDEXtradableAssets: ({
     balanceResponse,
     quoteAsset,
     baseAsset,
@@ -35,14 +35,14 @@ const getOpenDEXassets$ = ({
   xudClient$,
   xudBalance$,
   xudTradingLimits$,
-  xudBalanceToExchangeAssetAllocation,
+  getOpenDEXtradableAssets,
 }: GetOpenDEXassetsParams): Observable<ExchangeAssetAllocation> => {
   return xudClient$(config).pipe(
     mergeMap(client => {
       return combineLatest(xudBalance$(client), xudTradingLimits$(client));
     }),
     map(([balanceResponse, tradinLimitsResponse]) => {
-      return xudBalanceToExchangeAssetAllocation({
+      return getOpenDEXtradableAssets({
         balanceResponse,
         quoteAsset: config.QUOTEASSET,
         baseAsset: config.BASEASSET,
