@@ -3,6 +3,7 @@ import { TradeInfo } from '../trade/manager';
 import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
 import BigNumber from 'bignumber.js';
 import { coinsToSats } from '../utils';
+import { Config } from '../config';
 
 type OpenDEXorder = Omit<CreateXudOrderParams, 'client'>;
 
@@ -11,7 +12,15 @@ type OpenDEXorders = {
   sellOrder: OpenDEXorder;
 };
 
-const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
+type TradeInfoToOpenDEXordersParams = {
+  tradeInfo: TradeInfo;
+  config: Config;
+};
+
+const tradeInfoToOpenDEXorders = ({
+  tradeInfo,
+  config,
+}: TradeInfoToOpenDEXordersParams): OpenDEXorders => {
   const { centralizedExchange, openDEX } = tradeInfo.assets;
   const {
     baseAssetMaxsell: openDEXbaseAssetMaxsell,
@@ -29,12 +38,13 @@ const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
       .dividedBy(tradeInfo.price)
       .toNumber()
   );
+  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
   const buyOrder = {
     quantity: buyQuantity,
     orderSide: OrderSide.BUY,
-    pairId: 'ETH/BTC',
+    pairId,
     price: 123,
-    orderId: 'arby-buy-order',
+    orderId: `arby-buy-order-${pairId}`,
   };
   const sellQuantity = coinsToSats(
     BigNumber.minimum(
@@ -45,9 +55,9 @@ const tradeInfoToOpenDEXorders = (tradeInfo: TradeInfo): OpenDEXorders => {
   const sellOrder = {
     quantity: sellQuantity,
     orderSide: OrderSide.SELL,
-    pairId: 'ETH/BTC',
+    pairId,
     price: 123,
-    orderId: 'arby-sell-order',
+    orderId: `arby-sell-order-${pairId}`,
   };
   return {
     buyOrder,

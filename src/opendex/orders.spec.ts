@@ -2,9 +2,11 @@ import { tradeInfoToOpenDEXorders } from './orders';
 import BigNumber from 'bignumber.js';
 import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
 import { coinsToSats } from '../utils';
+import { testConfig } from '../../test/utils';
 
 describe('tradeInfoToOpenDEXorders', () => {
   it('fails', () => {
+    const config = testConfig();
     const tradeInfo = {
       price: new BigNumber('10000'),
       assets: {
@@ -22,15 +24,19 @@ describe('tradeInfoToOpenDEXorders', () => {
         },
       },
     };
-    const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders(tradeInfo);
+    const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
+      tradeInfo,
+      config,
+    });
     const expectedBuyQuantity = coinsToSats(new BigNumber('0.011').toNumber());
+    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`
     expect(buyOrder).toEqual(
       expect.objectContaining({
         quantity: expectedBuyQuantity,
         orderSide: OrderSide.BUY,
-        pairId: 'ETH/BTC',
+        pairId,
         price: 123,
-        orderId: 'arby-buy-order',
+        orderId: `arby-buy-order-${pairId}`,
       })
     );
     const expectedSellQuantity = coinsToSats(new BigNumber('15').toNumber());
@@ -38,9 +44,9 @@ describe('tradeInfoToOpenDEXorders', () => {
       expect.objectContaining({
         quantity: expectedSellQuantity,
         orderSide: OrderSide.SELL,
-        pairId: 'ETH/BTC',
+        pairId,
         price: 123,
-        orderId: 'arby-sell-order',
+        orderId: `arby-sell-order-${pairId}`,
       })
     );
   });
