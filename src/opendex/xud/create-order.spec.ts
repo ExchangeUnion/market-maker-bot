@@ -32,25 +32,27 @@ describe('createXudOrder$', () => {
       ...{ client },
       ...order,
     });
-    createOrder$.subscribe(actualResponse => {
-      expect(actualResponse).toEqual(expectedResponse);
-      expect(PlaceOrderRequest).toHaveBeenCalledTimes(1);
-      expect(PlaceOrderRequest.prototype.setQuantity).toHaveBeenCalledWith(
-        order.quantity
-      );
-      expect(PlaceOrderRequest.prototype.setSide).toHaveBeenCalledWith(
-        order.orderSide
-      );
-      expect(PlaceOrderRequest.prototype.setPairId).toHaveBeenCalledWith(
-        order.pairId
-      );
-      expect(PlaceOrderRequest.prototype.setPrice).toHaveBeenCalledWith(
-        order.price
-      );
-      expect(PlaceOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
-        order.orderId
-      );
-      done();
+    createOrder$.subscribe({
+      next: actualResponse => {
+        expect(actualResponse).toEqual(expectedResponse);
+        expect(PlaceOrderRequest).toHaveBeenCalledTimes(1);
+        expect(PlaceOrderRequest.prototype.setQuantity).toHaveBeenCalledWith(
+          order.quantity
+        );
+        expect(PlaceOrderRequest.prototype.setSide).toHaveBeenCalledWith(
+          order.orderSide
+        );
+        expect(PlaceOrderRequest.prototype.setPairId).toHaveBeenCalledWith(
+          order.pairId
+        );
+        expect(PlaceOrderRequest.prototype.setPrice).toHaveBeenCalledWith(
+          order.price
+        );
+        expect(PlaceOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
+          order.orderId
+        );
+      },
+      complete: done,
     });
   });
 

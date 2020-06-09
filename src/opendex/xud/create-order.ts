@@ -6,6 +6,7 @@ import {
   OrderSide,
 } from '../../broker/opendex/proto/xudrpc_pb';
 import { processResponse } from './client';
+import { take } from 'rxjs/operators';
 
 type CreateXudOrderParams = {
   client: XudClient;
@@ -32,7 +33,7 @@ const createXudOrder$ = ({
   request.setOrderId(orderId);
   const createXudOrder$ = new Observable(subscriber => {
     client.placeOrderSync(request, processResponse(subscriber));
-  });
+  }).pipe(take(1));
   return createXudOrder$ as Observable<PlaceOrderResponse>;
 };
 
