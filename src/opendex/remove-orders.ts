@@ -45,10 +45,7 @@ const removeOpenDEXorders$ = ({
         return removeXudOrder$({
           client,
           orderId,
-        }).pipe(
-          // move to removeXudOrder$
-          take(1)
-        );
+        });
       });
       return forkJoin(removeOrders$).pipe(mapTo(null));
     })

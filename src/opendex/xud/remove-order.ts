@@ -5,6 +5,7 @@ import {
   RemoveOrderResponse,
 } from '../../broker/opendex/proto/xudrpc_pb';
 import { processResponse } from './client';
+import { take } from 'rxjs/operators';
 
 type RemoveXudOrderParams = {
   client: XudClient;
@@ -19,7 +20,7 @@ const removeXudOrder$ = ({
   request.setOrderId(orderId);
   const removeXudOrder$ = new Observable(subscriber => {
     client.removeOrder(request, processResponse(subscriber));
-  });
+  }).pipe(take(1));
   return removeXudOrder$ as Observable<RemoveOrderResponse>;
 };
 

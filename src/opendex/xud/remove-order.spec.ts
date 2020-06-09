@@ -19,13 +19,15 @@ describe('removeXudOrder$', () => {
       ...{ client },
       ...{ orderId },
     });
-    removeOrder$.subscribe(actualResponse => {
-      expect(actualResponse).toEqual(expectedResponse);
-      expect(RemoveOrderRequest).toHaveBeenCalledTimes(1);
-      expect(RemoveOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
-        orderId
-      );
-      done();
+    removeOrder$.subscribe({
+      next: actualResponse => {
+        expect(actualResponse).toEqual(expectedResponse);
+        expect(RemoveOrderRequest).toHaveBeenCalledTimes(1);
+        expect(RemoveOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
+          orderId
+        );
+      },
+      complete: done,
     });
   });
 
