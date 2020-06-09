@@ -68,4 +68,16 @@ describe('removeOpenDEXorders$', () => {
     const expectedEvents = '3s a';
     assertRemoveOpenDEXorders(inputEvents, expectedEvents);
   });
+
+  it('emits value without existing orders', () => {
+    const inputEvents = {
+      getXudClient$: '1s a',
+      listXudOrders$: '1s a',
+      removeXudOrder$: '1s (a|)',
+      activeOrderIds: [],
+    };
+    const expectedEvents = '2s a';
+    assertRemoveOpenDEXorders(inputEvents, expectedEvents);
+  });
+
 });

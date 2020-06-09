@@ -1,4 +1,4 @@
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, mapTo, mergeMap, take } from 'rxjs/operators';
 import { RemoveOrderResponse } from 'src/broker/opendex/proto/xudrpc_pb';
 import { Config } from 'src/config';
@@ -41,13 +41,17 @@ const removeOpenDEXorders$ = ({
       );
     }),
     mergeMap(({ client, orderIds }) => {
-      const removeOrders$ = orderIds.map(orderId => {
-        return removeXudOrder$({
-          client,
-          orderId,
+      if (orderIds.length) {
+        const removeOrders$ = orderIds.map(orderId => {
+          return removeXudOrder$({
+            client,
+            orderId,
+          });
         });
-      });
-      return forkJoin(removeOrders$).pipe(mapTo(null));
+        return forkJoin(removeOrders$).pipe(mapTo(null));
+      } else {
+        return of(null);
+      }
     })
   );
 };
