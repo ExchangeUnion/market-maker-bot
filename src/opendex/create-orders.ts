@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
 import { XudClient } from 'src/broker/opendex/proto/xudrpc_grpc_pb';
 import { Logger } from 'src/logger';
@@ -64,10 +64,16 @@ const createOpenDEXorders$ = ({
         config,
         tradeInfo: getTradeInfo(),
       });
-      return createXudOrder$({
+      const buyOrder$ = createXudOrder$({
         ...{ client },
         ...buyOrder,
-      }).pipe(mapTo(true));
+      });
+      const sellOrder$ = createXudOrder$({
+        ...{ client },
+        ...sellOrder,
+      });
+      const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));
+      return ordersComplete$;
     }),
     tap(() => logger.trace('OpenDEX orders created.')),
     take(1)

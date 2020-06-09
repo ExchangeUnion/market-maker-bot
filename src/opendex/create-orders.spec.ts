@@ -58,11 +58,11 @@ const assertCreateOpenDEXorders = (
 describe('createOpenDEXorders$', () => {
   beforeEach(testSchedulerSetup);
 
-  it('creates buy orders', () => {
+  it('creates buy and sell orders', () => {
     const inputEvents = {
       xudClient$: '1s a',
       removeOpenDEXorders$: '4s a',
-      xudOrder$: '1s a',
+      xudOrder$: '1s (a|)',
     };
     const expected = '6s (a|)';
     assertCreateOpenDEXorders(inputEvents, expected);
