@@ -22,8 +22,7 @@ const assertOpenDEXassets = (
 ) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
-    const getOpenDEXtradableAssets = ({ balanceResponse }: any) =>
-      balanceResponse;
+    const parseOpenDEXassets = ({ balanceResponse }: any) => balanceResponse;
     const getXudBalance$ = () => {
       return (cold(inputEvents.xudBalance$) as unknown) as Observable<
         GetBalanceResponse
@@ -45,7 +44,7 @@ const assertOpenDEXassets = (
       xudClient$: getXudClient$,
       xudBalance$: getXudBalance$,
       xudTradingLimits$: getXudTradingLimits$,
-      getOpenDEXtradableAssets,
+      parseOpenDEXassets,
     });
     expectObservable(openDEXassets$).toBe(expected);
   });

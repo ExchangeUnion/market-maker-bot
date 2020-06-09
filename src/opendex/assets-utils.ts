@@ -1,7 +1,10 @@
 import { BigNumber } from 'bignumber.js';
-import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
+import {
+  GetBalanceResponse,
+  TradingLimitsResponse,
+} from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
-import { ExchangeAssetAllocation } from '../trade/info';
+import { ExchangeAssetAllocation, OpenDEXassetAllocation } from '../trade/info';
 import { satsToCoinsStr } from '../utils';
 
 type LogAssetBalanceParams = {
@@ -19,32 +22,60 @@ const logAssetBalance = ({
   );
 };
 
-const getOpenDEXtradableAssets = ({
-  balanceResponse,
-  baseAsset,
-  quoteAsset,
-}: {
+type ParseOpenDEXassetsParams = {
   balanceResponse: GetBalanceResponse;
+  tradingLimitsResponse: TradingLimitsResponse;
   baseAsset: string;
   quoteAsset: string;
-}): ExchangeAssetAllocation => {
-  const balancesMap = balanceResponse.getBalancesMap();
+};
+
+const parseOpenDEXassets = ({
+  balanceResponse,
+  tradingLimitsResponse,
+  baseAsset,
+  quoteAsset,
+}: ParseOpenDEXassetsParams): OpenDEXassetAllocation => {
   try {
+    const balancesMap = balanceResponse.getBalancesMap();
     const baseAssetBalance = new BigNumber(
       satsToCoinsStr(balancesMap.get(baseAsset).getChannelBalance())
     );
     const quoteAssetBalance = new BigNumber(
       satsToCoinsStr(balancesMap.get(quoteAsset).getChannelBalance())
     );
+    const tradingLimitsMap = tradingLimitsResponse.getLimitsMap();
+    const baseAssetLimits = tradingLimitsMap.get(baseAsset);
+    const baseAssetMaxsell = new BigNumber(
+      satsToCoinsStr(baseAssetLimits.getMaxsell())
+    );
+    const baseAssetMaxbuy = new BigNumber(
+      satsToCoinsStr(baseAssetLimits.getMaxbuy())
+    );
+    const quoteAssetLimits = tradingLimitsMap.get(quoteAsset);
+    const quoteAssetMaxsell = new BigNumber(
+      satsToCoinsStr(quoteAssetLimits.getMaxsell())
+    );
+    const quoteAssetMaxbuy = new BigNumber(
+      satsToCoinsStr(quoteAssetLimits.getMaxbuy())
+    );
     return {
       baseAssetBalance,
       quoteAssetBalance,
+      baseAssetMaxsell,
+      baseAssetMaxbuy,
+      quoteAssetMaxbuy,
+      quoteAssetMaxsell,
     };
   } catch (e) {
     throw new Error(
-      `OpenDEX balance does not include balance for base asset ${baseAsset} or quote asset ${quoteAsset}.`
+      `Failed to get asset allocation for OpenDEX baseAsset ${baseAsset} or quote asset ${quoteAsset}.`
     );
   }
 };
 
-export { getOpenDEXtradableAssets, logAssetBalance, LogAssetBalanceParams };
+export {
+  parseOpenDEXassets,
+  logAssetBalance,
+  LogAssetBalanceParams,
+  ParseOpenDEXassetsParams,
+};

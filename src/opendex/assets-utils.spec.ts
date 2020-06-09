@@ -1,52 +1,88 @@
 import { BigNumber } from 'bignumber.js';
-import { getLoggers } from '../../test/utils';
-import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
+import { getLoggers, testConfig } from '../../test/utils';
+import {
+  GetBalanceResponse,
+  TradingLimitsResponse,
+} from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
 import { satsToCoinsStr } from '../utils';
-import { logAssetBalance, getOpenDEXtradableAssets } from './assets-utils';
+import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 
 describe('OpenDEX.assets-utils', () => {
-  test('getOpenDEXtradableAssets success', () => {
-    const ethBalance = {
+  test('parseOpenDEXassets success', () => {
+    const config = testConfig();
+    const baseAssetBalance = {
       getChannelBalance: () => 10000000,
     };
-    const btcBalance = {
+    const quoteAssetBalance = {
       getChannelBalance: () => 20000000,
     };
     const balancesMap = new Map();
-    const baseAsset = 'ETH';
-    const quoteAsset = 'BTC';
-    balancesMap.set(baseAsset, ethBalance);
-    balancesMap.set(quoteAsset, btcBalance);
-    const getBalanceResponse = ({
+    const baseAsset = config.BASEASSET;
+    const quoteAsset = config.QUOTEASSET;
+    balancesMap.set(baseAsset, baseAssetBalance);
+    balancesMap.set(quoteAsset, quoteAssetBalance);
+    const balanceResponse = ({
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
+    const limitsMap = new Map();
+    const baseAssetLimits = {
+      getMaxsell: () => 5000000,
+      getMaxbuy: () => 5000000,
+    };
+    const quoteAssetLimits = {
+      getMaxsell: () => 10000000,
+      getMaxbuy: () => 10000000,
+    };
+    limitsMap.set(config.BASEASSET, baseAssetLimits);
+    limitsMap.set(config.QUOTEASSET, quoteAssetLimits);
+    const tradingLimitsResponse = ({
+      getLimitsMap: () => limitsMap,
+    } as unknown) as TradingLimitsResponse;
     expect(
-      getOpenDEXtradableAssets({
-        baseAsset,
-        quoteAsset,
-        balanceResponse: getBalanceResponse,
+      parseOpenDEXassets({
+        baseAsset: config.BASEASSET,
+        quoteAsset: config.QUOTEASSET,
+        balanceResponse,
+        tradingLimitsResponse,
       })
     ).toEqual({
       baseAssetBalance: new BigNumber(
-        satsToCoinsStr(ethBalance.getChannelBalance())
+        satsToCoinsStr(baseAssetBalance.getChannelBalance())
+      ),
+      baseAssetMaxsell: new BigNumber(
+        satsToCoinsStr(baseAssetLimits.getMaxsell())
+      ),
+      baseAssetMaxbuy: new BigNumber(
+        satsToCoinsStr(baseAssetLimits.getMaxbuy())
       ),
       quoteAssetBalance: new BigNumber(
-        satsToCoinsStr(btcBalance.getChannelBalance())
+        satsToCoinsStr(quoteAssetBalance.getChannelBalance())
+      ),
+      quoteAssetMaxsell: new BigNumber(
+        satsToCoinsStr(quoteAssetLimits.getMaxsell())
+      ),
+      quoteAssetMaxbuy: new BigNumber(
+        satsToCoinsStr(quoteAssetLimits.getMaxbuy())
       ),
     });
   });
 
   test('error baseAssetBalance', () => {
     const balancesMap = new Map();
-    const getBalanceResponse = ({
+    const balanceResponse = ({
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
+    const limitsMap = new Map();
+    const tradingLimitsResponse = ({
+      getLimitsMap: () => limitsMap,
+    } as unknown) as TradingLimitsResponse;
     expect(() => {
-      getOpenDEXtradableAssets({
+      parseOpenDEXassets({
         baseAsset: 'ETH',
         quoteAsset: 'BTC',
-        balanceResponse: getBalanceResponse,
+        balanceResponse,
+        tradingLimitsResponse,
       });
     }).toThrowErrorMatchingSnapshot();
   });

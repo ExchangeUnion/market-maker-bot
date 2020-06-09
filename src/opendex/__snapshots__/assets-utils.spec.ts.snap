@@ -1,3 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`OpenDEX.assets-utils error baseAssetBalance 1`] = `"OpenDEX balance does not include balance for base asset ETH or quote asset BTC."`;
+exports[`OpenDEX.assets-utils error baseAssetBalance 1`] = `"Failed to get asset allocation for OpenDEX baseAsset ETH or quote asset BTC."`;

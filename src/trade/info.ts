@@ -27,6 +27,13 @@ type AssetAllocation = {
   centralizedExchange: ExchangeAssetAllocation;
 };
 
+type OpenDEXassetAllocation = ExchangeAssetAllocation & {
+  baseAssetMaxsell: BigNumber;
+  baseAssetMaxbuy: BigNumber;
+  quoteAssetMaxbuy: BigNumber;
+  quoteAssetMaxsell: BigNumber;
+};
+
 type ExchangeAssetAllocation = {
   baseAssetBalance: BigNumber;
   quoteAssetBalance: BigNumber;
@@ -82,4 +89,5 @@ export {
   GetTradeInfoParams,
   TradeInfo,
   ExchangeAssetAllocation,
+  OpenDEXassetAllocation,
 };
