@@ -12,11 +12,11 @@ import { Config } from '../config';
 import { Logger } from '../logger';
 import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
 import { TradeInfo } from '../trade/manager';
+import { getOpenDEXassets$ } from './assets';
 import {
-  getOpenDEXassets$,
   logAssetBalance,
   xudBalanceToExchangeAssetAllocation,
-} from './assets';
+} from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';
 import { tradeInfoToOpenDEXorders } from './orders';
 import { removeOpenDEXorders$ } from './remove-orders';

@@ -3,7 +3,10 @@ import { getLoggers } from '../../test/utils';
 import { GetBalanceResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
 import { satsToCoinsStr } from '../utils';
-import { logAssetBalance, xudBalanceToExchangeAssetAllocation } from './assets';
+import {
+  logAssetBalance,
+  xudBalanceToExchangeAssetAllocation,
+} from './assets-utils';
 
 describe('OpenDEX.assets-utils', () => {
   test('xudBalanceToExchangeAssetAllocation success', () => {
