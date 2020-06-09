@@ -21,6 +21,7 @@ const tradeInfoToOpenDEXorders = ({
   tradeInfo,
   config,
 }: TradeInfoToOpenDEXordersParams): OpenDEXorders => {
+  const { price } = tradeInfo;
   const { centralizedExchange, openDEX } = tradeInfo.assets;
   const {
     baseAssetMaxsell: openDEXbaseAssetMaxsell,
@@ -30,12 +31,16 @@ const tradeInfoToOpenDEXorders = ({
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
+  const margin = new BigNumber(config.MARGIN);
+  const spread = price.multipliedBy(margin);
+  const buyPrice = price.minus(spread).toNumber();
+  const sellPrice = price.plus(spread).toNumber();
   const buyQuantity = coinsToSats(
     BigNumber.minimum(
       openDEXquoteAssetMaxbuy,
       centralizedExchangeQuoteAssetBalance
     )
-      .dividedBy(tradeInfo.price)
+      .dividedBy(price)
       .toNumber()
   );
   const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
@@ -43,7 +48,7 @@ const tradeInfoToOpenDEXorders = ({
     quantity: buyQuantity,
     orderSide: OrderSide.BUY,
     pairId,
-    price: 123,
+    price: buyPrice,
     orderId: `arby-buy-order-${pairId}`,
   };
   const sellQuantity = coinsToSats(
@@ -56,7 +61,7 @@ const tradeInfoToOpenDEXorders = ({
     quantity: sellQuantity,
     orderSide: OrderSide.SELL,
     pairId,
-    price: 123,
+    price: sellPrice,
     orderId: `arby-sell-order-${pairId}`,
   };
   return {
@@ -65,4 +70,8 @@ const tradeInfoToOpenDEXorders = ({
   };
 };
 
-export { OpenDEXorders, tradeInfoToOpenDEXorders };
+export {
+  OpenDEXorders,
+  tradeInfoToOpenDEXorders,
+  TradeInfoToOpenDEXordersParams,
+};

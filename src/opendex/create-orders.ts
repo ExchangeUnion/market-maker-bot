@@ -5,7 +5,7 @@ import { Logger } from 'src/logger';
 import { PlaceOrderResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { TradeInfo } from '../trade/manager';
-import { OpenDEXorders } from './orders';
+import { OpenDEXorders, TradeInfoToOpenDEXordersParams } from './orders';
 import { processListorders } from './process-listorders';
 import { RemoveOpenDEXordersParams } from './remove-orders';
 import { CreateXudOrderParams } from './xud/create-order';
@@ -16,7 +16,10 @@ type CreateOpenDEXordersParams = {
   config: Config;
   logger: Logger;
   getTradeInfo: () => TradeInfo;
-  tradeInfoToOpenDEXorders: (tradeInfo: TradeInfo) => OpenDEXorders;
+  tradeInfoToOpenDEXorders: ({
+    tradeInfo,
+    config,
+  }: TradeInfoToOpenDEXordersParams) => OpenDEXorders;
   getXudClient$: (config: Config) => Observable<XudClient>;
   removeOpenDEXorders$: ({
     config,
@@ -57,7 +60,10 @@ const createOpenDEXorders$ = ({
     }),
     // create new buy and sell orders
     mergeMap(client => {
-      const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders(getTradeInfo());
+      const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
+        config,
+        tradeInfo: getTradeInfo(),
+      });
       return createXudOrder$({
         ...{ client },
         ...buyOrder,

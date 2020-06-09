@@ -29,23 +29,25 @@ describe('tradeInfoToOpenDEXorders', () => {
       config,
     });
     const expectedBuyQuantity = coinsToSats(new BigNumber('0.011').toNumber());
-    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`
+    const expectedBuyPrice = new BigNumber('9400').toNumber();
+    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
     expect(buyOrder).toEqual(
       expect.objectContaining({
         quantity: expectedBuyQuantity,
         orderSide: OrderSide.BUY,
         pairId,
-        price: 123,
+        price: expectedBuyPrice,
         orderId: `arby-buy-order-${pairId}`,
       })
     );
     const expectedSellQuantity = coinsToSats(new BigNumber('15').toNumber());
+    const expectedSellprice = new BigNumber('10600').toNumber();
     expect(sellOrder).toEqual(
       expect.objectContaining({
         quantity: expectedSellQuantity,
         orderSide: OrderSide.SELL,
         pairId,
-        price: 123,
+        price: expectedSellprice,
         orderId: `arby-sell-order-${pairId}`,
       })
     );
