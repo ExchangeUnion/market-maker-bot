@@ -63,7 +63,7 @@ if (!module.parent) {
     getLoggers,
     shutdown$: getStartShutdown$(),
   }).subscribe({
-    next: trade => console.log(`Trade complete: ${trade}`),
+    next: () => console.log('Trade complete.'),
     error: console.log,
     complete: () => console.log('Received shutdown signal.'),
   });
