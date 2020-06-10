@@ -6,23 +6,36 @@ import { EventEmitter } from 'events';
 jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
 jest.mock('../../broker/opendex/proto/xudrpc_pb');
 
-class MockSwapSubscription extends EventEmitter {}
+const CANCELLED_ERROR = {
+  code: 1,
+  message: 'Cancelled on client',
+};
+
+class MockSwapSubscription extends EventEmitter {
+  cancel = () => {
+    this.emit('error', CANCELLED_ERROR);
+  };
+}
 
 describe('subscribeXudSwaps$', () => {
   let client: XudClient;
   let mockSwapSubscription: MockSwapSubscription;
   let onSwapSubscriptionSpy: any;
+  let offSwapSubscriptionSpy: any;
+  let cancelSwapSubscriptionSpy: any;
 
   beforeEach(() => {
     mockSwapSubscription = new MockSwapSubscription();
+    cancelSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'cancel');
     client = ({
       subscribeSwaps: () => mockSwapSubscription,
     } as unknown) as XudClient;
     onSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'on');
+    offSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'off');
   });
 
   test('success', done => {
-    expect.assertions(6);
+    expect.assertions(8);
     const swapSuccess = 'swapSuccess';
     const swapsSubscription$ = subscribeXudSwaps$(client);
     swapsSubscription$.subscribe({
@@ -45,6 +58,8 @@ describe('subscribeXudSwaps$', () => {
     );
     mockSwapSubscription.emit('data', swapSuccess);
     mockSwapSubscription.emit('end');
+    expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
+    expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
   });
 
   test('failure', done => {
@@ -58,5 +73,19 @@ describe('subscribeXudSwaps$', () => {
       },
     });
     mockSwapSubscription.emit('error', swapError);
+  });
+
+  test('does not emit error on cancel', done => {
+    expect.assertions(1);
+    const swapsSubscription$ = subscribeXudSwaps$(client);
+    const swapSuccess = 'success';
+    swapsSubscription$.subscribe({
+      next: actualSwapSuccess => {
+        expect(actualSwapSuccess).toEqual(swapSuccess);
+        done();
+      },
+    });
+    mockSwapSubscription.emit('error', CANCELLED_ERROR);
+    mockSwapSubscription.emit('data', swapSuccess);
   });
 });

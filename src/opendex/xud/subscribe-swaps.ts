@@ -1,3 +1,4 @@
+import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
 import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import {
@@ -10,15 +11,28 @@ const subscribeXudSwaps$ = (client: XudClient): Observable<SwapSuccess> => {
   request.setIncludeTaker(true);
   const subscribeSwaps$ = new Observable(subscriber => {
     const swapsSubscription = client.subscribeSwaps(request);
-    swapsSubscription.on('data', swapSuccess => {
+    const onData = (swapSuccess: SwapSuccess) => {
       subscriber.next(swapSuccess);
-    });
-    swapsSubscription.on('error', error => {
+    };
+    swapsSubscription.on('data', onData);
+    const onError = (error: ServiceError) => {
+      // do not error when client cancels the stream
+      if (error.code === 1) {
+        return;
+      }
       subscriber.error(error);
-    });
-    swapsSubscription.on('end', () => {
+    };
+    swapsSubscription.on('error', onError);
+    const onEnd = () => {
       subscriber.complete();
-    });
+    };
+    swapsSubscription.on('end', onEnd);
+    return () => {
+      swapsSubscription.cancel();
+      swapsSubscription.off('data', onData);
+      swapsSubscription.off('error', onError);
+      swapsSubscription.off('end', onEnd);
+    };
   });
   return subscribeSwaps$ as Observable<SwapSuccess>;
 };
