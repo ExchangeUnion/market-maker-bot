@@ -1,12 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
-import {
-  distinctUntilChanged,
-  exhaustMap,
-  mapTo,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { exhaustMap, mapTo, takeUntil } from 'rxjs/operators';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -15,12 +9,15 @@ import { TradeInfo } from '../trade/manager';
 import { getOpenDEXassets$ } from './assets';
 import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';
+import { GetOpenDEXorderFilledParams } from './order-filled';
 import { tradeInfoToOpenDEXorders } from './orders';
 import { removeOpenDEXorders$ } from './remove-orders';
 import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
 import { getXudTradingLimits$ } from './xud/trading-limits';
+import { subscribeXudSwaps$ } from './xud/subscribe-swaps';
+import { SwapSuccess } from 'src/broker/opendex/proto/xudrpc_pb';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -39,7 +36,11 @@ type GetOpenDEXcompleteParams = {
     getXudClient$,
     createXudOrder$,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
-  openDEXorderFilled$: (config: Config) => Observable<boolean>;
+  openDEXorderFilled$: ({
+    config,
+    getXudClient$,
+    subscribeXudSwaps$,
+  }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
 };
 
 const getOpenDEXcomplete$ = ({
@@ -95,7 +96,13 @@ const getOpenDEXcomplete$ = ({
       });
     }),
     // wait for the order to be filled
-    takeUntil(openDEXorderFilled$(config))
+    takeUntil(
+      openDEXorderFilled$({
+        config,
+        getXudClient$,
+        subscribeXudSwaps$,
+      })
+    )
   );
 };
 

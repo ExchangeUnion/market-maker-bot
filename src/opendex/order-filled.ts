@@ -1,13 +1,25 @@
+import { Observable } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
+import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
-import { Observable, of } from 'rxjs';
-import { tap, delay } from 'rxjs/operators';
 
-const getOpenDEXorderFilled$ = (config: Config): Observable<boolean> => {
-  // mock implementation
-  return of(true).pipe(
-    delay(10000),
-    tap(() => console.log('Mock OpenDEX orders have been filled.'))
+type GetOpenDEXorderFilledParams = {
+  config: Config;
+  getXudClient$: (config: Config) => Observable<XudClient>;
+  subscribeXudSwaps$: (client: XudClient) => Observable<SwapSuccess>;
+};
+
+const getOpenDEXorderFilled$ = ({
+  config,
+  getXudClient$,
+  subscribeXudSwaps$,
+}: GetOpenDEXorderFilledParams): Observable<SwapSuccess> => {
+  return getXudClient$(config).pipe(
+    mergeMap(client => {
+      return subscribeXudSwaps$(client);
+    })
   );
 };
 
-export { getOpenDEXorderFilled$ };
+export { getOpenDEXorderFilled$, GetOpenDEXorderFilledParams };
