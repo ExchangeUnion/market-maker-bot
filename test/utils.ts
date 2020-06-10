@@ -18,14 +18,22 @@ const testConfig = (): Config => {
 };
 
 const getLoggers = (): Loggers => {
+  const mockLogger = {
+    warn: () => {},
+    info: () => {},
+    verbose: () => {},
+    debug: () => {},
+    trace: () => {},
+  };
   return {
-    global: {
-      warn: () => {},
-      info: () => {},
-      verbose: () => {},
-      debug: () => {},
-      trace: () => {},
-    }
+    global: mockLogger,
+    db: mockLogger,
+    stream: mockLogger,
+    binance: mockLogger,
+    centralized: mockLogger,
+    opendex: mockLogger,
+    trademanager: mockLogger,
+    balancer: mockLogger,
   } as unknown as Loggers;
 };
 
