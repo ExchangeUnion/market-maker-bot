@@ -367,28 +367,6 @@ function deserialize_xudrpc_ListPeersResponse(buffer_arg) {
   return xudrpc_pb.ListPeersResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_xudrpc_ListTradesRequest(arg) {
-  if (!(arg instanceof xudrpc_pb.ListTradesRequest)) {
-    throw new Error('Expected argument of type xudrpc.ListTradesRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_xudrpc_ListTradesRequest(buffer_arg) {
-  return xudrpc_pb.ListTradesRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_xudrpc_ListTradesResponse(arg) {
-  if (!(arg instanceof xudrpc_pb.ListTradesResponse)) {
-    throw new Error('Expected argument of type xudrpc.ListTradesResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_xudrpc_ListTradesResponse(buffer_arg) {
-  return xudrpc_pb.ListTradesResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_xudrpc_OpenChannelRequest(arg) {
   if (!(arg instanceof xudrpc_pb.OpenChannelRequest)) {
     throw new Error('Expected argument of type xudrpc.OpenChannelRequest');
@@ -609,6 +587,28 @@ function deserialize_xudrpc_SwapSuccess(buffer_arg) {
   return xudrpc_pb.SwapSuccess.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_xudrpc_TradeHistoryRequest(arg) {
+  if (!(arg instanceof xudrpc_pb.TradeHistoryRequest)) {
+    throw new Error('Expected argument of type xudrpc.TradeHistoryRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_xudrpc_TradeHistoryRequest(buffer_arg) {
+  return xudrpc_pb.TradeHistoryRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_xudrpc_TradeHistoryResponse(arg) {
+  if (!(arg instanceof xudrpc_pb.TradeHistoryResponse)) {
+    throw new Error('Expected argument of type xudrpc.TradeHistoryResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_xudrpc_TradeHistoryResponse(buffer_arg) {
+  return xudrpc_pb.TradeHistoryResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_xudrpc_TradingLimitsRequest(arg) {
   if (!(arg instanceof xudrpc_pb.TradingLimitsRequest)) {
     throw new Error('Expected argument of type xudrpc.TradingLimitsRequest');
@@ -789,7 +789,7 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_BanResponse,
   },
   // Closes any existing payment channels with a peer for the specified currency.
-  // shell: xucli closechannel <node_identifier> <currency> [--force]
+  // shell: xucli closechannel <currency> [node_identifier ] [--force]
   closeChannel: {
     path: '/xudrpc.Xud/CloseChannel',
     requestStream: false,
@@ -818,9 +818,9 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_ConnectResponse,
   },
   // Gets an address to deposit a given currency into the xud wallets.
-  // shell: xucli deposit <currency>
-  deposit: {
-    path: '/xudrpc.Xud/Deposit',
+  // shell: xucli walletdeposit <currency>
+  walletDeposit: {
+    path: '/xudrpc.Xud/WalletDeposit',
     requestStream: false,
     responseStream: false,
     requestType: xudrpc_pb.DepositRequest,
@@ -937,21 +937,8 @@ var XudService = exports.XudService = {
     responseSerialize: serialize_xudrpc_ListPeersResponse,
     responseDeserialize: deserialize_xudrpc_ListPeersResponse,
   },
-  // Gets a list of completed trades.
-  // shell: xucli listtrades [limit]
-  listTrades: {
-    path: '/xudrpc.Xud/ListTrades',
-    requestStream: false,
-    responseStream: false,
-    requestType: xudrpc_pb.ListTradesRequest,
-    responseType: xudrpc_pb.ListTradesResponse,
-    requestSerialize: serialize_xudrpc_ListTradesRequest,
-    requestDeserialize: deserialize_xudrpc_ListTradesRequest,
-    responseSerialize: serialize_xudrpc_ListTradesResponse,
-    responseDeserialize: deserialize_xudrpc_ListTradesResponse,
-  },
   // Opens a payment channel to a peer for the specified amount and currency.
-  // shell: xucli openchannel <node_identifier> <currency> <amount>
+  // shell: xucli openchannel <currency> <amount> [node_identifier] [push_amount]
   openChannel: {
     path: '/xudrpc.Xud/OpenChannel',
     requestStream: false,
@@ -1107,6 +1094,19 @@ var XudService = exports.XudService = {
     responseSerialize: serialize_xudrpc_SwapFailure,
     responseDeserialize: deserialize_xudrpc_SwapFailure,
   },
+  // Gets a list of completed trades.
+  // shell: xucli tradehistory [limit]
+  tradeHistory: {
+    path: '/xudrpc.Xud/TradeHistory',
+    requestStream: false,
+    responseStream: false,
+    requestType: xudrpc_pb.TradeHistoryRequest,
+    responseType: xudrpc_pb.TradeHistoryResponse,
+    requestSerialize: serialize_xudrpc_TradeHistoryRequest,
+    requestDeserialize: deserialize_xudrpc_TradeHistoryRequest,
+    responseSerialize: serialize_xudrpc_TradeHistoryResponse,
+    responseDeserialize: deserialize_xudrpc_TradeHistoryResponse,
+  },
   // Gets the trading limits for one or all currencies.
   // shell: xucli tradinglimits [currency]
   tradingLimits: {
@@ -1134,9 +1134,9 @@ var XudService = exports.XudService = {
     responseDeserialize: deserialize_xudrpc_UnbanResponse,
   },
   // Withdraws a given currency from the xud wallets to a specified address.
-  // shell: xucli withdraw <amount> <currency> <destination> [fee]
-  withdraw: {
-    path: '/xudrpc.Xud/Withdraw',
+  // shell: xucli withdraw [amount] [currency] <destination> [fee]
+  walletWithdraw: {
+    path: '/xudrpc.Xud/WalletWithdraw',
     requestStream: false,
     responseStream: false,
     requestType: xudrpc_pb.WithdrawRequest,
