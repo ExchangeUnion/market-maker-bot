@@ -76,9 +76,6 @@ const getOpenDEXcomplete$ = ({
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,
     centralizedExchangePrice$: getCentralizedExchangePrice$,
   }).pipe(
-    // only continue processing if trade information
-    // has changed
-    distinctUntilChanged(),
     // ignore new trade information when creating orders
     // is already in progress
     exhaustMap((tradeInfo: TradeInfo) => {

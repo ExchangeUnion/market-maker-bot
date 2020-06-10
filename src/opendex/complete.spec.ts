@@ -22,7 +22,7 @@ describe('getOpenDEXcomplete$', () => {
         getOpenDEXorders$: '1s a|',
         openDEXorderFilled$: '10s a',
       };
-      const expected = '2s a 2001ms a 5997ms |';
+      const expected = '2s a 1500ms a 6498ms |';
       const createOpenDEXorders$ = () => {
         return cold(inputEvents.getOpenDEXorders$, {
           a: true,
