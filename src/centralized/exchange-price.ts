@@ -19,21 +19,21 @@ const getCentralizedExchangePrice$ = ({
     const url = `wss://stream.binance.com:9443/ws/${tradingPair.toLowerCase()}@aggTrade`;
     const socket = new WebSocket(url);
     socket.onopen = () => {
-      logger.info(`${tradingPair} established connection to ${url}`);
+      logger.trace(`${tradingPair} established connection to ${url}`);
     };
     socket.on('error', e => {
       logger.error(`error from the socket ${e}`);
     });
     const heartbeat = () => {
-      logger.info(`heartbeat from ${tradingPair} socket`);
+      logger.trace(`heartbeat from ${tradingPair} socket`);
     };
     socket.onclose = (event: WebSocket.CloseEvent) => {
       if (event.reason) {
-        logger.info(
+        logger.trace(
           `${tradingPair} stream closed with reason: ${event.reason}`
         );
       } else {
-        logger.info(`${tradingPair} stream closed`);
+        logger.trace(`${tradingPair} stream closed`);
       }
     };
     socket.on('ping', heartbeat);
