@@ -23,9 +23,14 @@ type TradeInfoInputEvents = {
   getCentralizedExchangePrice$: string;
 };
 
+type TradeInfoOutputValues = {
+  [event: string]: string;
+};
+
 const assertTradeInfo = (
   inputEvents: TradeInfoInputEvents,
-  expected: string
+  expected: string,
+  expectedValues: TradeInfoOutputValues
 ) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
@@ -44,7 +49,9 @@ const assertTradeInfo = (
         BigNumber
       >;
     };
-    const tradeInfoArrayToObject = (v: any) => (v[0] as unknown) as TradeInfo;
+    const tradeInfoArrayToObject = (v: any) => {
+      return (v.join('') as unknown) as TradeInfo;
+    };
     const tradeInfo$ = getTradeInfo$({
       config: testConfig(),
       loggers: getLoggers(),
@@ -53,7 +60,7 @@ const assertTradeInfo = (
       centralizedExchangePrice$: getCentralizedExchangePrice$,
       tradeInfoArrayToObject,
     });
-    expectObservable(tradeInfo$).toBe(expected);
+    expectObservable(tradeInfo$).toBe(expected, expectedValues);
   });
 };
 
@@ -66,8 +73,26 @@ describe('tradeInfo$', () => {
       getCentralizedExchangeAssets$: '6s a',
       getCentralizedExchangePrice$: '7s a 1s b 1s c',
     };
-    const expectedEvents = '7s a 1s a 1s a';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedEvents = '7s a 1s b 1s c';
+    const expectedValues = {
+      a: 'aaa',
+      b: 'aab',
+      c: 'aac',
+    };
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
+  });
+
+  it('ignores duplicate values', () => {
+    const inputEvents = {
+      getOpenDEXassets$: '5s a',
+      getCentralizedExchangeAssets$: '6s a',
+      getCentralizedExchangePrice$: '7s a 1s a',
+    };
+    const expectedEvents = '7s a';
+    const expectedValues = {
+      a: 'aaa',
+    };
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('does not emit anything without OpenDEX assets', () => {
@@ -77,7 +102,8 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '7s a',
     };
     const expectedEvents = '';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {};
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('does not emit anything without centralized exchange price', () => {
@@ -87,7 +113,8 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '',
     };
     const expectedEvents = '';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {};
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('does not emit anything without centralized exchange assets', () => {
@@ -97,7 +124,8 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '7s a',
     };
     const expectedEvents = '';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {};
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('errors if OpenDEX assets error', () => {
@@ -107,7 +135,10 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '7s a',
     };
     const expectedEvents = '7s a 3s #';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {
+      a: 'aaa',
+    };
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('errors if centralized assets error', () => {
@@ -117,7 +148,10 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '7s a',
     };
     const expectedEvents = '7s a 3s #';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {
+      a: 'aaa',
+    };
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 
   it('errors if centralized exchange price errors', () => {
@@ -127,7 +161,10 @@ describe('tradeInfo$', () => {
       getCentralizedExchangePrice$: '7s a 3s #',
     };
     const expectedEvents = '7s a 3s #';
-    assertTradeInfo(inputEvents, expectedEvents);
+    const expectedValues = {
+      a: 'aaa',
+    };
+    assertTradeInfo(inputEvents, expectedEvents, expectedValues);
   });
 });
 

@@ -5,6 +5,7 @@ import {
   exhaustMap,
   mapTo,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';

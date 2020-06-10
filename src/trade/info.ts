@@ -1,9 +1,10 @@
-import { Observable, combineLatest } from 'rxjs';
-import { map, filter, publishBehavior, refCount, tap } from 'rxjs/operators';
-import { Config } from '../config';
 import { BigNumber } from 'bignumber.js';
+import { equals } from 'ramda';
+import { combineLatest, Observable } from 'rxjs';
+import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { CentralizedExchangePriceParams } from 'src/centralized/exchange-price';
 import { Loggers } from 'src/logger';
+import { Config } from '../config';
 
 type GetTradeInfoParams = {
   config: Config;
@@ -83,12 +84,8 @@ const getTradeInfo$ = ({
   ).pipe(
     // map it to an object
     map(tradeInfoArrayToObject),
-    // emit the last value when subscribed
-    publishBehavior((null as unknown) as TradeInfo),
-    // make a ConnectableObservable behave like a ordinary observable
-    refCount(),
-    // ignore initial null value
-    filter(v => !!v)
+    // ignore duplicate values
+    distinctUntilChanged((a, b) => equals(a, b))
   );
 };
 
