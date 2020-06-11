@@ -64,7 +64,13 @@ if (!module.parent) {
     shutdown$: getStartShutdown$(),
   }).subscribe({
     next: () => console.log('Trade complete.'),
-    error: console.log,
+    error: error => {
+      if (error.message) {
+        console.log(`Error: ${error.message}`);
+      } else {
+        console.log(error);
+      }
+    },
     complete: () => console.log('Received shutdown signal.'),
   });
 }

@@ -24,6 +24,23 @@ describe('XudClient', () => {
     });
   });
 
+  test('getXudClient$ invalid cert', done => {
+    expect.assertions(2);
+    const invalidCertPath = '/invalid/cert/path/tls.cert';
+    const config = {
+      ...testConfig(),
+      OPENDEX_CERT_PATH: invalidCertPath,
+    };
+    const xudClient$ = getXudClient$(config);
+    xudClient$.subscribe({
+      error: error => {
+        expect(XudClient).toHaveBeenCalledTimes(1);
+        expect(error).toEqual(errors.XUD_CLIENT_INVALID_CERT(invalidCertPath));
+        done();
+      },
+    });
+  });
+
   test('processResponse success', done => {
     expect.assertions(1);
     const nextValue = 'next';
