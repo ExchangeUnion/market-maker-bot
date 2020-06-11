@@ -6,6 +6,7 @@ import {
 import { Logger } from '../logger';
 import { OpenDEXassetAllocation } from '../trade/info';
 import { satsToCoinsStr } from '../utils';
+import {errors} from './errors';
 
 type LogAssetBalanceParams = {
   logger: Logger;
@@ -39,42 +40,50 @@ const parseOpenDEXassets = ({
   baseAsset,
   quoteAsset,
 }: ParseOpenDEXassetsParams): OpenDEXassetAllocation => {
-  try {
-    const balancesMap = balanceResponse.getBalancesMap();
-    const baseAssetBalance = new BigNumber(
-      satsToCoinsStr(balancesMap.get(baseAsset).getChannelBalance())
-    );
-    const quoteAssetBalance = new BigNumber(
-      satsToCoinsStr(balancesMap.get(quoteAsset).getChannelBalance())
-    );
-    const tradingLimitsMap = tradingLimitsResponse.getLimitsMap();
-    const baseAssetLimits = tradingLimitsMap.get(baseAsset);
-    const baseAssetMaxsell = new BigNumber(
-      satsToCoinsStr(baseAssetLimits.getMaxsell())
-    );
-    const baseAssetMaxbuy = new BigNumber(
-      satsToCoinsStr(baseAssetLimits.getMaxbuy())
-    );
-    const quoteAssetLimits = tradingLimitsMap.get(quoteAsset);
-    const quoteAssetMaxsell = new BigNumber(
-      satsToCoinsStr(quoteAssetLimits.getMaxsell())
-    );
-    const quoteAssetMaxbuy = new BigNumber(
-      satsToCoinsStr(quoteAssetLimits.getMaxbuy())
-    );
-    return {
-      baseAssetBalance,
-      quoteAssetBalance,
-      baseAssetMaxsell,
-      baseAssetMaxbuy,
-      quoteAssetMaxbuy,
-      quoteAssetMaxsell,
-    };
-  } catch (e) {
-    throw new Error(
-      `Failed to get asset allocation for OpenDEX baseAsset ${baseAsset} or quote asset ${quoteAsset}.`
-    );
+  const balancesMap = balanceResponse.getBalancesMap();
+  const baseAssetBalances = balancesMap.get(baseAsset);
+  if (!baseAssetBalances) {
+    throw errors.BALANCE_MISSING(baseAsset);
   }
+  const baseAssetBalance = new BigNumber(
+    satsToCoinsStr(baseAssetBalances.getChannelBalance())
+  );
+  const quoteAssetBalances = balancesMap.get(quoteAsset);
+  if (!quoteAssetBalances) {
+    throw errors.BALANCE_MISSING(quoteAsset);
+  }
+  const quoteAssetBalance = new BigNumber(
+    satsToCoinsStr(quoteAssetBalances.getChannelBalance())
+  );
+  const tradingLimitsMap = tradingLimitsResponse.getLimitsMap();
+  const baseAssetLimits = tradingLimitsMap.get(baseAsset);
+  if (!baseAssetLimits) {
+    throw errors.TRADING_LIMITS_MISSING(baseAsset);
+  }
+  const baseAssetMaxsell = new BigNumber(
+    satsToCoinsStr(baseAssetLimits.getMaxsell())
+  );
+  const baseAssetMaxbuy = new BigNumber(
+    satsToCoinsStr(baseAssetLimits.getMaxbuy())
+  );
+  const quoteAssetLimits = tradingLimitsMap.get(quoteAsset);
+  if (!quoteAssetLimits) {
+    throw errors.TRADING_LIMITS_MISSING(quoteAsset);
+  }
+  const quoteAssetMaxsell = new BigNumber(
+    satsToCoinsStr(quoteAssetLimits.getMaxsell())
+  );
+  const quoteAssetMaxbuy = new BigNumber(
+    satsToCoinsStr(quoteAssetLimits.getMaxbuy())
+  );
+  return {
+    baseAssetBalance,
+    quoteAssetBalance,
+    baseAssetMaxsell,
+    baseAssetMaxbuy,
+    quoteAssetMaxbuy,
+    quoteAssetMaxsell,
+  };
 };
 
 export {

@@ -3,6 +3,8 @@ const errorCodePrefix = 'arby';
 const errorCodes = {
   XUD_UNAVAILABLE: `${errorCodePrefix}.1`,
   XUD_CLIENT_INVALID_CERT: `${errorCodePrefix}.2`,
+  BALANCE_MISSING: `${errorCodePrefix}.3`,
+  TRADING_LIMITS_MISSING: `${errorCodePrefix}.4`,
 };
 
 const errors = {
@@ -13,6 +15,14 @@ const errors = {
   XUD_CLIENT_INVALID_CERT: (certPath: string) => ({
     message: `Unable to load xud.cert from ${certPath}`,
     code: errorCodes.XUD_CLIENT_INVALID_CERT,
+  }),
+  BALANCE_MISSING: (asset: string) => ({
+    message: `Could not retrieve ${asset} balance.`,
+    code: errorCodes.BALANCE_MISSING,
+  }),
+  TRADING_LIMITS_MISSING: (asset: string) => ({
+    message: `Could not retrieve ${asset} trading limits.`,
+    code: errorCodes.TRADING_LIMITS_MISSING,
   }),
 };
 
