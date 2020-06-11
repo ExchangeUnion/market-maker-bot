@@ -2,6 +2,7 @@ import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import { SubscribeSwapsRequest } from '../../broker/opendex/proto/xudrpc_pb';
 import { subscribeXudSwaps$ } from './subscribe-swaps';
 import { EventEmitter } from 'events';
+import { xudErrorCodes, errors } from '../errors';
 
 jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
 jest.mock('../../broker/opendex/proto/xudrpc_pb');
@@ -87,5 +88,20 @@ describe('subscribeXudSwaps$', () => {
     });
     mockSwapSubscription.emit('error', CANCELLED_ERROR);
     mockSwapSubscription.emit('data', swapSuccess);
+  });
+
+  test('rethrows xudErrorCodes.UNAVAILABLE as errors.XUD_UNAVAILABLE', done => {
+    expect.assertions(1);
+    const swapError = {
+      code: xudErrorCodes.UNAVAILABLE,
+    };
+    const swapsSubscription$ = subscribeXudSwaps$(client);
+    swapsSubscription$.subscribe({
+      error: actualErrorValue => {
+        expect(actualErrorValue).toEqual(errors.XUD_UNAVAILABLE);
+        done();
+      },
+    });
+    mockSwapSubscription.emit('error', swapError);
   });
 });

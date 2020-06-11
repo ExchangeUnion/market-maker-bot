@@ -5,6 +5,7 @@ import {
   SubscribeSwapsRequest,
   SwapSuccess,
 } from '../../broker/opendex/proto/xudrpc_pb';
+import { xudErrorCodes, errors } from '../errors';
 
 const subscribeXudSwaps$ = (client: XudClient): Observable<SwapSuccess> => {
   const request = new SubscribeSwapsRequest();
@@ -18,6 +19,11 @@ const subscribeXudSwaps$ = (client: XudClient): Observable<SwapSuccess> => {
     const onError = (error: ServiceError) => {
       // do not error when client cancels the stream
       if (error.code === 1) {
+        return;
+      }
+      // remap expected xud unavailable error
+      if (error.code == xudErrorCodes.UNAVAILABLE) {
+        subscriber.error(errors.XUD_UNAVAILABLE);
         return;
       }
       subscriber.error(error);
