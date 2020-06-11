@@ -2,12 +2,13 @@ import { concat, Observable, throwError, timer } from 'rxjs';
 import {
   catchError,
   ignoreElements,
+  mergeMapTo,
   repeat,
   takeUntil,
-  mergeMapTo,
 } from 'rxjs/operators';
 import { ExchangeBroker } from '../broker/exchange';
 import { Config } from '../config';
+import { XUD_RECONNECT_INTERVAL } from '../constants';
 import { ExchangeType } from '../enums';
 import { Logger, Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
@@ -16,7 +17,6 @@ import { errorCodes } from '../opendex/errors';
 import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 import { ArbitrageTrade } from './arbitrage-trade';
 import { getTradeInfo$, TradeInfo } from './info';
-import { XUD_RECONNECT_INTERVAL } from '../constants';
 
 class TradeManager {
   private logger: Logger;

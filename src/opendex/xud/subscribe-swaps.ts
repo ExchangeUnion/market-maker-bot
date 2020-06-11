@@ -34,10 +34,15 @@ const subscribeXudSwaps$ = (client: XudClient): Observable<SwapSuccess> => {
     };
     swapsSubscription.on('end', onEnd);
     return () => {
-      swapsSubscription.cancel();
-      swapsSubscription.off('data', onData);
-      swapsSubscription.off('error', onError);
-      swapsSubscription.off('end', onEnd);
+      const cleanup = () => {
+        swapsSubscription.cancel();
+        swapsSubscription.off('data', onData);
+        swapsSubscription.off('error', onError);
+        swapsSubscription.off('end', onEnd);
+      };
+      // using setImmediate to prevent NodeJS core crashing with:
+      // Assertion `(current_nghttp2_memory_) >= (previous_size)' failed
+      setImmediate(cleanup);
     };
   });
   return subscribeSwaps$ as Observable<SwapSuccess>;

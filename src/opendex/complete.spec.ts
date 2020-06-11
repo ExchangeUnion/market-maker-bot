@@ -3,6 +3,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { getOpenDEXcomplete$ } from './complete';
 import { testConfig, getLoggers } from '../../test/utils';
 import { TradeInfo } from '../trade/manager';
+import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -29,9 +30,9 @@ describe('getOpenDEXcomplete$', () => {
         });
       };
       const getOpenDEXorderFilled$ = () => {
-        return cold(inputEvents.openDEXorderFilled$, {
+        return (cold(inputEvents.openDEXorderFilled$, {
           a: true,
-        });
+        }) as unknown) as Observable<SwapSuccess>;
       };
       const getTradeInfo$ = () => {
         return hot(inputEvents.tradeInfo$) as Observable<TradeInfo>;

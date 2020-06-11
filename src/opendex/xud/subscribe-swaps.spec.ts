@@ -43,7 +43,6 @@ describe('subscribeXudSwaps$', () => {
       next: actualSuccessValue => {
         expect(actualSuccessValue).toEqual(swapSuccess);
       },
-      complete: done,
     });
     expect(SubscribeSwapsRequest).toHaveBeenCalledTimes(1);
     expect(
@@ -59,8 +58,14 @@ describe('subscribeXudSwaps$', () => {
     );
     mockSwapSubscription.emit('data', swapSuccess);
     mockSwapSubscription.emit('end');
-    expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
-    expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
+    // cleanup function of subscribeXudSwaps$ uses
+    // setImmediate to work around NodeJS core crashing
+    // so we'll have to use setTimeout here
+    setTimeout(() => {
+      expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
+      expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
+      done();
+    });
   });
 
   test('failure', done => {
