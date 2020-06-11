@@ -37,7 +37,13 @@ const getLoggers = (): Loggers => {
   } as unknown as Loggers;
 };
 
+type TestError = {
+  code: string | number;
+  message: string;
+};
+
 export {
   getLoggers,
   testConfig,
+  TestError,
 };

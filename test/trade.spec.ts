@@ -1,6 +1,7 @@
 import { TestScheduler } from 'rxjs/testing';
 import { getNewTrade$ } from '../src/trade/manager';
-import { testConfig, getLoggers } from './utils';
+import { testConfig, getLoggers, TestError } from './utils';
+import { errors } from '../src/opendex/errors';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -9,49 +10,117 @@ const testSchedulerSetup = () => {
   });
 };
 
-describe('getTrade$', () => {
+type AssertGetTradeParams = {
+  expected: string;
+  expectedError?: TestError;
+  inputEvents: {
+    openDEXcomplete$: string;
+    getCentralizedExchangeOrder$: string;
+    shutdown$: string;
+  };
+  errorValues?: {
+    openDEXcomplete$?: TestError;
+    getCentralizedExchangeOrder$?: TestError;
+    shutdown$?: TestError;
+  };
+};
 
-  beforeEach(testSchedulerSetup)
+const assertGetTrade = ({
+  expected,
+  expectedError,
+  inputEvents,
+  errorValues,
+}: AssertGetTradeParams) => {
+  const inputValues = {
+    getCentralizedExchangeOrder$: {
+      a: true,
+    },
+    openDEXcomplete$: {
+      a: true,
+    },
+  };
+  testScheduler.run(helpers => {
+    const { cold, expectObservable } = helpers;
+    const getCentralizedExchangeOrder$ = () => {
+      return cold(
+        inputEvents.getCentralizedExchangeOrder$,
+        inputValues.getCentralizedExchangeOrder$
+      );
+    };
+    const shutdown$ = cold(inputEvents.shutdown$);
+    const getOpenDEXcomplete$ = () => {
+      return cold(
+        inputEvents.openDEXcomplete$,
+        inputValues.openDEXcomplete$,
+        errorValues?.openDEXcomplete$
+      );
+    };
+    const trade$ = getNewTrade$({
+      shutdown$,
+      loggers: getLoggers(),
+      getOpenDEXcomplete$,
+      config: testConfig(),
+      centralizedExchangeOrder$: getCentralizedExchangeOrder$,
+    });
+    expectObservable(trade$).toBe(expected, { a: true }, expectedError);
+  });
+};
+
+describe('getTrade$', () => {
+  beforeEach(testSchedulerSetup);
 
   it('emits when arbitrage trade complete', () => {
-    testScheduler.run(helpers => {
-      const { cold, expectObservable } = helpers;
-      const inputEvents = {
-        openDEXcomplete$:             '1s (a|)',
-        getCentralizedExchangeOrder$: '1s (a|)',
-        shutdown$:                    '5s a',
-      };
-      const expected = '2s a 1999ms a 999ms |';
-      const inputValues = {
-        getCentralizedExchangeOrder$: {
-          a: true,
-        },
-        openDEXcomplete$: {
-          a: true,
-        }
-      };
-      const getCentralizedExchangeOrder$ = () => {
-        return cold(
-          inputEvents.getCentralizedExchangeOrder$,
-          inputValues.getCentralizedExchangeOrder$,
-        );
-      };
-      const shutdown$ = cold(inputEvents.shutdown$);
-      const getOpenDEXcomplete$ = () => {
-        return cold(
-          inputEvents.openDEXcomplete$,
-          inputValues.openDEXcomplete$,
-        );
-      };
-      const trade$ = getNewTrade$({
-        shutdown$,
-        loggers: getLoggers(),
-        getOpenDEXcomplete$,
-        config: testConfig(),
-        centralizedExchangeOrder$: getCentralizedExchangeOrder$,
-      });
-      expectObservable(trade$).toBe(expected, { a: true });
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const expected = '2s a 1999ms a 999ms |';
+    assertGetTrade({
+      inputEvents,
+      expected,
     });
   });
 
+  it('retries when xud unavailable', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.XUD_UNAVAILABLE,
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
+  it('stops when unexpected error happens', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const unexpectedError = {
+      code: '1234',
+      message: 'some unexpected error',
+    };
+    const errorValues = {
+      openDEXcomplete$: unexpectedError,
+    };
+    const expected = '1s #';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      expectedError: unexpectedError,
+      errorValues,
+    });
+  });
 });

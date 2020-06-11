@@ -1,5 +1,5 @@
 import { TestScheduler } from 'rxjs/testing';
-import { testConfig } from '../../test/utils';
+import { testConfig, TestError } from '../../test/utils';
 import { getOpenDEXorderFilled$ } from './order-filled';
 import { Observable } from 'rxjs';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
@@ -16,11 +16,6 @@ const testSchedulerSetup = () => {
 type OpenDEXorderFilledInputEvents = {
   xudClient$: string;
   subscribeXudSwaps$: string;
-};
-
-type TestError = {
-  code: string | number;
-  message: string;
 };
 
 type OpenDEXorderFilledErrorValues = {

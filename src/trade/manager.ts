@@ -1,14 +1,22 @@
+import { concat, Observable, throwError, timer } from 'rxjs';
+import {
+  catchError,
+  ignoreElements,
+  repeat,
+  takeUntil,
+  mergeMapTo,
+} from 'rxjs/operators';
 import { ExchangeBroker } from '../broker/exchange';
-import { Logger, Loggers } from '../logger';
-import { ArbitrageTrade } from './arbitrage-trade';
-import { ExchangeType } from '../enums';
-import { Observable, concat } from 'rxjs';
-import { ignoreElements, takeUntil, repeat } from 'rxjs/operators';
 import { Config } from '../config';
-import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
-import { createOpenDEXorders$ } from '../opendex/create-orders';
+import { ExchangeType } from '../enums';
+import { Logger, Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
+import { createOpenDEXorders$ } from '../opendex/create-orders';
+import { errorCodes } from '../opendex/errors';
+import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
+import { ArbitrageTrade } from './arbitrage-trade';
 import { getTradeInfo$, TradeInfo } from './info';
+import { XUD_RECONNECT_INTERVAL } from '../constants';
 
 class TradeManager {
   private logger: Logger;
@@ -120,7 +128,19 @@ const getNewTrade$ = ({
       openDEXorderFilled$: getOpenDEXorderFilled$,
     }).pipe(ignoreElements()),
     centralizedExchangeOrder$(config)
-  ).pipe(repeat(), takeUntil(shutdown$));
+  ).pipe(
+    catchError((e, caught) => {
+      if (e.code === errorCodes.XUD_UNAVAILABLE) {
+        loggers.opendex.info(
+          `Could not establish connection to xud. Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
+        );
+        return timer(XUD_RECONNECT_INTERVAL * 1000).pipe(mergeMapTo(caught));
+      }
+      return throwError(e);
+    }),
+    repeat(),
+    takeUntil(shutdown$)
+  );
 };
 
 export { getNewTrade$, getTrade$, TradeManager, TradeInfo, GetTradeParams };
