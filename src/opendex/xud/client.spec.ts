@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { testConfig } from '../../../test/utils';
 import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import { getXudClient$, processResponse } from './client';
+import { xudErrorCodes, errors } from '../errors';
 
 jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
 jest.mock('../../broker/opendex/proto/xudrpc_pb');
@@ -46,6 +47,22 @@ describe('XudClient', () => {
     source$.subscribe({
       error: errorMsg => {
         expect(errorMsg).toEqual(errorValue);
+        done();
+      },
+    });
+  });
+
+  test('processResponse remaps xudErrorCodes.UNAVAILABLE to errors.XUD_UNAVAILABLE', done => {
+    expect.assertions(1);
+    const errorValue = ({
+      code: xudErrorCodes.UNAVAILABLE,
+    } as unknown) as ServiceError;
+    const source$ = new Observable(subscriber => {
+      processResponse(subscriber)(errorValue, null);
+    });
+    source$.subscribe({
+      error: actualError => {
+        expect(actualError).toEqual(errors.XUD_UNAVAILABLE);
         done();
       },
     });

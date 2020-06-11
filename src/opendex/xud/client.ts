@@ -4,6 +4,7 @@ import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import fs from 'fs';
 import { credentials } from '@grpc/grpc-js';
 import { ServiceError } from '@grpc/grpc-js';
+import { xudErrorCodes, errors } from '../errors';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const cert = fs.readFileSync(config.OPENDEX_CERT_PATH);
@@ -23,6 +24,11 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
 const processResponse = (subscriber: Subscriber<unknown>) => {
   return (error: ServiceError | null, response: any) => {
     if (error) {
+      // remap expected xud unavailable error
+      if (error.code == xudErrorCodes.UNAVAILABLE) {
+        subscriber.error(errors.XUD_UNAVAILABLE);
+        return;
+      }
       subscriber.error(error);
     } else {
       subscriber.next(response);
