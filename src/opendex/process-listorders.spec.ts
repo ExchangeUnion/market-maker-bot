@@ -86,4 +86,18 @@ describe('processListorders', () => {
       expectedIds: [],
     });
   });
+
+  it('errors when orders list is missing', () => {
+    expect.assertions(1);
+    const ordersMap = new Map();
+    const listOrdersResponse = ({
+      getOrdersMap: () => ordersMap,
+    } as unknown) as ListOrdersResponse;
+    expect(() => {
+      processListorders({
+        config: testConfig(),
+        listOrdersResponse,
+      });
+    }).toThrowErrorMatchingSnapshot();
+  });
 });

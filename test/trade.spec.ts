@@ -137,7 +137,7 @@ describe('getTrade$', () => {
     });
   });
 
-  it('retries when unable to retrieve asset\'s trading limits', () => {
+  it("retries when unable to retrieve asset's trading limits", () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`processListorders errors when orders list is missing 1`] = `"Could not retrieve orders list for ETH/BTC"`;

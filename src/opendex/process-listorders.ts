@@ -1,5 +1,6 @@
 import { ListOrdersResponse, Order } from 'src/broker/opendex/proto/xudrpc_pb';
 import { Config } from 'src/config';
+import { errors } from './errors';
 
 type ProcessListOrdersParams = {
   config: Config;
@@ -11,8 +12,12 @@ const processListorders = ({
   config,
 }: ProcessListOrdersParams): string[] => {
   const ordersMap = listOrdersResponse.getOrdersMap();
-  const tradingPair = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const { BASEASSET, QUOTEASSET } = config;
+  const tradingPair = `${BASEASSET}/${QUOTEASSET}`;
   const tradingPairOrders = ordersMap.get(tradingPair);
+  if (!tradingPairOrders) {
+    throw errors.INVALID_ORDERS_LIST(tradingPair);
+  }
   const buyOrders = tradingPairOrders.getBuyOrdersList();
   const sellOrders = tradingPairOrders.getSellOrdersList();
   const orderIds = buyOrders

@@ -5,6 +5,7 @@ const errorCodes = {
   XUD_CLIENT_INVALID_CERT: `${errorCodePrefix}.2`,
   BALANCE_MISSING: `${errorCodePrefix}.3`,
   TRADING_LIMITS_MISSING: `${errorCodePrefix}.4`,
+  INVALID_ORDERS_LIST: `${errorCodePrefix}.5`,
 };
 
 const errors = {
@@ -23,6 +24,10 @@ const errors = {
   TRADING_LIMITS_MISSING: (asset: string) => ({
     message: `Could not retrieve ${asset} trading limits`,
     code: errorCodes.TRADING_LIMITS_MISSING,
+  }),
+  INVALID_ORDERS_LIST: (tradingPair: string) => ({
+    message: `Could not retrieve orders list for ${tradingPair}`,
+    code: errorCodes.INVALID_ORDERS_LIST,
   }),
 };
 
