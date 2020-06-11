@@ -30,10 +30,10 @@ const errors = {
     message: `Could not retrieve orders list for ${tradingPair}`,
     code: errorCodes.INVALID_ORDERS_LIST,
   }),
-  CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: ({
+  CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: {
     message: 'Price feed lost',
     code: errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
-  }),
+  },
 };
 
 const xudErrorCodes = {

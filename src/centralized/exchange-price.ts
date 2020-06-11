@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Observable, throwError } from 'rxjs';
-import { timeout, catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
 import WebSocket from 'ws';
 import { Config } from '../config';
 import { Logger } from '../logger';
@@ -52,7 +52,7 @@ const getCentralizedExchangePrice$ = ({
   return priceObservable.pipe(
     // if we have not received a price value in 20 seconds we'll error
     timeout(20000),
-    catchError(e => {
+    catchError(() => {
       return throwError(errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR);
     })
   );

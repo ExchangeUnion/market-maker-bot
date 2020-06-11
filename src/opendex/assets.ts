@@ -1,5 +1,5 @@
-import { combineLatest, Observable } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { combineLatest, interval, Observable } from 'rxjs';
+import { map, mergeMap, repeatWhen, take, tap } from 'rxjs/operators';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import {
   GetBalanceResponse,
@@ -49,7 +49,10 @@ const getOpenDEXassets$ = ({
         baseAsset: config.BASEASSET,
       });
     }),
-    tap(assets => logBalance({ assets, logger }))
+    tap(assets => logBalance({ assets, logger })),
+    take(1),
+    // refresh assets every 30 seconds
+    repeatWhen(() => interval(30000))
   );
 };
 

@@ -12,6 +12,7 @@ type OpenDEXassetsInputEvents = {
   xudClient$: string;
   xudBalance$: string;
   xudTradingLimits$: string;
+  unsubscribe: string;
 };
 
 let testScheduler: TestScheduler;
@@ -46,7 +47,7 @@ const assertOpenDEXassets = (
       xudTradingLimits$: getXudTradingLimits$,
       parseOpenDEXassets,
     });
-    expectObservable(openDEXassets$).toBe(expected);
+    expectObservable(openDEXassets$, inputEvents.unsubscribe).toBe(expected);
   });
 };
 
@@ -59,11 +60,12 @@ describe('getOpenDEXassets$', () => {
 
   test('waits for balance and tradinglimits before emitting', () => {
     const inputEvents = {
-      xudBalance$: '500ms a',
-      xudClient$: '500ms a',
+      xudBalance$: '1s a',
+      xudClient$: '1s a',
       xudTradingLimits$: '1s a',
+      unsubscribe: '93s !',
     };
-    const expected = '1500ms a';
+    const expected = '2s a 31999ms a 29999ms a';
     assertOpenDEXassets(inputEvents, expected);
   });
 });

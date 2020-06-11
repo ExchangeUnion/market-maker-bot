@@ -1,5 +1,5 @@
 import { forkJoin, Observable, of } from 'rxjs';
-import { map, mapTo, mergeMap, take } from 'rxjs/operators';
+import { map, mapTo, mergeMap } from 'rxjs/operators';
 import { RemoveOrderResponse } from 'src/broker/opendex/proto/xudrpc_pb';
 import { Config } from 'src/config';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
