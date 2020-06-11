@@ -37,7 +37,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         orderSide: OrderSide.BUY,
         pairId,
         price: expectedBuyPrice,
-        orderId: `arby-buy-order-${pairId}`,
+        orderId: expect.any(String),
       })
     );
     const expectedSellQuantity = coinsToSats(new BigNumber('15').toNumber());
@@ -48,7 +48,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         orderSide: OrderSide.SELL,
         pairId,
         price: expectedSellprice,
-        orderId: `arby-sell-order-${pairId}`,
+        orderId: expect.any(String),
       })
     );
   });

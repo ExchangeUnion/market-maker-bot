@@ -4,6 +4,7 @@ import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
 import BigNumber from 'bignumber.js';
 import { coinsToSats } from '../utils';
 import { Config } from '../config';
+import { v4 as uuidv4 } from 'uuid';
 
 type OpenDEXorder = Omit<CreateXudOrderParams, 'client'>;
 
@@ -49,7 +50,7 @@ const tradeInfoToOpenDEXorders = ({
     orderSide: OrderSide.BUY,
     pairId,
     price: buyPrice,
-    orderId: `arby-buy-order-${pairId}`,
+    orderId: uuidv4(),
   };
   const sellQuantity = coinsToSats(
     BigNumber.minimum(
@@ -62,7 +63,7 @@ const tradeInfoToOpenDEXorders = ({
     orderSide: OrderSide.SELL,
     pairId,
     price: sellPrice,
-    orderId: `arby-sell-order-${pairId}`,
+    orderId: uuidv4(),
   };
   return {
     buyOrder,
