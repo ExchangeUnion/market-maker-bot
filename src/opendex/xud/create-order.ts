@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, empty, of } from 'rxjs';
 import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
 import {
   PlaceOrderRequest,
@@ -25,16 +25,20 @@ const createXudOrder$ = ({
   price,
   orderId,
 }: CreateXudOrderParams): Observable<PlaceOrderResponse> => {
-  const request = new PlaceOrderRequest();
-  request.setQuantity(quantity);
-  request.setSide(orderSide);
-  request.setPairId(pairId);
-  request.setPrice(price);
-  request.setOrderId(orderId);
-  const createXudOrder$ = new Observable(subscriber => {
-    client.placeOrderSync(request, processResponse(subscriber));
-  }).pipe(take(1));
-  return createXudOrder$ as Observable<PlaceOrderResponse>;
+  if (quantity > 0) {
+    const request = new PlaceOrderRequest();
+    request.setQuantity(quantity);
+    request.setSide(orderSide);
+    request.setPairId(pairId);
+    request.setPrice(price);
+    request.setOrderId(orderId);
+    const createXudOrder$ = new Observable(subscriber => {
+      client.placeOrderSync(request, processResponse(subscriber));
+    }).pipe(take(1));
+    return createXudOrder$ as Observable<PlaceOrderResponse>;
+  } else {
+    return of((null as unknown) as PlaceOrderResponse);
+  }
 };
 
 export { createXudOrder$, CreateXudOrderParams };
