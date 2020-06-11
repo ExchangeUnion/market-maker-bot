@@ -18,7 +18,13 @@ const processListorders = ({
   const orderIds = buyOrders
     .concat(sellOrders)
     .reduce((allOrderIds: string[], currentOrder: Order) => {
-      return allOrderIds.concat(currentOrder.getLocalId());
+      const quantity = currentOrder.getQuantity();
+      const hold = currentOrder.getHold();
+      const remainingQuantity = quantity - hold;
+      if (remainingQuantity) {
+        return allOrderIds.concat(currentOrder.getLocalId());
+      }
+      return allOrderIds;
     }, []);
   return orderIds;
 };
