@@ -8,7 +8,7 @@ import {
 } from 'rxjs/operators';
 import { ExchangeBroker } from '../broker/exchange';
 import { Config } from '../config';
-import { XUD_RECONNECT_INTERVAL } from '../constants';
+import { RETRY_INTERVAL } from '../constants';
 import { ExchangeType } from '../enums';
 import { Logger, Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
@@ -130,6 +130,10 @@ const getNewTrade$ = ({
     centralizedExchangeOrder$(config)
   ).pipe(
     catchError((e, caught) => {
+      const retry = () => {
+        // retry after interval
+        return timer(RETRY_INTERVAL * 1000).pipe(mergeMapTo(caught));
+      };
       // check if we're dealing with an error that
       // can be recovered from
       if (
@@ -140,10 +144,14 @@ const getNewTrade$ = ({
         e.code === errorCodes.INVALID_ORDERS_LIST
       ) {
         loggers.opendex.warn(
-          `${e.message}. Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
+          `${e.message}. Retrying in ${RETRY_INTERVAL} seconds.`
         );
-        // retry after interval
-        return timer(XUD_RECONNECT_INTERVAL * 1000).pipe(mergeMapTo(caught));
+        return retry();
+      } else if (e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR) {
+        loggers.centralized.warn(
+          `${e.message}. Retrying in ${RETRY_INTERVAL} seconds.`
+        );
+        return retry();
       }
       // unexpected or unrecoverable error should stop
       // the application

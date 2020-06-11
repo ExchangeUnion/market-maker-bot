@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { Observable } from 'rxjs';
-import { timeout } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { timeout, catchError } from 'rxjs/operators';
 import WebSocket from 'ws';
 import { Config } from '../config';
 import { Logger } from '../logger';
+import { errors } from '../opendex/errors';
 
 type CentralizedExchangePriceParams = {
   config: Config;
@@ -50,7 +51,10 @@ const getCentralizedExchangePrice$ = ({
   });
   return priceObservable.pipe(
     // if we have not received a price value in 20 seconds we'll error
-    timeout(20000)
+    timeout(20000),
+    catchError(e => {
+      return throwError(errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR);
+    })
   );
 };
 

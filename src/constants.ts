@@ -1,4 +1,4 @@
-// Time in seconds between xud connection checks
-const XUD_RECONNECT_INTERVAL = 5;
+// Time in seconds between retry attempts from recoverable errors
+const RETRY_INTERVAL = 5;
 
-export { XUD_RECONNECT_INTERVAL };
+export { RETRY_INTERVAL };

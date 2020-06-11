@@ -6,6 +6,7 @@ const errorCodes = {
   BALANCE_MISSING: `${errorCodePrefix}.3`,
   TRADING_LIMITS_MISSING: `${errorCodePrefix}.4`,
   INVALID_ORDERS_LIST: `${errorCodePrefix}.5`,
+  CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: `${errorCodePrefix}.6`,
 };
 
 const errors = {
@@ -28,6 +29,10 @@ const errors = {
   INVALID_ORDERS_LIST: (tradingPair: string) => ({
     message: `Could not retrieve orders list for ${tradingPair}`,
     code: errorCodes.INVALID_ORDERS_LIST,
+  }),
+  CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: ({
+    message: 'Price feed lost',
+    code: errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
   }),
 };
 

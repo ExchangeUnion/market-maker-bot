@@ -173,6 +173,24 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when price feed lost', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
   it('stops when unexpected error happens', () => {
     expect.assertions(1);
     const inputEvents = {
