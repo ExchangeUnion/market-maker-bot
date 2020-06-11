@@ -130,17 +130,23 @@ const getNewTrade$ = ({
     centralizedExchangeOrder$(config)
   ).pipe(
     catchError((e, caught) => {
+      // check if we're dealing with an error that
+      // can be recovered from
       if (
         e.code === errorCodes.XUD_UNAVAILABLE ||
         e.code === errorCodes.XUD_CLIENT_INVALID_CERT ||
         e.code === errorCodes.BALANCE_MISSING ||
-        e.code === errorCodes.TRADING_LIMITS_MISSING
+        e.code === errorCodes.TRADING_LIMITS_MISSING ||
+        e.code === errorCodes.INVALID_ORDERS_LIST
       ) {
         loggers.opendex.warn(
           `${e.message}. Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
         );
+        // retry after interval
         return timer(XUD_RECONNECT_INTERVAL * 1000).pipe(mergeMapTo(caught));
       }
+      // unexpected or unrecoverable error should stop
+      // the application
       return throwError(e);
     }),
     repeat(),

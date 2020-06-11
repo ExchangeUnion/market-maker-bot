@@ -155,6 +155,24 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when unable to retrieve orders list', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.INVALID_ORDERS_LIST('ETH/BTC'),
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
   it('stops when unexpected error happens', () => {
     expect.assertions(1);
     const inputEvents = {
