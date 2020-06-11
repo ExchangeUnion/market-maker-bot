@@ -5,7 +5,7 @@ import { coinsToSats } from '../utils';
 import { testConfig } from '../../test/utils';
 
 describe('tradeInfoToOpenDEXorders', () => {
-  it('fails', () => {
+  it('calculates OpenDEX orders\' quantity and price', () => {
     const config = testConfig();
     const tradeInfo = {
       price: new BigNumber('10000'),
