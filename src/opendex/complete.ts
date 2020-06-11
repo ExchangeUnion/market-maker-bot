@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
-import { exhaustMap, mapTo, takeUntil } from 'rxjs/operators';
+import { exhaustMap, mapTo, takeUntil, tap } from 'rxjs/operators';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -101,7 +101,7 @@ const getOpenDEXcomplete$ = ({
         config,
         getXudClient$,
         subscribeXudSwaps$,
-      })
+      }).pipe(tap(() => loggers.opendex.info('OpenDEX order has been filled.')))
     )
   );
 };
