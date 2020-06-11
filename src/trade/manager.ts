@@ -130,15 +130,14 @@ const getNewTrade$ = ({
     centralizedExchangeOrder$(config)
   ).pipe(
     catchError((e, caught) => {
-      if (e.code === errorCodes.XUD_UNAVAILABLE) {
+      if (
+        e.code === errorCodes.XUD_UNAVAILABLE ||
+        e.code === errorCodes.XUD_CLIENT_INVALID_CERT ||
+        e.code === errorCodes.BALANCE_MISSING ||
+        e.code === errorCodes.TRADING_LIMITS_MISSING
+      ) {
         loggers.opendex.warn(
-          `Could not establish connection to xud. Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
-        );
-        return timer(XUD_RECONNECT_INTERVAL * 1000).pipe(mergeMapTo(caught));
-      }
-      if (e.code === errorCodes.XUD_CLIENT_INVALID_CERT) {
-        loggers.opendex.warn(
-          `Unable to load certificate from "${config.OPENDEX_CERT_PATH}". Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
+          `${e.message}. Retrying in ${XUD_RECONNECT_INTERVAL} seconds.`
         );
         return timer(XUD_RECONNECT_INTERVAL * 1000).pipe(mergeMapTo(caught));
       }

@@ -6,7 +6,7 @@ import {
 import { Logger } from '../logger';
 import { OpenDEXassetAllocation } from '../trade/info';
 import { satsToCoinsStr } from '../utils';
-import {errors} from './errors';
+import { errors } from './errors';
 
 type LogAssetBalanceParams = {
   logger: Logger;

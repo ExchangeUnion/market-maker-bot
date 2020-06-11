@@ -119,6 +119,42 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when unable to retrieve asset balance', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.BALANCE_MISSING('ETH'),
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
+  it('retries when unable to retrieve asset\'s trading limits', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.TRADING_LIMITS_MISSING('BTC'),
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
   it('stops when unexpected error happens', () => {
     expect.assertions(1);
     const inputEvents = {

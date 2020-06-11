@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`OpenDEX.assets-utils error baseAssetBalance 1`] = `"Could not retrieve ETH balance."`;
+exports[`OpenDEX.assets-utils error baseAssetBalance 1`] = `"Could not retrieve ETH balance"`;
 
-exports[`OpenDEX.assets-utils error baseAssetTradingLimits 1`] = `"Could not retrieve ETH trading limits."`;
+exports[`OpenDEX.assets-utils error baseAssetTradingLimits 1`] = `"Could not retrieve ETH trading limits"`;
 
-exports[`OpenDEX.assets-utils error quoteAssetBalance 1`] = `"Could not retrieve BTC balance."`;
+exports[`OpenDEX.assets-utils error quoteAssetBalance 1`] = `"Could not retrieve BTC balance"`;
 
-exports[`OpenDEX.assets-utils error quoteAssetLimits 1`] = `"Could not retrieve BTC trading limits."`;
+exports[`OpenDEX.assets-utils error quoteAssetLimits 1`] = `"Could not retrieve BTC trading limits"`;

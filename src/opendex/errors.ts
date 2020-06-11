@@ -9,7 +9,7 @@ const errorCodes = {
 
 const errors = {
   XUD_UNAVAILABLE: {
-    message: 'Could not establish connection to xud.',
+    message: 'Could not establish connection to xud',
     code: errorCodes.XUD_UNAVAILABLE,
   },
   XUD_CLIENT_INVALID_CERT: (certPath: string) => ({
@@ -17,11 +17,11 @@ const errors = {
     code: errorCodes.XUD_CLIENT_INVALID_CERT,
   }),
   BALANCE_MISSING: (asset: string) => ({
-    message: `Could not retrieve ${asset} balance.`,
+    message: `Could not retrieve ${asset} balance`,
     code: errorCodes.BALANCE_MISSING,
   }),
   TRADING_LIMITS_MISSING: (asset: string) => ({
-    message: `Could not retrieve ${asset} trading limits.`,
+    message: `Could not retrieve ${asset} trading limits`,
     code: errorCodes.TRADING_LIMITS_MISSING,
   }),
 };
