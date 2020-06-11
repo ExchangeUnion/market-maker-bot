@@ -22,7 +22,7 @@ const getCentralizedExchangePrice$ = ({
       logger.trace(`${tradingPair} established connection to ${url}`);
     };
     socket.on('error', e => {
-      logger.error(`error from the socket ${e}`);
+      observer.error(e);
     });
     const heartbeat = () => {
       logger.trace(`heartbeat from ${tradingPair} socket`);
