@@ -1,6 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
 import { exhaustMap, mapTo, takeUntil, tap } from 'rxjs/operators';
+import { SwapSuccess } from 'src/broker/opendex/proto/xudrpc_pb';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -15,9 +16,8 @@ import { removeOpenDEXorders$ } from './remove-orders';
 import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
-import { getXudTradingLimits$ } from './xud/trading-limits';
 import { subscribeXudSwaps$ } from './xud/subscribe-swaps';
-import { SwapSuccess } from 'src/broker/opendex/proto/xudrpc_pb';
+import { getXudTradingLimits$ } from './xud/trading-limits';
 
 type GetOpenDEXcompleteParams = {
   config: Config;

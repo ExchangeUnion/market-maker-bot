@@ -4,6 +4,7 @@ import { getOpenDEXorderFilled$ } from './order-filled';
 import { Observable } from 'rxjs';
 import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
 import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
+import { errors, xudErrorCodes } from './errors';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -17,27 +18,40 @@ type OpenDEXorderFilledInputEvents = {
   subscribeXudSwaps$: string;
 };
 
+type TestError = {
+  code: string | number;
+  message: string;
+};
+
+type OpenDEXorderFilledErrorValues = {
+  subscribeXudSwaps$: TestError;
+};
+
 const assertOpenDEXorderFilled = (
   inputEvents: OpenDEXorderFilledInputEvents,
-  expected: string
+  expected: string,
+  errorValues?: OpenDEXorderFilledErrorValues,
+  expectedError?: TestError
 ) => {
   testScheduler.run(helpers => {
-    const { cold, hot, expectObservable } = helpers;
+    const { cold, expectObservable } = helpers;
     const config = testConfig();
     const getXudClient$ = () => {
       return (cold(inputEvents.xudClient$) as unknown) as Observable<XudClient>;
     };
     const subscribeXudSwaps$ = () => {
-      return (cold(inputEvents.subscribeXudSwaps$) as unknown) as Observable<
-        SwapSuccess
-      >;
+      return (cold(
+        inputEvents.subscribeXudSwaps$,
+        {},
+        errorValues?.subscribeXudSwaps$
+      ) as unknown) as Observable<SwapSuccess>;
     };
     const orderFilled$ = getOpenDEXorderFilled$({
       config,
       getXudClient$,
       subscribeXudSwaps$,
     });
-    expectObservable(orderFilled$).toBe(expected);
+    expectObservable(orderFilled$).toBe(expected, {}, expectedError);
   });
 };
 
@@ -51,5 +65,50 @@ describe('getOpenDEXorderFilled$', () => {
     };
     const expectedEvents = '2s a';
     assertOpenDEXorderFilled(inputEvents, expectedEvents);
+  });
+
+  it('rethrows xud unavailable error', () => {
+    const inputEvents = {
+      xudClient$: '1s a',
+      subscribeXudSwaps$: '1s #',
+    };
+    const expectedEvents = '2s #';
+    const expectedError = errors.XUD_UNAVAILABLE;
+    const errorValues = {
+      subscribeXudSwaps$: {
+        code: xudErrorCodes.UNAVAILABLE,
+        message: 'UNAVAILABLE: No connection established',
+      },
+    };
+    assertOpenDEXorderFilled(
+      inputEvents,
+      expectedEvents,
+      errorValues,
+      expectedError
+    );
+  });
+
+  it('does not rethrow unknown error', () => {
+    const inputEvents = {
+      xudClient$: '1s a',
+      subscribeXudSwaps$: '1s #',
+    };
+    const expectedEvents = '2s #';
+    const expectedError = {
+      code: '123',
+      message: 'unknown',
+    };
+    const errorValues = {
+      subscribeXudSwaps$: {
+        code: '123',
+        message: 'unknown',
+      },
+    };
+    assertOpenDEXorderFilled(
+      inputEvents,
+      expectedEvents,
+      errorValues,
+      expectedError
+    );
   });
 });
