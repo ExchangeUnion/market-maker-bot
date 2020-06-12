@@ -42,6 +42,11 @@ const processResponse = (subscriber: Subscriber<unknown>) => {
         subscriber.error(errors.XUD_UNAVAILABLE);
         return;
       }
+      // remap expected xud unimplemented error
+      if (error.code == xudErrorCodes.UNIMPLEMENTED) {
+        subscriber.error(errors.XUD_LOCKED);
+        return;
+      }
       subscriber.error(error);
     } else {
       subscriber.next(response);

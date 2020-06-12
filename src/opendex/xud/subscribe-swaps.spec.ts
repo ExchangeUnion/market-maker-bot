@@ -109,4 +109,19 @@ describe('subscribeXudSwaps$', () => {
     });
     mockSwapSubscription.emit('error', swapError);
   });
+
+  test('rethrows xudErrorCodes.UNIMPLEMENTED as errors.XUD_LOCKED', done => {
+    expect.assertions(1);
+    const swapError = {
+      code: xudErrorCodes.UNIMPLEMENTED,
+    };
+    const swapsSubscription$ = subscribeXudSwaps$(client);
+    swapsSubscription$.subscribe({
+      error: actualErrorValue => {
+        expect(actualErrorValue).toEqual(errors.XUD_LOCKED);
+        done();
+      },
+    });
+    mockSwapSubscription.emit('error', swapError);
+  });
 });

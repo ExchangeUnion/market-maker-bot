@@ -7,6 +7,7 @@ const errorCodes = {
   TRADING_LIMITS_MISSING: `${errorCodePrefix}.4`,
   INVALID_ORDERS_LIST: `${errorCodePrefix}.5`,
   CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: `${errorCodePrefix}.6`,
+  XUD_LOCKED: `${errorCodePrefix}.7`,
 };
 
 const errors = {
@@ -34,9 +35,14 @@ const errors = {
     message: 'Price feed lost',
     code: errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
   },
+  XUD_LOCKED: {
+    message: 'Xud is locked',
+    code: errorCodes.XUD_LOCKED,
+  },
 };
 
 const xudErrorCodes = {
+  UNIMPLEMENTED: 12,
   UNAVAILABLE: 14,
   ENOENT: 'ENOENT',
 };

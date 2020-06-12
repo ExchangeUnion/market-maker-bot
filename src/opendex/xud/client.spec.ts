@@ -84,4 +84,20 @@ describe('XudClient', () => {
       },
     });
   });
+
+  test('processResponse remaps xudErrorCodes.UNIMPLEMENTED to errors.XUD_LOCKED', done => {
+    expect.assertions(1);
+    const errorValue = ({
+      code: xudErrorCodes.UNIMPLEMENTED,
+    } as unknown) as ServiceError;
+    const source$ = new Observable(subscriber => {
+      processResponse(subscriber)(errorValue, null);
+    });
+    source$.subscribe({
+      error: actualError => {
+        expect(actualError).toEqual(errors.XUD_LOCKED);
+        done();
+      },
+    });
+  });
 });

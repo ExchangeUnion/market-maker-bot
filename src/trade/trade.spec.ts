@@ -101,6 +101,24 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when xud locked', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.XUD_LOCKED,
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
   it('retries when xud cert file not found', () => {
     expect.assertions(1);
     const inputEvents = {
