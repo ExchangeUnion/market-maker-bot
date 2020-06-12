@@ -11,9 +11,17 @@ const getCentralizedExchangeOrder$ = (
 ): ((config: Config) => Observable<boolean>) => {
   return (config: Config) => {
     return of(true).pipe(
-      tap(() => logger.info('Starting centralized exchange order. TODO(karl): order quantity and side.')),
+      tap(() =>
+        logger.info(
+          'Starting centralized exchange order. TODO(karl): order quantity and side.'
+        )
+      ),
       delay(5000),
-      tap(() => logger.info('Centralized exchange order finished. TODO(karl): order fill quantity, price and side.')),
+      tap(() =>
+        logger.info(
+          'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
+        )
+      )
     );
   };
 };
