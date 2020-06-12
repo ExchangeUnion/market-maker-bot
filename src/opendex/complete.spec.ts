@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getLoggers, testConfig } from '../../test/utils';
-import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
+import { getLoggers, testConfig } from '../test-utils';
+import { SwapSuccess } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
 import { getOpenDEXcomplete$ } from './complete';
 

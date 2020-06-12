@@ -1,10 +1,7 @@
 import { BigNumber } from 'bignumber.js';
-import { getLoggers, testConfig } from '../../test/utils';
-import {
-  GetBalanceResponse,
-  TradingLimitsResponse,
-} from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
+import { GetBalanceResponse, TradingLimitsResponse } from '../proto/xudrpc_pb';
+import { getLoggers, testConfig } from '../test-utils';
 import { satsToCoinsStr } from '../utils';
 import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 

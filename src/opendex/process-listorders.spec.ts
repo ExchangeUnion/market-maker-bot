@@ -1,8 +1,8 @@
-import { processListorders } from './process-listorders';
-import { ListOrdersResponse } from '../broker/opendex/proto/xudrpc_pb';
-import { testConfig } from '../../test/utils';
-import { v4 as uuidv4 } from 'uuid';
 import { equals } from 'ramda';
+import { v4 as uuidv4 } from 'uuid';
+import { ListOrdersResponse } from '../proto/xudrpc_pb';
+import { testConfig } from '../test-utils';
+import { processListorders } from './process-listorders';
 
 type TestOrderParams = {
   quantity: number;

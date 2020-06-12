@@ -2,7 +2,7 @@ import { tradeInfoToOpenDEXorders } from './orders';
 import BigNumber from 'bignumber.js';
 import { OrderSide } from '../proto/xudrpc_pb';
 import { coinsToSats } from '../utils';
-import { testConfig } from '../../test/utils';
+import { testConfig } from '../test-utils';
 
 describe('tradeInfoToOpenDEXorders', () => {
   it("calculates OpenDEX orders' quantity and price", () => {

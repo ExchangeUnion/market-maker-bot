@@ -1,7 +1,7 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
-import { testConfig } from '../../../test/utils';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { testConfig } from '../../test-utils';
 import { errors, xudErrorCodes } from '../errors';
 import { getXudClient$, processResponse } from './client';
 

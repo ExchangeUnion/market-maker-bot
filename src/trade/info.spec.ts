@@ -1,14 +1,14 @@
-import { TestScheduler } from 'rxjs/testing';
-import {
-  getTradeInfo$,
-  tradeInfoArrayToObject,
-  ExchangeAssetAllocation,
-  TradeInfo,
-  OpenDEXassetAllocation,
-} from './info';
 import { BigNumber } from 'bignumber.js';
-import { testConfig, getLoggers } from '../../test/utils';
 import { Observable } from 'rxjs';
+import { TestScheduler } from 'rxjs/testing';
+import { getLoggers, testConfig } from '../test-utils';
+import {
+  ExchangeAssetAllocation,
+  getTradeInfo$,
+  OpenDEXassetAllocation,
+  TradeInfo,
+  tradeInfoArrayToObject,
+} from './info';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {

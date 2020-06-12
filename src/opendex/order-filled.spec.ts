@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { testConfig } from '../../test/utils';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { SwapSuccess } from '../proto/xudrpc_pb';
+import { testConfig } from '../test-utils';
 import { getOpenDEXorderFilled$ } from './order-filled';
 
 let testScheduler: TestScheduler;

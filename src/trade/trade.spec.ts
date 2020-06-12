@@ -1,7 +1,7 @@
 import { TestScheduler } from 'rxjs/testing';
-import { getNewTrade$ } from '../src/trade/manager';
-import { testConfig, getLoggers, TestError } from './utils';
-import { errors } from '../src/opendex/errors';
+import { errors } from '../opendex/errors';
+import { getLoggers, testConfig, TestError } from '../test-utils';
+import { getNewTrade$ } from './manager';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -181,7 +181,7 @@ describe('getTrade$', () => {
       shutdown$: '5s a',
     };
     const errorValues = {
-      openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
+      openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
     };
     const expected = '5s |';
     assertGetTrade({

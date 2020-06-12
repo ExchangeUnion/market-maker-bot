@@ -1,6 +1,5 @@
-import { Config } from '../src/config';
-import { Loggers } from '../src/logger';
-import { Level } from '../src/logger';
+import { Config } from './config';
+import { Level, Loggers } from './logger';
 
 const testConfig = (): Config => {
   return {
@@ -25,11 +24,11 @@ const getLoggers = (): Loggers => {
     debug: () => {},
     trace: () => {},
   };
-  return {
+  return ({
     global: mockLogger,
     centralized: mockLogger,
     opendex: mockLogger,
-  } as unknown as Loggers;
+  } as unknown) as Loggers;
 };
 
 type TestError = {
@@ -37,8 +36,4 @@ type TestError = {
   message: string;
 };
 
-export {
-  getLoggers,
-  testConfig,
-  TestError,
-};
+export { getLoggers, testConfig, TestError };

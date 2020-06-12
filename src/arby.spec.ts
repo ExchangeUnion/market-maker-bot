@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { startArby } from '../src/arby';
 import { Config } from '../src/config';
-import { getLoggers } from './utils';
+import { getLoggers } from './test-utils';
 
 describe('startArby', () => {
   let testScheduler: TestScheduler;
@@ -27,7 +27,7 @@ describe('startArby', () => {
         shutdown$,
         trade$: getTrade$,
       });
-      const expected = '1000ms b'
+      const expected = '1000ms b';
       expectObservable(arby$).toBe(expected, {
         b: true,
       });
@@ -48,11 +48,10 @@ describe('startArby', () => {
         trade$: getTrade$,
         shutdown$,
       });
-      const expected = '500ms b 9499ms |'
+      const expected = '500ms b 9499ms |';
       expectObservable(arby$).toBe(expected, {
         b: true,
       });
     });
   });
-
 });

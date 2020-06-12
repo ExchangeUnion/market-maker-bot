@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getLoggers, testConfig } from '../../test/utils';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import { PlaceOrderResponse } from '../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { PlaceOrderResponse } from '../proto/xudrpc_pb';
+import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
 
