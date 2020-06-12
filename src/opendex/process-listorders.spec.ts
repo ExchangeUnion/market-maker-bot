@@ -2,24 +2,32 @@ import { processListorders } from './process-listorders';
 import { ListOrdersResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { testConfig } from '../../test/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { equals } from 'ramda';
 
 type TestOrderParams = {
   quantity: number;
   hold: number;
+  ownOrder?: boolean;
 };
 
 type TestOrder = {
   getLocalId: () => string;
   getQuantity: () => number;
   getHold: () => number;
+  getIsOwnOrder: () => boolean;
 };
 
-const testOrder = ({ quantity, hold }: TestOrderParams): TestOrder => {
+const testOrder = ({
+  quantity,
+  hold,
+  ownOrder = true,
+}: TestOrderParams): TestOrder => {
   const orderId = uuidv4();
   return {
     getLocalId: () => orderId,
     getQuantity: () => quantity,
     getHold: () => hold,
+    getIsOwnOrder: () => ownOrder,
   };
 };
 
@@ -48,7 +56,8 @@ const assertProcessListOrders = ({
     config: testConfig(),
     listOrdersResponse,
   });
-  expect(orderIds).toEqual(expect.arrayContaining(expectedIds));
+  const orderIdsMatch = equals(orderIds, expectedIds);
+  expect(orderIdsMatch).toBeTruthy();
 };
 
 describe('processListorders', () => {
@@ -62,7 +71,7 @@ describe('processListorders', () => {
       quantity: 123000,
       hold: 0,
     });
-    const expectedIds = [sellOrder.getLocalId(), buyOrder.getLocalId()];
+    const expectedIds = [buyOrder.getLocalId(), sellOrder.getLocalId()];
     assertProcessListOrders({
       sellOrders: [sellOrder],
       buyOrders: [buyOrder],
@@ -79,6 +88,25 @@ describe('processListorders', () => {
     const buyOrder = testOrder({
       quantity: 123000,
       hold: 123000,
+    });
+    assertProcessListOrders({
+      sellOrders: [sellOrder],
+      buyOrders: [buyOrder],
+      expectedIds: [],
+    });
+  });
+
+  it("ignores others' orders", () => {
+    expect.assertions(1);
+    const sellOrder = testOrder({
+      quantity: 100000,
+      hold: 0,
+      ownOrder: false,
+    });
+    const buyOrder = testOrder({
+      quantity: 123000,
+      hold: 0,
+      ownOrder: false,
     });
     assertProcessListOrders({
       sellOrders: [sellOrder],
