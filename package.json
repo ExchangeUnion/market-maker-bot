@@ -10,8 +10,9 @@
     "lint": "eslint . --ext .js,.ts",
     "compile:watch": "tsc -w",
     "nodemon:watch": "nodemon --watch dist -e js dist/arby.js",
-    "test": "prettier --check src/ && npm run compile && jest",
-    "test:watch": "npm run compile && jest --watch",
+    "test": "prettier --check src/ && npm run compile && npm run jest:clear:cache && jest",
+    "test:watch": "npm run compile && npm run jest:clear:cache && jest --watch",
+    "jest:clear:cache": "jest --clearCache",
     "prettier": "prettier --write src/",
     "clean": "rm -Rf dist/* && npm i"
   },
