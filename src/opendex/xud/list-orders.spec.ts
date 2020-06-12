@@ -1,9 +1,9 @@
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import { ListOrdersRequest } from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { ListOrdersRequest } from '../../proto/xudrpc_pb';
 import { listXudOrders$ } from './list-orders';
 
-jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../proto/xudrpc_grpc_pb');
+jest.mock('../../proto/xudrpc_pb');
 
 describe('listXudOrders$', () => {
   test('success', done => {

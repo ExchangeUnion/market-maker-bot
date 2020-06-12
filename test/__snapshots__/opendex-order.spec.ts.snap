@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`OpenDEX.Order it does not support StopLimit orders 1`] = `[Error: OpenDEX broker does not currently support StopLimit orders]`;

@@ -1,12 +1,9 @@
 import { combineLatest, interval, Observable } from 'rxjs';
 import { map, mergeMap, repeatWhen, take, tap } from 'rxjs/operators';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import {
-  GetBalanceResponse,
-  TradingLimitsResponse,
-} from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
 import { Logger } from '../logger';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { GetBalanceResponse, TradingLimitsResponse } from '../proto/xudrpc_pb';
 import { OpenDEXassetAllocation } from '../trade/info';
 import {
   LogAssetBalanceParams,

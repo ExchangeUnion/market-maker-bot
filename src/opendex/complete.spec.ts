@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getOpenDEXcomplete$ } from './complete';
-import { testConfig, getLoggers } from '../../test/utils';
-import { TradeInfo } from '../trade/manager';
+import { getLoggers, testConfig } from '../../test/utils';
 import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
+import { TradeInfo } from '../trade/info';
+import { getOpenDEXcomplete$ } from './complete';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {

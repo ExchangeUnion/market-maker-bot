@@ -1,4 +1,4 @@
-import { ListOrdersResponse, Order } from 'src/broker/opendex/proto/xudrpc_pb';
+import { ListOrdersResponse, Order } from '../proto/xudrpc_pb';
 import { Config } from 'src/config';
 import { errors } from './errors';
 

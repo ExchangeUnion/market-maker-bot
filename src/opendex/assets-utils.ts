@@ -1,9 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import {
-  GetBalanceResponse,
-  TradingLimitsResponse,
-} from '../broker/opendex/proto/xudrpc_pb';
 import { Logger } from '../logger';
+import { GetBalanceResponse, TradingLimitsResponse } from '../proto/xudrpc_pb';
 import { OpenDEXassetAllocation } from '../trade/info';
 import { satsToCoinsStr } from '../utils';
 import { errors } from './errors';

@@ -1,6 +1,5 @@
-import winston from 'winston';
 import colors from 'colors/safe';
-
+import winston from 'winston';
 import { getTsString } from './utils';
 
 enum Level {
@@ -23,24 +22,14 @@ const LevelPriorities = {
 
 export enum Context {
   Global = 'GLOBAL',
-  DB = 'DB',
-  Stream = 'Stream',
-  Binance = 'Binance',
   OpenDex = 'OpenDEX',
   Centralized = 'Centralized',
-  TradeManager = 'TradeManager',
-  Balancer = 'Balancer',
 }
 
 type Loggers = {
   global: Logger;
-  db: Logger;
-  stream: Logger;
-  binance: Logger;
   centralized: Logger;
   opendex: Logger;
-  trademanager: Logger;
-  balancer: Logger;
 };
 
 class Logger {
@@ -112,13 +101,8 @@ class Logger {
     const object = { instanceId, level, filename, dateFormat };
     return {
       global: new Logger({ ...object, context: Context.Global }),
-      db: new Logger({ ...object, context: Context.DB }),
-      stream: new Logger({ ...object, context: Context.Stream }),
-      binance: new Logger({ ...object, context: Context.Binance }),
       centralized: new Logger({ ...object, context: Context.Centralized }),
       opendex: new Logger({ ...object, context: Context.OpenDex }),
-      trademanager: new Logger({ ...object, context: Context.TradeManager }),
-      balancer: new Logger({ ...object, context: Context.Balancer }),
     };
   };
 

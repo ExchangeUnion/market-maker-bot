@@ -1,6 +1,6 @@
 import { tradeInfoToOpenDEXorders } from './orders';
 import BigNumber from 'bignumber.js';
-import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
+import { OrderSide } from '../proto/xudrpc_pb';
 import { coinsToSats } from '../utils';
 import { testConfig } from '../../test/utils';
 

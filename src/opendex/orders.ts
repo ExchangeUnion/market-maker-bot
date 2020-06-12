@@ -1,10 +1,10 @@
-import { CreateXudOrderParams } from './xud/create-order';
-import { TradeInfo } from '../trade/manager';
-import { OrderSide } from '../broker/opendex/proto/xudrpc_pb';
 import BigNumber from 'bignumber.js';
-import { coinsToSats } from '../utils';
-import { Config } from '../config';
 import { v4 as uuidv4 } from 'uuid';
+import { Config } from '../config';
+import { OrderSide } from '../proto/xudrpc_pb';
+import { TradeInfo } from '../trade/info';
+import { coinsToSats } from '../utils';
+import { CreateXudOrderParams } from './xud/create-order';
 
 type OpenDEXorder = Omit<CreateXudOrderParams, 'client'>;
 

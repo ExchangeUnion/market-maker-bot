@@ -1,9 +1,6 @@
 import { Observable } from 'rxjs';
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import {
-  ListOrdersRequest,
-  ListOrdersResponse,
-} from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { ListOrdersRequest, ListOrdersResponse } from '../../proto/xudrpc_pb';
 import { processResponse } from './client';
 import { map } from 'rxjs/operators';
 

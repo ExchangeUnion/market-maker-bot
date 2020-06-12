@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
-import { SwapSuccess } from '../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Config } from '../config';
 
 type GetOpenDEXorderFilledParams = {

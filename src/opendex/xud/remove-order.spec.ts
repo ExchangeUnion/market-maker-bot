@@ -1,9 +1,9 @@
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import { RemoveOrderRequest } from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { RemoveOrderRequest } from '../../proto/xudrpc_pb';
 import { removeXudOrder$ } from './remove-order';
 
-jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../proto/xudrpc_grpc_pb');
+jest.mock('../../proto/xudrpc_pb');
 
 describe('removeXudOrder$', () => {
   test('success', done => {

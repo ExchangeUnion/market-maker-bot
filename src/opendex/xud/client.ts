@@ -1,10 +1,10 @@
 import { credentials, ServiceError } from '@grpc/grpc-js';
 import fs from 'fs';
 import { Observable, Subscriber, throwError } from 'rxjs';
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import { Config } from '../../config';
-import { errors, xudErrorCodes } from '../errors';
 import { catchError } from 'rxjs/operators';
+import { Config } from '../../config';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { errors, xudErrorCodes } from '../errors';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const client$ = new Observable(subscriber => {

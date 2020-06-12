@@ -27,13 +27,8 @@ const getLoggers = (): Loggers => {
   };
   return {
     global: mockLogger,
-    db: mockLogger,
-    stream: mockLogger,
-    binance: mockLogger,
     centralized: mockLogger,
     opendex: mockLogger,
-    trademanager: mockLogger,
-    balancer: mockLogger,
   } as unknown as Loggers;
 };
 

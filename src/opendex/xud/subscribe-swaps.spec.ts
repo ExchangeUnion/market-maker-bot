@@ -1,11 +1,11 @@
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import { SubscribeSwapsRequest } from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { SubscribeSwapsRequest } from '../../proto/xudrpc_pb';
 import { subscribeXudSwaps$ } from './subscribe-swaps';
 import { EventEmitter } from 'events';
 import { xudErrorCodes, errors } from '../errors';
 
-jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../proto/xudrpc_grpc_pb');
+jest.mock('../../proto/xudrpc_pb');
 
 const CANCELLED_ERROR = {
   code: 1,

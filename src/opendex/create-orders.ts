@@ -1,10 +1,10 @@
-import { Observable, forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
-import { XudClient } from 'src/broker/opendex/proto/xudrpc_grpc_pb';
-import { Logger } from 'src/logger';
-import { PlaceOrderResponse } from '../broker/opendex/proto/xudrpc_pb';
 import { Config } from '../config';
-import { TradeInfo } from '../trade/manager';
+import { Logger } from '../logger';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { PlaceOrderResponse } from '../proto/xudrpc_pb';
+import { TradeInfo } from '../trade/info';
 import { OpenDEXorders, TradeInfoToOpenDEXordersParams } from './orders';
 import { processListorders } from './process-listorders';
 import { RemoveOpenDEXordersParams } from './remove-orders';

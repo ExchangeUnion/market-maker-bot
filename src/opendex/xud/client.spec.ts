@@ -1,12 +1,12 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
 import { testConfig } from '../../../test/utils';
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { errors, xudErrorCodes } from '../errors';
 import { getXudClient$, processResponse } from './client';
-import { xudErrorCodes, errors } from '../errors';
 
-jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../proto/xudrpc_grpc_pb');
+jest.mock('../../proto/xudrpc_pb');
 
 describe('XudClient', () => {
   test('getXudClient$', done => {

@@ -1,9 +1,9 @@
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import { GetBalanceRequest } from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { GetBalanceRequest } from '../../proto/xudrpc_pb';
 import { getXudBalance$ } from './balance';
 
-jest.mock('../../broker/opendex/proto/xudrpc_grpc_pb');
-jest.mock('../../broker/opendex/proto/xudrpc_pb');
+jest.mock('../../proto/xudrpc_grpc_pb');
+jest.mock('../../proto/xudrpc_pb');
 
 describe('getXudBalance$', () => {
   test('success', done => {

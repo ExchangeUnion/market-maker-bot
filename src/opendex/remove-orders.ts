@@ -1,8 +1,8 @@
 import { forkJoin, Observable, of } from 'rxjs';
 import { map, mapTo, mergeMap } from 'rxjs/operators';
-import { RemoveOrderResponse } from 'src/broker/opendex/proto/xudrpc_pb';
 import { Config } from 'src/config';
-import { XudClient } from '../broker/opendex/proto/xudrpc_grpc_pb';
+import { XudClient } from '../proto/xudrpc_grpc_pb';
+import { RemoveOrderResponse } from '../proto/xudrpc_pb';
 import { ProcessListOrdersParams } from './process-listorders';
 import { ListXudOrdersResponse } from './xud/list-orders';
 import { RemoveXudOrderParams } from './xud/remove-order';

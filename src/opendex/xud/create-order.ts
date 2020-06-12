@@ -1,11 +1,11 @@
 import { Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import {
   OrderSide,
   PlaceOrderRequest,
   PlaceOrderResponse,
-} from '../../broker/opendex/proto/xudrpc_pb';
+} from '../../proto/xudrpc_pb';
 import { processResponse } from './client';
 
 type CreateXudOrderParams = {

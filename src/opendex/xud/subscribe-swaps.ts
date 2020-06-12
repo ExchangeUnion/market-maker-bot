@@ -1,10 +1,7 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
-import { XudClient } from '../../broker/opendex/proto/xudrpc_grpc_pb';
-import {
-  SubscribeSwapsRequest,
-  SwapSuccess,
-} from '../../broker/opendex/proto/xudrpc_pb';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { SubscribeSwapsRequest, SwapSuccess } from '../../proto/xudrpc_pb';
 import { xudErrorCodes, errors } from '../errors';
 
 const subscribeXudSwaps$ = (client: XudClient): Observable<SwapSuccess> => {

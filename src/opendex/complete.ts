@@ -1,12 +1,15 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
 import { exhaustMap, mapTo, takeUntil, tap } from 'rxjs/operators';
-import { SwapSuccess } from 'src/broker/opendex/proto/xudrpc_pb';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
-import { GetTradeInfoParams, tradeInfoArrayToObject } from '../trade/info';
-import { TradeInfo } from '../trade/manager';
+import { SwapSuccess } from '../proto/xudrpc_pb';
+import {
+  GetTradeInfoParams,
+  TradeInfo,
+  tradeInfoArrayToObject,
+} from '../trade/info';
 import { getOpenDEXassets$ } from './assets';
 import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';

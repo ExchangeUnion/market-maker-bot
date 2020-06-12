@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`xud client getbalance fails 1`] = `[Error: 14 UNAVAILABLE: DNS resolution failed]`;
