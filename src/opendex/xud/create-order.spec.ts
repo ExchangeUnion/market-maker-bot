@@ -1,6 +1,7 @@
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { OrderSide, PlaceOrderRequest } from '../../proto/xudrpc_pb';
 import { createXudOrder$ } from './create-order';
+import { getLoggers } from '../../test-utils';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');
@@ -30,7 +31,7 @@ describe('createXudOrder$', () => {
     } as unknown) as XudClient;
     const order = getTestXudOrderParams();
     const createOrder$ = createXudOrder$({
-      ...{ client },
+      ...{ client, logger: getLoggers().opendex },
       ...order,
     });
     createOrder$.subscribe({
@@ -65,7 +66,7 @@ describe('createXudOrder$', () => {
       quantity: 0,
     };
     const createOrder$ = createXudOrder$({
-      ...{ client },
+      ...{ client, logger: getLoggers().opendex },
       ...order,
     });
     createOrder$.subscribe({
@@ -86,7 +87,7 @@ describe('createXudOrder$', () => {
       },
     } as unknown) as XudClient;
     const createOrder$ = createXudOrder$({
-      ...{ client },
+      ...{ client, logger: getLoggers().opendex },
       ...getTestXudOrderParams(),
     });
     createOrder$.subscribe({

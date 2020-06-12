@@ -4,9 +4,14 @@ import { Config } from '../config';
 import { OrderSide } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
 import { coinsToSats } from '../utils';
-import { CreateXudOrderParams } from './xud/create-order';
 
-type OpenDEXorder = Omit<CreateXudOrderParams, 'client'>;
+type OpenDEXorder = {
+  quantity: number;
+  orderSide: OrderSide;
+  pairId: string;
+  price: number;
+  orderId: string;
+};
 
 type OpenDEXorders = {
   buyOrder: OpenDEXorder;
@@ -73,6 +78,7 @@ const tradeInfoToOpenDEXorders = ({
 
 export {
   OpenDEXorders,
+  OpenDEXorder,
   tradeInfoToOpenDEXorders,
   TradeInfoToOpenDEXordersParams,
 };

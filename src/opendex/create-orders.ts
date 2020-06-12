@@ -30,6 +30,7 @@ type CreateOpenDEXordersParams = {
   }: RemoveOpenDEXordersParams) => Observable<null>;
   createXudOrder$: ({
     client,
+    logger,
     quantity,
     orderSide,
     pairId,
@@ -65,11 +66,11 @@ const createOpenDEXorders$ = ({
         tradeInfo: getTradeInfo(),
       });
       const buyOrder$ = createXudOrder$({
-        ...{ client },
+        ...{ client, logger },
         ...buyOrder,
       });
       const sellOrder$ = createXudOrder$({
-        ...{ client },
+        ...{ client, logger },
         ...sellOrder,
       });
       const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));

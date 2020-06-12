@@ -2,23 +2,29 @@ import { Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import {
-  OrderSide,
   PlaceOrderRequest,
   PlaceOrderResponse,
+  OrderSide,
 } from '../../proto/xudrpc_pb';
 import { processResponse } from './client';
+import { Logger } from '../../logger';
+import { OpenDEXorder } from '../orders';
+import { satsToCoinsStr } from '../../utils';
 
-type CreateXudOrderParams = {
+type CreateXudOrderParams = OpenDEXorder & {
+  logger: Logger;
   client: XudClient;
-  quantity: number;
-  orderSide: OrderSide;
-  pairId: string;
-  price: number;
-  orderId: string;
+};
+
+const orderSideMapping = {
+  0: 'buy',
+  1: 'sell',
+  2: 'both',
 };
 
 const createXudOrder$ = ({
   client,
+  logger,
   quantity,
   orderSide,
   pairId,
@@ -26,6 +32,13 @@ const createXudOrder$ = ({
   orderId,
 }: CreateXudOrderParams): Observable<PlaceOrderResponse> => {
   if (quantity > 0) {
+    logger.trace(
+      `Creating ${pairId} ${
+        orderSideMapping[orderSide]
+      } order with id ${orderId}, quantity ${satsToCoinsStr(
+        quantity
+      )} and price ${price}.`
+    );
     const request = new PlaceOrderRequest();
     request.setQuantity(quantity);
     request.setSide(orderSide);
