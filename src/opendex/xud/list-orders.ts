@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { ListOrdersRequest, ListOrdersResponse } from '../../proto/xudrpc_pb';
-import { processResponse } from './client';
+import { processResponse } from './process-response';
 import { map } from 'rxjs/operators';
 import { parseGrpcError } from './parse-error';
 

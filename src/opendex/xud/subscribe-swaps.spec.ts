@@ -1,11 +1,10 @@
+import { EventEmitter } from 'events';
+import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { SubscribeSwapsRequest } from '../../proto/xudrpc_pb';
-import { subscribeXudSwaps$ } from './subscribe-swaps';
-import { EventEmitter } from 'events';
-import { grpcErrorCodes, errors } from '../errors';
 import { testConfig } from '../../test-utils';
-import { Config } from '../../config';
-import { ParseGrpcErrorResponse } from './parse-error';
+import { grpcErrorCodes } from '../errors';
+import { subscribeXudSwaps$ } from './subscribe-swaps';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');

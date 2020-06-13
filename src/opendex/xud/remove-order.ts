@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { RemoveOrderRequest, RemoveOrderResponse } from '../../proto/xudrpc_pb';
-import { processResponse } from './client';
+import { processResponse } from './process-response';
 import { parseGrpcError } from './parse-error';
 
 type RemoveXudOrderParams = {

@@ -1,15 +1,11 @@
 import { Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { XudClient } from '../../proto/xudrpc_grpc_pb';
-import {
-  PlaceOrderRequest,
-  PlaceOrderResponse,
-  OrderSide,
-} from '../../proto/xudrpc_pb';
-import { processResponse } from './client';
 import { Logger } from '../../logger';
-import { OpenDEXorder } from '../orders';
+import { XudClient } from '../../proto/xudrpc_grpc_pb';
+import { PlaceOrderRequest, PlaceOrderResponse } from '../../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../../utils';
+import { OpenDEXorder } from '../orders';
+import { processResponse } from './process-response';
 import { parseGrpcError } from './parse-error';
 
 type CreateXudOrderParams = OpenDEXorder & {

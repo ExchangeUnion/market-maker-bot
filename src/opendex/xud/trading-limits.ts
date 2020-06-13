@@ -4,7 +4,7 @@ import {
   TradingLimitsRequest,
   TradingLimitsResponse,
 } from '../../proto/xudrpc_pb';
-import { processResponse } from './client';
+import { processResponse } from './process-response';
 import { parseGrpcError } from './parse-error';
 
 const getXudTradingLimits$ = (

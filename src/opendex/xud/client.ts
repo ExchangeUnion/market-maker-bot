@@ -1,11 +1,10 @@
-import { credentials, ServiceError } from '@grpc/grpc-js';
+import { credentials } from '@grpc/grpc-js';
 import fs from 'fs';
-import { Observable, Subscriber, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { errors, grpcErrorCodes } from '../errors';
-import { ParseGrpcErrorResponse } from './parse-error';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const client$ = new Observable(subscriber => {
@@ -35,23 +34,4 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
   return client$ as Observable<XudClient>;
 };
 
-type ProcessResponseParams = {
-  subscriber: Subscriber<unknown>;
-  parseGrpcError: (error: ServiceError) => ParseGrpcErrorResponse;
-};
-
-const processResponse = ({
-  subscriber,
-  parseGrpcError,
-}: ProcessResponseParams) => {
-  return (error: ServiceError | null, response: any) => {
-    if (error) {
-      const parsedError = parseGrpcError(error);
-      parsedError && subscriber.error(parsedError);
-    } else {
-      subscriber.next(response);
-    }
-  };
-};
-
-export { getXudClient$, processResponse };
+export { getXudClient$ };

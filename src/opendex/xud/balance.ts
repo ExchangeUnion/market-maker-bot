@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { GetBalanceRequest, GetBalanceResponse } from '../../proto/xudrpc_pb';
-import { processResponse } from './client';
+import { processResponse } from './process-response';
 import { parseGrpcError } from './parse-error';
 
 const getXudBalance$ = (client: XudClient): Observable<GetBalanceResponse> => {
