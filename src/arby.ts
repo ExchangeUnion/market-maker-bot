@@ -5,6 +5,7 @@ import { Logger, Loggers } from './logger';
 import { getOpenDEXcomplete$ } from './opendex/complete';
 import { getNewTrade$, GetTradeParams } from './trade/manager';
 import { getStartShutdown$ } from './utils';
+import { removeOpenDEXorders$ } from './opendex/remove-orders';
 
 const getCentralizedExchangeOrder$ = (
   logger: Logger
@@ -55,6 +56,7 @@ export const startArby = ({
           loggers.centralized
         ),
         shutdown$,
+        removeOpenDEXorders$,
       });
     }),
     takeUntil(shutdown$)

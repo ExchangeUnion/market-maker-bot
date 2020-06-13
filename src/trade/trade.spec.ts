@@ -2,6 +2,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './manager';
+import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -17,11 +18,13 @@ type AssertGetTradeParams = {
     openDEXcomplete$: string;
     getCentralizedExchangeOrder$: string;
     shutdown$: string;
+    removeOpenDEXorders$: string;
   };
   errorValues?: {
     openDEXcomplete$?: TestError;
     getCentralizedExchangeOrder$?: TestError;
     shutdown$?: TestError;
+    removeOpenDEXorders$?: TestError;
   };
 };
 
@@ -55,12 +58,20 @@ const assertGetTrade = ({
         errorValues?.openDEXcomplete$
       );
     };
+    const getRemoveOpenDEXorders$ = () => {
+      return (cold(
+        inputEvents.removeOpenDEXorders$,
+        {},
+        errorValues?.removeOpenDEXorders$
+      ) as unknown) as Observable<null>;
+    };
     const trade$ = getNewTrade$({
       shutdown$,
       loggers: getLoggers(),
       getOpenDEXcomplete$,
       config: testConfig(),
       centralizedExchangeOrder$: getCentralizedExchangeOrder$,
+      removeOpenDEXorders$: getRemoveOpenDEXorders$,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });
@@ -74,12 +85,32 @@ describe('getTrade$', () => {
     const inputEvents = {
       openDEXcomplete$: '1s (a|)',
       getCentralizedExchangeOrder$: '1s (a|)',
-      shutdown$: '5s a',
+      shutdown$: '7s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
-    const expected = '2s a 1999ms a 999ms |';
+    const expected = '3s a 2999ms a 999ms |';
     assertGetTrade({
       inputEvents,
       expected,
+    });
+  });
+
+  it('creates centralized exchange orders when swap succeeds, but removing OpenDEX orders fails', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '7s a',
+      removeOpenDEXorders$: '1s #',
+    };
+    const errorValues = {
+      removeOpenDEXorders$: errors.XUD_UNAVAILABLE,
+    };
+    const expected = '3s a 2999ms a 999ms |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
     });
   });
 
@@ -89,6 +120,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_UNAVAILABLE,
@@ -107,6 +139,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_LOCKED,
@@ -125,6 +158,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_CLIENT_INVALID_CERT('/invalid/cert/path'),
@@ -143,6 +177,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.BALANCE_MISSING('ETH'),
@@ -161,6 +196,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.TRADING_LIMITS_MISSING('BTC'),
@@ -179,6 +215,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.INVALID_ORDERS_LIST('ETH/BTC'),
@@ -197,6 +234,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const errorValues = {
       openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
@@ -215,6 +253,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
     };
     const unexpectedError = {
       code: '1234',
