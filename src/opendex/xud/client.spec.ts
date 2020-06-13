@@ -2,7 +2,7 @@ import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { testConfig } from '../../test-utils';
-import { errors, xudErrorCodes } from '../errors';
+import { errors, grpcErrorCodes } from '../errors';
 import { getXudClient$, processResponse } from './client';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
@@ -69,10 +69,10 @@ describe('XudClient', () => {
     });
   });
 
-  test('processResponse remaps xudErrorCodes.UNAVAILABLE to errors.XUD_UNAVAILABLE', done => {
+  test('processResponse remaps grpcErrorCodes.UNAVAILABLE to errors.XUD_UNAVAILABLE', done => {
     expect.assertions(1);
     const errorValue = ({
-      code: xudErrorCodes.UNAVAILABLE,
+      code: grpcErrorCodes.UNAVAILABLE,
     } as unknown) as ServiceError;
     const source$ = new Observable(subscriber => {
       processResponse(subscriber)(errorValue, null);
@@ -85,10 +85,10 @@ describe('XudClient', () => {
     });
   });
 
-  test('processResponse remaps xudErrorCodes.UNIMPLEMENTED to errors.XUD_LOCKED', done => {
+  test('processResponse remaps grpcErrorCodes.UNIMPLEMENTED to errors.XUD_LOCKED', done => {
     expect.assertions(1);
     const errorValue = ({
-      code: xudErrorCodes.UNIMPLEMENTED,
+      code: grpcErrorCodes.UNIMPLEMENTED,
     } as unknown) as ServiceError;
     const source$ = new Observable(subscriber => {
       processResponse(subscriber)(errorValue, null);

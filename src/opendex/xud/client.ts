@@ -4,7 +4,7 @@ import { Observable, Subscriber, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
-import { errors, xudErrorCodes } from '../errors';
+import { errors, grpcErrorCodes } from '../errors';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const client$ = new Observable(subscriber => {
@@ -23,7 +23,7 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
     subscriber.complete();
   }).pipe(
     catchError(error => {
-      if (error.code === xudErrorCodes.ENOENT) {
+      if (error.code === grpcErrorCodes.ENOENT) {
         return throwError(
           errors.XUD_CLIENT_INVALID_CERT(config.OPENDEX_CERT_PATH)
         );
@@ -38,12 +38,12 @@ const processResponse = (subscriber: Subscriber<unknown>) => {
   return (error: ServiceError | null, response: any) => {
     if (error) {
       // remap expected xud unavailable error
-      if (error.code == xudErrorCodes.UNAVAILABLE) {
+      if (error.code == grpcErrorCodes.UNAVAILABLE) {
         subscriber.error(errors.XUD_UNAVAILABLE);
         return;
       }
       // remap expected xud unimplemented error
-      if (error.code == xudErrorCodes.UNIMPLEMENTED) {
+      if (error.code == grpcErrorCodes.UNIMPLEMENTED) {
         subscriber.error(errors.XUD_LOCKED);
         return;
       }

@@ -10,6 +10,11 @@ const errorCodes = {
   XUD_LOCKED: `${errorCodePrefix}.7`,
 };
 
+type ArbyError = {
+  message: string;
+  code: string;
+};
+
 const errors = {
   XUD_UNAVAILABLE: {
     message: 'Could not establish connection to xud',
@@ -41,10 +46,11 @@ const errors = {
   },
 };
 
-const xudErrorCodes = {
+const grpcErrorCodes = {
+  CLIENT_CANCELED: 1,
   UNIMPLEMENTED: 12,
   UNAVAILABLE: 14,
   ENOENT: 'ENOENT',
 };
 
-export { errorCodes, errors, xudErrorCodes };
+export { errorCodes, errors, grpcErrorCodes, ArbyError };

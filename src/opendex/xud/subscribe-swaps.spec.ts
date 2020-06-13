@@ -2,15 +2,16 @@ import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { SubscribeSwapsRequest } from '../../proto/xudrpc_pb';
 import { subscribeXudSwaps$ } from './subscribe-swaps';
 import { EventEmitter } from 'events';
-import { xudErrorCodes, errors } from '../errors';
+import { grpcErrorCodes, errors } from '../errors';
 import { testConfig } from '../../test-utils';
 import { Config } from '../../config';
+import { ParseGrpcErrorResponse } from './parse-error';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');
 
 const CANCELLED_ERROR = {
-  code: 1,
+  code: grpcErrorCodes.CLIENT_CANCELED,
   message: 'Cancelled on client',
 };
 
@@ -44,9 +45,11 @@ describe('subscribeXudSwaps$', () => {
 
   test('success', done => {
     expect.assertions(8);
+    const parseGrpcError = () => null;
     const swapsSubscription$ = subscribeXudSwaps$({
       client,
       config,
+      parseGrpcError,
     });
     swapsSubscription$.subscribe({
       next: actualSuccessValue => {
@@ -81,71 +84,39 @@ describe('subscribeXudSwaps$', () => {
     });
   });
 
-  test('failure', done => {
-    expect.assertions(1);
+  test('parseError returns null will not emit error', () => {
+    expect.assertions(2);
     const swapError = 'swapError';
+    const parseGrpcError = jest.fn().mockReturnValue(null);
     const swapsSubscription$ = subscribeXudSwaps$({
       client,
       config,
+      parseGrpcError,
+    });
+    swapsSubscription$.subscribe(() => {});
+    mockSwapSubscription.emit('error', swapError);
+    expect(parseGrpcError).toHaveBeenCalledWith(swapError);
+    expect(parseGrpcError).toHaveBeenCalledTimes(1);
+  });
+
+  test('will parse error and emit', done => {
+    expect.assertions(3);
+    const swapError = 'swapError';
+    const parsedError = 'parsedError';
+    const parseGrpcError = jest.fn().mockReturnValue(parsedError);
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+      parseGrpcError,
     });
     swapsSubscription$.subscribe({
-      error: actualErrorValue => {
-        expect(actualErrorValue).toEqual(swapError);
+      error: actualError => {
+        expect(actualError).toEqual(parsedError);
         done();
       },
     });
     mockSwapSubscription.emit('error', swapError);
-  });
-
-  test('does not emit error on cancel', done => {
-    expect.assertions(1);
-    const swapsSubscription$ = subscribeXudSwaps$({
-      client,
-      config,
-    });
-    swapsSubscription$.subscribe({
-      next: actualSwapSuccess => {
-        expect(actualSwapSuccess).toEqual(swapSuccess);
-        done();
-      },
-    });
-    mockSwapSubscription.emit('error', CANCELLED_ERROR);
-    mockSwapSubscription.emit('data', swapSuccess);
-  });
-
-  test('rethrows xudErrorCodes.UNAVAILABLE as errors.XUD_UNAVAILABLE', done => {
-    expect.assertions(1);
-    const swapError = {
-      code: xudErrorCodes.UNAVAILABLE,
-    };
-    const swapsSubscription$ = subscribeXudSwaps$({
-      client,
-      config,
-    });
-    swapsSubscription$.subscribe({
-      error: actualErrorValue => {
-        expect(actualErrorValue).toEqual(errors.XUD_UNAVAILABLE);
-        done();
-      },
-    });
-    mockSwapSubscription.emit('error', swapError);
-  });
-
-  test('rethrows xudErrorCodes.UNIMPLEMENTED as errors.XUD_LOCKED', done => {
-    expect.assertions(1);
-    const swapError = {
-      code: xudErrorCodes.UNIMPLEMENTED,
-    };
-    const swapsSubscription$ = subscribeXudSwaps$({
-      client,
-      config,
-    });
-    swapsSubscription$.subscribe({
-      error: actualErrorValue => {
-        expect(actualErrorValue).toEqual(errors.XUD_LOCKED);
-        done();
-      },
-    });
-    mockSwapSubscription.emit('error', swapError);
+    expect(parseGrpcError).toHaveBeenCalledWith(swapError);
+    expect(parseGrpcError).toHaveBeenCalledTimes(1);
   });
 });

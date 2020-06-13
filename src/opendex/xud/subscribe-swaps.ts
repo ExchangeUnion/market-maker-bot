@@ -1,18 +1,20 @@
-import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
+import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { SubscribeSwapsRequest, SwapSuccess } from '../../proto/xudrpc_pb';
-import { xudErrorCodes, errors } from '../errors';
-import { Config } from '../../config';
+import { ParseGrpcErrorResponse } from './parse-error';
+import { ServiceError } from '@grpc/grpc-js';
 
 type SubscribeSwapsParams = {
   client: XudClient;
   config: Config;
+  parseGrpcError: (error: ServiceError) => ParseGrpcErrorResponse;
 };
 
 const subscribeXudSwaps$ = ({
   client,
   config,
+  parseGrpcError,
 }: SubscribeSwapsParams): Observable<SwapSuccess> => {
   const request = new SubscribeSwapsRequest();
   request.setIncludeTaker(true);
@@ -27,21 +29,8 @@ const subscribeXudSwaps$ = ({
     };
     swapsSubscription.on('data', onData);
     const onError = (error: ServiceError) => {
-      // do not error when client cancels the stream
-      if (error.code === 1) {
-        return;
-      }
-      // remap expected xud unavailable error
-      if (error.code == xudErrorCodes.UNAVAILABLE) {
-        subscriber.error(errors.XUD_UNAVAILABLE);
-        return;
-      }
-      // remap expected xud unimplemented error
-      if (error.code == xudErrorCodes.UNIMPLEMENTED) {
-        subscriber.error(errors.XUD_LOCKED);
-        return;
-      }
-      subscriber.error(error);
+      const parsedError = parseGrpcError(error);
+      parsedError && subscriber.error(parsedError);
     };
     swapsSubscription.on('error', onError);
     const onEnd = () => {

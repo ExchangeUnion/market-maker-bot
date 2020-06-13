@@ -4,6 +4,7 @@ import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Config } from '../config';
 import { SubscribeSwapsParams } from './xud/subscribe-swaps';
+import { parseGrpcError } from './xud/parse-error';
 
 type GetOpenDEXorderFilledParams = {
   config: Config;
@@ -21,7 +22,7 @@ const getOpenDEXorderFilled$ = ({
 }: GetOpenDEXorderFilledParams): Observable<SwapSuccess> => {
   return getXudClient$(config).pipe(
     mergeMap(client => {
-      return subscribeXudSwaps$({ client, config });
+      return subscribeXudSwaps$({ client, config, parseGrpcError });
     })
   );
 };
