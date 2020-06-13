@@ -15,6 +15,9 @@ const parseGrpcError = (error: ServiceError): ParseGrpcErrorResponse => {
   if (error.code == grpcErrorCodes.UNIMPLEMENTED) {
     return errors.XUD_LOCKED;
   }
+  if (error.code == grpcErrorCodes.FAILED_PRECONDITION) {
+    return errors.INSUFFICIENT_OUTBOUND_BALANCE;
+  }
   // default
   return error;
 };

@@ -247,6 +247,25 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when insufficient outbound balance', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '1s (a|)',
+      shutdown$: '5s a',
+      removeOpenDEXorders$: '1s (a|)',
+    };
+    const errorValues = {
+      openDEXcomplete$: errors.INSUFFICIENT_OUTBOUND_BALANCE,
+    };
+    const expected = '5s |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      errorValues,
+    });
+  });
+
   it('stops when unexpected error happens', () => {
     expect.assertions(1);
     const inputEvents = {

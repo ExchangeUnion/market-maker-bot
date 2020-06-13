@@ -19,6 +19,14 @@ describe('handleGrpcError', () => {
     expect(parseGrpcError(inputError)).toEqual(expectedError);
   });
 
+  test('returns INSUFFICIENT_OUTBOUND_BALANCE', () => {
+    const inputError = ({
+      code: grpcErrorCodes.FAILED_PRECONDITION,
+    } as unknown) as ServiceError;
+    const expectedError = errors.INSUFFICIENT_OUTBOUND_BALANCE;
+    expect(parseGrpcError(inputError)).toEqual(expectedError);
+  });
+
   test('returns null for code 1', () => {
     const inputError = ({
       code: grpcErrorCodes.CLIENT_CANCELED,

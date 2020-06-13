@@ -8,6 +8,7 @@ const errorCodes = {
   INVALID_ORDERS_LIST: `${errorCodePrefix}.5`,
   CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: `${errorCodePrefix}.6`,
   XUD_LOCKED: `${errorCodePrefix}.7`,
+  INSUFFICIENT_OUTBOUND_BALANCE: `${errorCodePrefix}.8`,
 };
 
 type ArbyError = {
@@ -44,10 +45,15 @@ const errors = {
     message: 'Xud is locked',
     code: errorCodes.XUD_LOCKED,
   },
+  INSUFFICIENT_OUTBOUND_BALANCE: {
+    message: 'Insufficient outbound balance.',
+    code: errorCodes.INSUFFICIENT_OUTBOUND_BALANCE,
+  },
 };
 
 const grpcErrorCodes = {
   CLIENT_CANCELED: 1,
+  FAILED_PRECONDITION: 9,
   UNIMPLEMENTED: 12,
   UNAVAILABLE: 14,
   ENOENT: 'ENOENT',
