@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { errors, grpcErrorCodes } from '../errors';
+import { ParseGrpcErrorResponse } from './parse-error';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const client$ = new Observable(subscriber => {
@@ -34,20 +35,19 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
   return client$ as Observable<XudClient>;
 };
 
-const processResponse = (subscriber: Subscriber<unknown>) => {
+type ProcessResponseParams = {
+  subscriber: Subscriber<unknown>;
+  parseGrpcError: (error: ServiceError) => ParseGrpcErrorResponse;
+};
+
+const processResponse = ({
+  subscriber,
+  parseGrpcError,
+}: ProcessResponseParams) => {
   return (error: ServiceError | null, response: any) => {
     if (error) {
-      // remap expected xud unavailable error
-      if (error.code == grpcErrorCodes.UNAVAILABLE) {
-        subscriber.error(errors.XUD_UNAVAILABLE);
-        return;
-      }
-      // remap expected xud unimplemented error
-      if (error.code == grpcErrorCodes.UNIMPLEMENTED) {
-        subscriber.error(errors.XUD_LOCKED);
-        return;
-      }
-      subscriber.error(error);
+      const parsedError = parseGrpcError(error);
+      parsedError && subscriber.error(parsedError);
     } else {
       subscriber.next(response);
     }

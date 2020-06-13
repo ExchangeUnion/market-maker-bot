@@ -10,6 +10,7 @@ import { processResponse } from './client';
 import { Logger } from '../../logger';
 import { OpenDEXorder } from '../orders';
 import { satsToCoinsStr } from '../../utils';
+import { parseGrpcError } from './parse-error';
 
 type CreateXudOrderParams = OpenDEXorder & {
   logger: Logger;
@@ -46,7 +47,13 @@ const createXudOrder$ = ({
     request.setPrice(price);
     request.setOrderId(orderId);
     const createXudOrder$ = new Observable(subscriber => {
-      client.placeOrderSync(request, processResponse(subscriber));
+      client.placeOrderSync(
+        request,
+        processResponse({
+          subscriber,
+          parseGrpcError,
+        })
+      );
     }).pipe(take(1));
     return createXudOrder$ as Observable<PlaceOrderResponse>;
   } else {

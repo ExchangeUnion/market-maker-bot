@@ -5,13 +5,20 @@ import {
   TradingLimitsResponse,
 } from '../../proto/xudrpc_pb';
 import { processResponse } from './client';
+import { parseGrpcError } from './parse-error';
 
 const getXudTradingLimits$ = (
   client: XudClient
 ): Observable<TradingLimitsResponse> => {
   const request = new TradingLimitsRequest();
   const tradingLimits$ = new Observable(subscriber => {
-    client.tradingLimits(request, processResponse(subscriber));
+    client.tradingLimits(
+      request,
+      processResponse({
+        subscriber,
+        parseGrpcError,
+      })
+    );
   });
   return tradingLimits$ as Observable<TradingLimitsResponse>;
 };

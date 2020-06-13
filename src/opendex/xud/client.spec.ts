@@ -2,7 +2,7 @@ import { ServiceError } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { testConfig } from '../../test-utils';
-import { errors, grpcErrorCodes } from '../errors';
+import { errors } from '../errors';
 import { getXudClient$, processResponse } from './client';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
@@ -44,8 +44,12 @@ describe('XudClient', () => {
   test('processResponse success', done => {
     expect.assertions(1);
     const nextValue = 'next';
+    const parseGrpcError = jest.fn().mockReturnValue('error');
     const source$ = new Observable(subscriber => {
-      processResponse(subscriber)(null, nextValue);
+      processResponse({
+        subscriber,
+        parseGrpcError,
+      })(null, nextValue);
     });
     source$.subscribe({
       next: actualNextValue => {
@@ -56,48 +60,23 @@ describe('XudClient', () => {
   });
 
   test('processResponse error', done => {
-    expect.assertions(1);
+    expect.assertions(3);
     const errorValue = ('errorValue' as unknown) as ServiceError;
+    const parsedError = 'parsedError';
+    const parseGrpcError = jest.fn().mockReturnValue(parsedError);
     const source$ = new Observable(subscriber => {
-      processResponse(subscriber)(errorValue, null);
+      processResponse({
+        parseGrpcError,
+        subscriber,
+      })(errorValue, null);
     });
     source$.subscribe({
       error: errorMsg => {
-        expect(errorMsg).toEqual(errorValue);
+        expect(errorMsg).toEqual(parsedError);
         done();
       },
     });
-  });
-
-  test('processResponse remaps grpcErrorCodes.UNAVAILABLE to errors.XUD_UNAVAILABLE', done => {
-    expect.assertions(1);
-    const errorValue = ({
-      code: grpcErrorCodes.UNAVAILABLE,
-    } as unknown) as ServiceError;
-    const source$ = new Observable(subscriber => {
-      processResponse(subscriber)(errorValue, null);
-    });
-    source$.subscribe({
-      error: actualError => {
-        expect(actualError).toEqual(errors.XUD_UNAVAILABLE);
-        done();
-      },
-    });
-  });
-
-  test('processResponse remaps grpcErrorCodes.UNIMPLEMENTED to errors.XUD_LOCKED', done => {
-    expect.assertions(1);
-    const errorValue = ({
-      code: grpcErrorCodes.UNIMPLEMENTED,
-    } as unknown) as ServiceError;
-    const source$ = new Observable(subscriber => {
-      processResponse(subscriber)(errorValue, null);
-    });
-    source$.subscribe({
-      error: actualError => {
-        expect(actualError).toEqual(errors.XUD_LOCKED);
-        done();
-      },
-    });
+    expect(parseGrpcError).toHaveBeenCalledWith(errorValue);
+    expect(parseGrpcError).toHaveBeenCalledTimes(1);
   });
 });
