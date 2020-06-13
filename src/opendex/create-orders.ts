@@ -58,8 +58,12 @@ const createOpenDEXorders$ = ({
         removeXudOrder$,
         processListorders,
       }).pipe(
-        tap(() => logger.trace(`Removed all open orders for ${config.BASEASSET}/${config.QUOTEASSET}`)),
-        mapTo(client),
+        tap(() =>
+          logger.trace(
+            `Removed all open orders for ${config.BASEASSET}/${config.QUOTEASSET}`
+          )
+        ),
+        mapTo(client)
       );
     }),
     // create new buy and sell orders

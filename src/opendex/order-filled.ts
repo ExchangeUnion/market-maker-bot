@@ -3,11 +3,15 @@ import { mergeMap } from 'rxjs/operators';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Config } from '../config';
+import { SubscribeSwapsParams } from './xud/subscribe-swaps';
 
 type GetOpenDEXorderFilledParams = {
   config: Config;
   getXudClient$: (config: Config) => Observable<XudClient>;
-  subscribeXudSwaps$: (client: XudClient) => Observable<SwapSuccess>;
+  subscribeXudSwaps$: ({
+    client,
+    config,
+  }: SubscribeSwapsParams) => Observable<SwapSuccess>;
 };
 
 const getOpenDEXorderFilled$ = ({
@@ -17,7 +21,7 @@ const getOpenDEXorderFilled$ = ({
 }: GetOpenDEXorderFilledParams): Observable<SwapSuccess> => {
   return getXudClient$(config).pipe(
     mergeMap(client => {
-      return subscribeXudSwaps$(client);
+      return subscribeXudSwaps$({ client, config });
     })
   );
 };

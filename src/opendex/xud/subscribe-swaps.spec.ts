@@ -3,6 +3,8 @@ import { SubscribeSwapsRequest } from '../../proto/xudrpc_pb';
 import { subscribeXudSwaps$ } from './subscribe-swaps';
 import { EventEmitter } from 'events';
 import { xudErrorCodes, errors } from '../errors';
+import { testConfig } from '../../test-utils';
+import { Config } from '../../config';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');
@@ -20,12 +22,15 @@ class MockSwapSubscription extends EventEmitter {
 
 describe('subscribeXudSwaps$', () => {
   let client: XudClient;
+  let config: Config;
+  let swapSuccess: any;
   let mockSwapSubscription: MockSwapSubscription;
   let onSwapSubscriptionSpy: any;
   let offSwapSubscriptionSpy: any;
   let cancelSwapSubscriptionSpy: any;
 
   beforeEach(() => {
+    config = testConfig();
     mockSwapSubscription = new MockSwapSubscription();
     cancelSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'cancel');
     client = ({
@@ -33,12 +38,16 @@ describe('subscribeXudSwaps$', () => {
     } as unknown) as XudClient;
     onSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'on');
     offSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'off');
+    const { BASEASSET, QUOTEASSET } = config;
+    swapSuccess = { getPairId: () => `${BASEASSET}/${QUOTEASSET}` };
   });
 
   test('success', done => {
     expect.assertions(8);
-    const swapSuccess = 'swapSuccess';
-    const swapsSubscription$ = subscribeXudSwaps$(client);
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+    });
     swapsSubscription$.subscribe({
       next: actualSuccessValue => {
         expect(actualSuccessValue).toEqual(swapSuccess);
@@ -57,6 +66,10 @@ describe('subscribeXudSwaps$', () => {
       expect.any(Function)
     );
     mockSwapSubscription.emit('data', swapSuccess);
+    const swapSuccessOtherTradingPair = {
+      getPairId: () => 'TOK/BTC',
+    };
+    mockSwapSubscription.emit('data', swapSuccessOtherTradingPair);
     mockSwapSubscription.emit('end');
     // cleanup function of subscribeXudSwaps$ uses
     // setImmediate to work around NodeJS core crashing
@@ -71,7 +84,10 @@ describe('subscribeXudSwaps$', () => {
   test('failure', done => {
     expect.assertions(1);
     const swapError = 'swapError';
-    const swapsSubscription$ = subscribeXudSwaps$(client);
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+    });
     swapsSubscription$.subscribe({
       error: actualErrorValue => {
         expect(actualErrorValue).toEqual(swapError);
@@ -83,8 +99,10 @@ describe('subscribeXudSwaps$', () => {
 
   test('does not emit error on cancel', done => {
     expect.assertions(1);
-    const swapsSubscription$ = subscribeXudSwaps$(client);
-    const swapSuccess = 'success';
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+    });
     swapsSubscription$.subscribe({
       next: actualSwapSuccess => {
         expect(actualSwapSuccess).toEqual(swapSuccess);
@@ -100,7 +118,10 @@ describe('subscribeXudSwaps$', () => {
     const swapError = {
       code: xudErrorCodes.UNAVAILABLE,
     };
-    const swapsSubscription$ = subscribeXudSwaps$(client);
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+    });
     swapsSubscription$.subscribe({
       error: actualErrorValue => {
         expect(actualErrorValue).toEqual(errors.XUD_UNAVAILABLE);
@@ -115,7 +136,10 @@ describe('subscribeXudSwaps$', () => {
     const swapError = {
       code: xudErrorCodes.UNIMPLEMENTED,
     };
-    const swapsSubscription$ = subscribeXudSwaps$(client);
+    const swapsSubscription$ = subscribeXudSwaps$({
+      client,
+      config,
+    });
     swapsSubscription$.subscribe({
       error: actualErrorValue => {
         expect(actualErrorValue).toEqual(errors.XUD_LOCKED);
