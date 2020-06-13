@@ -37,7 +37,7 @@ const createXudOrder$ = ({
         orderSideMapping[orderSide]
       } order with id ${orderId}, quantity ${satsToCoinsStr(
         quantity
-      )} and price ${price}.`
+      )} and price ${price}`
     );
     const request = new PlaceOrderRequest();
     request.setQuantity(quantity);

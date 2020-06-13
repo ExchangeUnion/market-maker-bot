@@ -57,7 +57,10 @@ const createOpenDEXorders$ = ({
         listXudOrders$,
         removeXudOrder$,
         processListorders,
-      }).pipe(mapTo(client));
+      }).pipe(
+        tap(() => logger.trace(`Removed all open orders for ${config.BASEASSET}/${config.QUOTEASSET}`)),
+        mapTo(client),
+      );
     }),
     // create new buy and sell orders
     mergeMap(client => {
