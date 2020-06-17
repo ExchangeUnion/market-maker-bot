@@ -46,7 +46,7 @@ const errors = {
     code: errorCodes.XUD_LOCKED,
   },
   INSUFFICIENT_OUTBOUND_BALANCE: {
-    message: 'Insufficient outbound balance.',
+    message: 'Insufficient outbound balance',
     code: errorCodes.INSUFFICIENT_OUTBOUND_BALANCE,
   },
 };
