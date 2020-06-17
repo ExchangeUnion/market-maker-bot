@@ -7,6 +7,10 @@ import {
   repeat,
   takeUntil,
 } from 'rxjs/operators';
+import {
+  GetCentralizedExchangeOrderParams,
+  createCentralizedExchangeOrder$,
+} from '../centralized/order';
 import { Config } from '../config';
 import { RETRY_INTERVAL } from '../constants';
 import { Loggers } from '../logger';
@@ -14,6 +18,7 @@ import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { errorCodes } from '../opendex/errors';
 import { getTradeInfo$ } from './info';
+import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 
 type GetTradeParams = {
   config: Config;
@@ -22,7 +27,12 @@ type GetTradeParams = {
     config,
     loggers,
   }: GetOpenDEXcompleteParams) => Observable<boolean>;
-  centralizedExchangeOrder$: (config: Config) => Observable<boolean>;
+  getCentralizedExchangeOrder$: ({
+    logger,
+    config,
+    getOpenDEXorderFilled$,
+    createCentralizedExchangeOrder$,
+  }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
 };
 
@@ -68,7 +78,7 @@ const catchArbyError = (loggers: Loggers) => {
 const getNewTrade$ = ({
   config,
   loggers,
-  centralizedExchangeOrder$,
+  getCentralizedExchangeOrder$,
   getOpenDEXcomplete$,
   shutdown$,
 }: GetTradeParams): Observable<boolean> => {
@@ -79,7 +89,12 @@ const getNewTrade$ = ({
       loggers,
       tradeInfo$: getTradeInfo$,
     }).pipe(catchArbyError(loggers), ignoreElements()),
-    centralizedExchangeOrder$(config)
+    getCentralizedExchangeOrder$({
+      logger: loggers.centralized,
+      config,
+      getOpenDEXorderFilled$,
+      createCentralizedExchangeOrder$,
+    })
   ).pipe(mapTo(true), repeat(), takeUntil(shutdown$));
 };
 

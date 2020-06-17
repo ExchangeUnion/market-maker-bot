@@ -2,6 +2,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
+import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -32,9 +33,6 @@ const assertGetTrade = ({
   errorValues,
 }: AssertGetTradeParams) => {
   const inputValues = {
-    getCentralizedExchangeOrder$: {
-      a: true,
-    },
     openDEXcomplete$: {
       a: true,
     },
@@ -42,10 +40,9 @@ const assertGetTrade = ({
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const getCentralizedExchangeOrder$ = () => {
-      return cold(
-        inputEvents.getCentralizedExchangeOrder$,
-        inputValues.getCentralizedExchangeOrder$
-      );
+      return (cold(
+        inputEvents.getCentralizedExchangeOrder$
+      ) as unknown) as Observable<null>;
     };
     const shutdown$ = cold(inputEvents.shutdown$);
     const getOpenDEXcomplete$ = () => {
@@ -60,7 +57,7 @@ const assertGetTrade = ({
       loggers: getLoggers(),
       getOpenDEXcomplete$,
       config: testConfig(),
-      centralizedExchangeOrder$: getCentralizedExchangeOrder$,
+      getCentralizedExchangeOrder$,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });

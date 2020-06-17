@@ -1,6 +1,6 @@
 import { TestScheduler } from 'rxjs/testing';
 import { getCentralizedExchangeOrder$ } from './order';
-import { testConfig } from '../test-utils';
+import { testConfig, getLoggers } from '../test-utils';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Observable } from 'rxjs';
 
@@ -29,6 +29,7 @@ const assertCentralizedExchangeOrder = (
       ) as unknown) as Observable<null>;
     };
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
+      logger: getLoggers().centralized,
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,

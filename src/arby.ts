@@ -1,31 +1,11 @@
-import { Observable, of } from 'rxjs';
-import { delay, mergeMap, takeUntil, tap, repeat } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { mergeMap, takeUntil } from 'rxjs/operators';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
 import { getOpenDEXcomplete$ } from './opendex/complete';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
-
-const getCentralizedExchangeOrder$ = (
-  logger: Logger
-): ((config: Config) => Observable<boolean>) => {
-  return (config: Config) => {
-    return of(true).pipe(
-      tap(() =>
-        logger.info(
-          'Starting centralized exchange order. TODO(karl): order quantity and side.'
-        )
-      ),
-      delay(5000),
-      tap(() =>
-        logger.info(
-          'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
-        )
-      ),
-      repeat()
-    );
-  };
-};
+import { getCentralizedExchangeOrder$ } from './centralized/order';
 
 export const startArby = ({
   config$,
@@ -39,7 +19,7 @@ export const startArby = ({
   trade$: ({
     config,
     loggers,
-    centralizedExchangeOrder$,
+    getCentralizedExchangeOrder$,
     getOpenDEXcomplete$,
     shutdown$,
   }: GetTradeParams) => Observable<boolean>;
@@ -52,10 +32,8 @@ export const startArby = ({
         config,
         loggers,
         getOpenDEXcomplete$,
-        centralizedExchangeOrder$: getCentralizedExchangeOrder$(
-          loggers.centralized
-        ),
         shutdown$,
+        getCentralizedExchangeOrder$,
       });
     }),
     takeUntil(shutdown$)
