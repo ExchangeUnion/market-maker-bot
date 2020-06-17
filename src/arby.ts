@@ -3,7 +3,7 @@ import { delay, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
 import { getOpenDEXcomplete$ } from './opendex/complete';
-import { getNewTrade$, GetTradeParams } from './trade/manager';
+import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 import { removeOpenDEXorders$ } from './opendex/remove-orders';
 

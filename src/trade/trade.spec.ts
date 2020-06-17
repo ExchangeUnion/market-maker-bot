@@ -1,7 +1,7 @@
 import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
 import { getLoggers, testConfig, TestError } from '../test-utils';
-import { getNewTrade$ } from './manager';
+import { getNewTrade$ } from './trade';
 import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
