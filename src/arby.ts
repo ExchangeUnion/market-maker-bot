@@ -1,5 +1,5 @@
 import { Observable, of } from 'rxjs';
-import { delay, mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { delay, mergeMap, takeUntil, tap, repeat } from 'rxjs/operators';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
 import { getOpenDEXcomplete$ } from './opendex/complete';
@@ -21,7 +21,8 @@ const getCentralizedExchangeOrder$ = (
         logger.info(
           'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
         )
-      )
+      ),
+      repeat()
     );
   };
 };
