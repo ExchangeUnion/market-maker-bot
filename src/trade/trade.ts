@@ -1,7 +1,8 @@
-import { concat, Observable, throwError, timer } from 'rxjs';
+import { merge, Observable, throwError, timer } from 'rxjs';
 import {
   catchError,
   ignoreElements,
+  mapTo,
   mergeMapTo,
   repeat,
   takeUntil,
@@ -71,7 +72,7 @@ const getNewTrade$ = ({
   getOpenDEXcomplete$,
   shutdown$,
 }: GetTradeParams): Observable<boolean> => {
-  return concat(
+  return merge(
     getOpenDEXcomplete$({
       config,
       createOpenDEXorders$,
@@ -79,7 +80,7 @@ const getNewTrade$ = ({
       tradeInfo$: getTradeInfo$,
     }).pipe(catchArbyError(loggers), ignoreElements()),
     centralizedExchangeOrder$(config)
-  ).pipe(repeat(), takeUntil(shutdown$));
+  ).pipe(mapTo(true), repeat(), takeUntil(shutdown$));
 };
 
 export { getNewTrade$, GetTradeParams };

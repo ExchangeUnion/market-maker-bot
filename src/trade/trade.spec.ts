@@ -74,9 +74,9 @@ describe('getTrade$', () => {
     const inputEvents = {
       openDEXcomplete$: '1s (a|)',
       getCentralizedExchangeOrder$: '1s (a|)',
-      shutdown$: '7s a',
+      shutdown$: '3s a',
     };
-    const expected = '2s a 1999ms a 1999ms a 999ms |';
+    const expected = '1s a 999ms a 999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -87,13 +87,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_UNAVAILABLE,
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -105,13 +105,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_LOCKED,
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -123,13 +123,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.XUD_CLIENT_INVALID_CERT('/invalid/cert/path'),
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -141,13 +141,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.BALANCE_MISSING('ETH'),
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -159,13 +159,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.TRADING_LIMITS_MISSING('BTC'),
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -177,13 +177,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.INVALID_ORDERS_LIST('ETH/BTC'),
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -195,13 +195,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -213,13 +213,13 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const errorValues = {
       openDEXcomplete$: errors.INSUFFICIENT_OUTBOUND_BALANCE,
     };
-    const expected = '5s |';
+    const expected = '1s a 3999ms |';
     assertGetTrade({
       inputEvents,
       expected,
@@ -231,7 +231,7 @@ describe('getTrade$', () => {
     expect.assertions(1);
     const inputEvents = {
       openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s (a|)',
+      getCentralizedExchangeOrder$: '1s a',
       shutdown$: '5s a',
     };
     const unexpectedError = {
