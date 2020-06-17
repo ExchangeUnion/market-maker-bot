@@ -1,10 +1,9 @@
-import { concat, empty, Observable, throwError, timer } from 'rxjs';
+import { concat, Observable, throwError, timer } from 'rxjs';
 import {
   catchError,
   ignoreElements,
   mergeMapTo,
   repeat,
-  take,
   takeUntil,
 } from 'rxjs/operators';
 import { Config } from '../config';
@@ -13,11 +12,6 @@ import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { errorCodes } from '../opendex/errors';
-import { processListorders } from '../opendex/process-listorders';
-import { RemoveOpenDEXordersParams } from '../opendex/remove-orders';
-import { getXudClient$ } from '../opendex/xud/client';
-import { listXudOrders$ } from '../opendex/xud/list-orders';
-import { removeXudOrder$ } from '../opendex/xud/remove-order';
 import { getTradeInfo$ } from './info';
 
 type GetTradeParams = {
@@ -28,13 +22,6 @@ type GetTradeParams = {
     loggers,
   }: GetOpenDEXcompleteParams) => Observable<boolean>;
   centralizedExchangeOrder$: (config: Config) => Observable<boolean>;
-  removeOpenDEXorders$: ({
-    config,
-    getXudClient$,
-    listXudOrders$,
-    removeXudOrder$,
-    processListorders,
-  }: RemoveOpenDEXordersParams) => Observable<null>;
   shutdown$: Observable<unknown>;
 };
 
@@ -83,7 +70,6 @@ const getNewTrade$ = ({
   centralizedExchangeOrder$,
   getOpenDEXcomplete$,
   shutdown$,
-  removeOpenDEXorders$,
 }: GetTradeParams): Observable<boolean> => {
   return concat(
     getOpenDEXcomplete$({
@@ -92,20 +78,6 @@ const getNewTrade$ = ({
       loggers,
       tradeInfo$: getTradeInfo$,
     }).pipe(catchArbyError(loggers), ignoreElements()),
-    removeOpenDEXorders$({
-      config,
-      getXudClient$,
-      listXudOrders$,
-      processListorders,
-      removeXudOrder$,
-    }).pipe(
-      take(1),
-      catchError(e => {
-        loggers.opendex.warn(`Unable to remove OpenDEX orders: ${e.message}`);
-        return empty();
-      }),
-      ignoreElements()
-    ),
     centralizedExchangeOrder$(config)
   ).pipe(repeat(), takeUntil(shutdown$));
 };
