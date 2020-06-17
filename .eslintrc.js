@@ -8,7 +8,7 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
-    'quotes': [2, 'single', { 'avoidEscape': true }]
+    'quotes': [2, 'single', { 'avoidEscape': true }],
   },
   root: true,
   parser: '@typescript-eslint/parser',

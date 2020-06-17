@@ -1,39 +1,62 @@
-import { getTrade$ } from './trade/manager';
-import { getConfig$, Config } from './config';
 import { Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
+import { Config, getConfig$ } from './config';
+import { Logger, Loggers } from './logger';
+import { getOpenDEXcomplete$ } from './opendex/complete';
+import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
+import { getCentralizedExchangeOrder$ } from './centralized/order';
 
-export const startArby = (
-  {
-    config$,
+export const startArby = ({
+  config$,
+  getLoggers,
+  shutdown$,
+  trade$,
+}: {
+  config$: Observable<Config>;
+  getLoggers: (config: Config) => Loggers;
+  shutdown$: Observable<unknown>;
+  trade$: ({
+    config,
+    loggers,
+    getCentralizedExchangeOrder$,
+    getOpenDEXcomplete$,
     shutdown$,
-    trade$,
-  }:
-  {
-    config$: Observable<Config>
-    shutdown$: Observable<unknown>
-    trade$: (config: Config) => Observable<string>,
-  },
-): Observable<any> => {
+  }: GetTradeParams) => Observable<boolean>;
+}): Observable<any> => {
   return config$.pipe(
-    mergeMap(trade$),
-    takeUntil(shutdown$),
-  )
+    mergeMap((config: Config) => {
+      const loggers = getLoggers(config);
+      loggers.global.info('Starting. Hello, Arby.');
+      return trade$({
+        config,
+        loggers,
+        getOpenDEXcomplete$,
+        shutdown$,
+        getCentralizedExchangeOrder$,
+      });
+    }),
+    takeUntil(shutdown$)
+  );
+};
+
+const getLoggers = (config: Config) => {
+  return Logger.createLoggers(config.LOG_LEVEL, `${config.DATA_DIR}/arby.log`);
 };
 
 if (!module.parent) {
   startArby({
-    trade$: getTrade$,
+    trade$: getNewTrade$,
     config$: getConfig$(),
+    getLoggers,
     shutdown$: getStartShutdown$(),
   }).subscribe({
-    next: console.log,
-    error: (e) => {
-      if (e.message) {
-        console.log(`Error: ${e.message}`);
+    next: () => console.log('Trade complete.'),
+    error: error => {
+      if (error.message) {
+        console.log(`Error: ${error.message}`);
       } else {
-        console.log(e);
+        console.log(error);
       }
     },
     complete: () => console.log('Received shutdown signal.'),

@@ -1,5 +1,8 @@
 {
   "include": [ "src" ],
+  "exclude": [
+    "**/*.spec.ts"
+  ],
   "compilerOptions": {
     "target": "ES2016",
     "module": "commonjs",
@@ -12,8 +15,8 @@
     "declaration": true,
     "incremental": true,
     "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "moduleResolution": "node",
     "baseUrl": "./",
