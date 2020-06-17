@@ -13,7 +13,6 @@ import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { errorCodes } from '../opendex/errors';
-import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 import { processListorders } from '../opendex/process-listorders';
 import { RemoveOpenDEXordersParams } from '../opendex/remove-orders';
 import { getXudClient$ } from '../opendex/xud/client';
@@ -92,7 +91,6 @@ const getNewTrade$ = ({
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
-      openDEXorderFilled$: getOpenDEXorderFilled$,
     }).pipe(catchArbyError(loggers), ignoreElements()),
     removeOpenDEXorders$({
       config,

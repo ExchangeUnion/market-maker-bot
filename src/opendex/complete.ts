@@ -1,10 +1,9 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
-import { exhaustMap, mapTo, takeUntil, tap } from 'rxjs/operators';
+import { exhaustMap, mapTo } from 'rxjs/operators';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
-import { SwapSuccess } from '../proto/xudrpc_pb';
 import {
   GetTradeInfoParams,
   TradeInfo,
@@ -13,13 +12,11 @@ import {
 import { getOpenDEXassets$ } from './assets';
 import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';
-import { GetOpenDEXorderFilledParams } from './order-filled';
 import { tradeInfoToOpenDEXorders } from './orders';
 import { removeOpenDEXorders$ } from './remove-orders';
 import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
-import { subscribeXudSwaps$ } from './xud/subscribe-swaps';
 import { getXudTradingLimits$ } from './xud/trading-limits';
 
 type GetOpenDEXcompleteParams = {
@@ -39,11 +36,6 @@ type GetOpenDEXcompleteParams = {
     getXudClient$,
     createXudOrder$,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
-  openDEXorderFilled$: ({
-    config,
-    getXudClient$,
-    subscribeXudSwaps$,
-  }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
 };
 
 const getOpenDEXcomplete$ = ({
@@ -51,7 +43,6 @@ const getOpenDEXcomplete$ = ({
   loggers,
   tradeInfo$,
   createOpenDEXorders$,
-  openDEXorderFilled$,
 }: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
@@ -97,15 +88,7 @@ const getOpenDEXcomplete$ = ({
         removeOpenDEXorders$,
         tradeInfoToOpenDEXorders,
       });
-    }),
-    // wait for the order to be filled
-    takeUntil(
-      openDEXorderFilled$({
-        config,
-        getXudClient$,
-        subscribeXudSwaps$,
-      }).pipe(tap(() => loggers.opendex.info('OpenDEX order has been filled.')))
-    )
+    })
   );
 };
 
