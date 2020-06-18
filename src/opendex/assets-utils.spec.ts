@@ -47,19 +47,19 @@ describe('OpenDEX.assets-utils', () => {
       baseAssetBalance: new BigNumber(
         satsToCoinsStr(baseAssetBalance.getChannelBalance())
       ),
-      baseAssetMaxsell: new BigNumber(
+      baseAssetMaxOutbound: new BigNumber(
         satsToCoinsStr(baseAssetLimits.getMaxsell())
       ),
-      baseAssetMaxbuy: new BigNumber(
+      baseAssetMaxInbound: new BigNumber(
         satsToCoinsStr(baseAssetLimits.getMaxbuy())
       ),
       quoteAssetBalance: new BigNumber(
         satsToCoinsStr(quoteAssetBalance.getChannelBalance())
       ),
-      quoteAssetMaxsell: new BigNumber(
+      quoteAssetMaxOutbound: new BigNumber(
         satsToCoinsStr(quoteAssetLimits.getMaxsell())
       ),
-      quoteAssetMaxbuy: new BigNumber(
+      quoteAssetMaxInbound: new BigNumber(
         satsToCoinsStr(quoteAssetLimits.getMaxbuy())
       ),
     });
@@ -174,18 +174,18 @@ describe('OpenDEX.assets-utils', () => {
     const logger = (getLoggers().global as unknown) as Logger;
     logger.trace = jest.fn();
     const baseAssetBalance = '1.23456789';
-    const baseAssetMaxsell = '0.617283945';
-    const baseAssetMaxbuy = '0.33';
+    const baseAssetMaxOutbound = '0.617283945';
+    const baseAssetMaxInbound = '0.33';
     const quoteAssetBalance = '9.87654321';
-    const quoteAssetMaxbuy = '0.55';
-    const quoteAssetMaxsell = '0.44';
+    const quoteAssetMaxInbound = '0.55';
+    const quoteAssetMaxOutbound = '0.44';
     const assets = {
       baseAssetBalance: new BigNumber(baseAssetBalance),
-      baseAssetMaxsell: new BigNumber(baseAssetMaxsell),
-      baseAssetMaxbuy: new BigNumber(baseAssetMaxbuy),
+      baseAssetMaxOutbound: new BigNumber(baseAssetMaxOutbound),
+      baseAssetMaxInbound: new BigNumber(baseAssetMaxInbound),
       quoteAssetBalance: new BigNumber(quoteAssetBalance),
-      quoteAssetMaxbuy: new BigNumber(quoteAssetMaxbuy),
-      quoteAssetMaxsell: new BigNumber(quoteAssetMaxsell),
+      quoteAssetMaxInbound: new BigNumber(quoteAssetMaxInbound),
+      quoteAssetMaxOutbound: new BigNumber(quoteAssetMaxOutbound),
     };
     logAssetBalance({
       logger,

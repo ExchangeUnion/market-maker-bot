@@ -172,11 +172,11 @@ describe('tradeInfoArrayToObject', () => {
   it('converts trade info array to object', () => {
     const openDEXassets = {
       baseAssetBalance: new BigNumber('1.23'),
-      baseAssetMaxbuy: new BigNumber('0.615'),
-      baseAssetMaxsell: new BigNumber('0.615'),
+      baseAssetMaxInbound: new BigNumber('0.615'),
+      baseAssetMaxOutbound: new BigNumber('0.615'),
       quoteAssetBalance: new BigNumber('3.33'),
-      quoteAssetMaxbuy: new BigNumber('1.665'),
-      quoteAssetMaxsell: new BigNumber('1.665'),
+      quoteAssetMaxInbound: new BigNumber('1.665'),
+      quoteAssetMaxOutbound: new BigNumber('1.665'),
     };
     const centralizedExchangeAssets = {
       baseAssetBalance: new BigNumber('7.65'),

@@ -13,14 +13,14 @@ type LogAssetBalanceParams = {
 const logAssetBalance = ({ logger, assets }: LogAssetBalanceParams): void => {
   const {
     baseAssetBalance,
-    baseAssetMaxbuy,
-    baseAssetMaxsell,
+    baseAssetMaxInbound,
+    baseAssetMaxOutbound,
     quoteAssetBalance,
-    quoteAssetMaxbuy,
-    quoteAssetMaxsell,
+    quoteAssetMaxInbound,
+    quoteAssetMaxOutbound,
   } = assets;
   logger.trace(
-    `Base asset balance ${baseAssetBalance.toFixed()} (maxbuy: ${baseAssetMaxbuy.toFixed()}, maxsell: ${baseAssetMaxsell.toFixed()}) and quote asset balance ${quoteAssetBalance.toFixed()} (maxbuy: ${quoteAssetMaxbuy.toFixed()}, maxsell: ${quoteAssetMaxsell.toFixed()}).`
+    `Base asset balance ${baseAssetBalance.toFixed()} (maxinbound: ${baseAssetMaxInbound.toFixed()}, maxoutbound: ${baseAssetMaxOutbound.toFixed()}) and quote asset balance ${quoteAssetBalance.toFixed()} (maxinbound: ${quoteAssetMaxInbound.toFixed()}, maxoutbound: ${quoteAssetMaxOutbound.toFixed()}).`
   );
 };
 
@@ -57,29 +57,29 @@ const parseOpenDEXassets = ({
   if (!baseAssetLimits) {
     throw errors.TRADING_LIMITS_MISSING(baseAsset);
   }
-  const baseAssetMaxsell = new BigNumber(
+  const baseAssetMaxOutbound = new BigNumber(
     satsToCoinsStr(baseAssetLimits.getMaxsell())
   );
-  const baseAssetMaxbuy = new BigNumber(
+  const baseAssetMaxInbound = new BigNumber(
     satsToCoinsStr(baseAssetLimits.getMaxbuy())
   );
   const quoteAssetLimits = tradingLimitsMap.get(quoteAsset);
   if (!quoteAssetLimits) {
     throw errors.TRADING_LIMITS_MISSING(quoteAsset);
   }
-  const quoteAssetMaxsell = new BigNumber(
+  const quoteAssetMaxOutbound = new BigNumber(
     satsToCoinsStr(quoteAssetLimits.getMaxsell())
   );
-  const quoteAssetMaxbuy = new BigNumber(
+  const quoteAssetMaxInbound = new BigNumber(
     satsToCoinsStr(quoteAssetLimits.getMaxbuy())
   );
   return {
     baseAssetBalance,
     quoteAssetBalance,
-    baseAssetMaxsell,
-    baseAssetMaxbuy,
-    quoteAssetMaxbuy,
-    quoteAssetMaxsell,
+    baseAssetMaxOutbound,
+    baseAssetMaxInbound,
+    quoteAssetMaxInbound,
+    quoteAssetMaxOutbound,
   };
 };
 

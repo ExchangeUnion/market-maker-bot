@@ -30,44 +30,42 @@ const tradeInfoToOpenDEXorders = ({
   const { price } = tradeInfo;
   const { centralizedExchange, openDEX } = tradeInfo.assets;
   const {
-    baseAssetMaxsell: openDEXbaseAssetMaxsell,
-    quoteAssetMaxbuy: openDEXquoteAssetMaxbuy,
+    baseAssetMaxOutbound: openDEXbaseAssetMaxOutbound,
+    baseAssetMaxInbound: openDEXbaseAssetMaxInbound,
+    quoteAssetMaxOutbound: openDEXquoteAssetMaxOutbound,
+    quoteAssetMaxInbound: openDEXquoteAssetMaxInbound,
   } = openDEX;
   const {
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
-  const margin = new BigNumber(config.MARGIN);
-  const spread = price.multipliedBy(margin);
-  const buyPrice = price.minus(spread).toNumber();
-  const sellPrice = price.plus(spread).toNumber();
-  const buyQuantity = coinsToSats(
-    BigNumber.minimum(
-      openDEXquoteAssetMaxbuy,
-      centralizedExchangeQuoteAssetBalance
-    )
-      .dividedBy(price)
-      .toNumber()
-  );
   const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const marginPercentage = new BigNumber(config.MARGIN);
+  const margin = price.multipliedBy(marginPercentage);
+  const buyPrice = price.minus(margin);
+  const sellPrice = price.plus(margin);
+  const buyQuantity = BigNumber.minimum(
+    openDEXbaseAssetMaxInbound,
+    openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
+    centralizedExchangeBaseAssetBalance
+  );
+  const sellQuantity = BigNumber.minimum(
+    openDEXbaseAssetMaxOutbound,
+    openDEXquoteAssetMaxInbound.dividedBy(sellPrice),
+    centralizedExchangeQuoteAssetBalance.dividedBy(price)
+  );
   const buyOrder = {
-    quantity: buyQuantity,
+    quantity: coinsToSats(buyQuantity.toNumber()),
     orderSide: OrderSide.BUY,
     pairId,
-    price: buyPrice,
+    price: buyPrice.toNumber(),
     orderId: uuidv4(),
   };
-  const sellQuantity = coinsToSats(
-    BigNumber.minimum(
-      openDEXbaseAssetMaxsell,
-      centralizedExchangeBaseAssetBalance
-    ).toNumber()
-  );
   const sellOrder = {
-    quantity: sellQuantity,
+    quantity: coinsToSats(sellQuantity.toNumber()),
     orderSide: OrderSide.SELL,
     pairId,
-    price: sellPrice,
+    price: sellPrice.toNumber(),
     orderId: uuidv4(),
   };
   return {
