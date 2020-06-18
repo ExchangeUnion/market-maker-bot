@@ -12,11 +12,11 @@ describe('tradeInfoToOpenDEXorders', () => {
       assets: {
         openDEX: {
           baseAssetBalance: new BigNumber('30'),
-          baseAssetMaxbuy: new BigNumber('15'),
-          baseAssetMaxsell: new BigNumber('15'),
+          baseAssetMaxInbound: new BigNumber('15'),
+          baseAssetMaxOutbound: new BigNumber('15'),
           quoteAssetBalance: new BigNumber('200'),
-          quoteAssetMaxsell: new BigNumber('90'),
-          quoteAssetMaxbuy: new BigNumber('110'),
+          quoteAssetMaxOutbound: new BigNumber('90'),
+          quoteAssetMaxInbound: new BigNumber('110'),
         },
         centralizedExchange: {
           baseAssetBalance: new BigNumber('20'),

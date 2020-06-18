@@ -34,10 +34,10 @@ type AssetAllocation = {
 };
 
 type OpenDEXassetAllocation = ExchangeAssetAllocation & {
-  baseAssetMaxsell: BigNumber;
-  baseAssetMaxbuy: BigNumber;
-  quoteAssetMaxbuy: BigNumber;
-  quoteAssetMaxsell: BigNumber;
+  baseAssetMaxOutbound: BigNumber;
+  baseAssetMaxInbound: BigNumber;
+  quoteAssetMaxOutbound: BigNumber;
+  quoteAssetMaxInbound: BigNumber;
 };
 
 type ExchangeAssetAllocation = {

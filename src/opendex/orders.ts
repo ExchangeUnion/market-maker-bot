@@ -30,8 +30,8 @@ const tradeInfoToOpenDEXorders = ({
   const { price } = tradeInfo;
   const { centralizedExchange, openDEX } = tradeInfo.assets;
   const {
-    baseAssetMaxsell: openDEXbaseAssetMaxsell,
-    quoteAssetMaxbuy: openDEXquoteAssetMaxbuy,
+    baseAssetMaxOutbound: openDEXbaseAssetMaxOutbound,
+    quoteAssetMaxInbound: openDEXquoteAssetMaxInbound,
   } = openDEX;
   const {
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
@@ -43,7 +43,7 @@ const tradeInfoToOpenDEXorders = ({
   const sellPrice = price.plus(spread).toNumber();
   const buyQuantity = coinsToSats(
     BigNumber.minimum(
-      openDEXquoteAssetMaxbuy,
+      openDEXquoteAssetMaxInbound,
       centralizedExchangeQuoteAssetBalance
     )
       .dividedBy(price)
@@ -59,7 +59,7 @@ const tradeInfoToOpenDEXorders = ({
   };
   const sellQuantity = coinsToSats(
     BigNumber.minimum(
-      openDEXbaseAssetMaxsell,
+      openDEXbaseAssetMaxOutbound,
       centralizedExchangeBaseAssetBalance
     ).toNumber()
   );
