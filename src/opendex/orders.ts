@@ -31,43 +31,41 @@ const tradeInfoToOpenDEXorders = ({
   const { centralizedExchange, openDEX } = tradeInfo.assets;
   const {
     baseAssetMaxOutbound: openDEXbaseAssetMaxOutbound,
+    baseAssetMaxInbound: openDEXbaseAssetMaxInbound,
+    quoteAssetMaxOutbound: openDEXquoteAssetMaxOutbound,
     quoteAssetMaxInbound: openDEXquoteAssetMaxInbound,
   } = openDEX;
   const {
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
+  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
   const marginPercentage = new BigNumber(config.MARGIN);
   const margin = price.multipliedBy(marginPercentage);
-  const buyPrice = price.minus(margin).toNumber();
-  const sellPrice = price.plus(margin).toNumber();
-  const buyQuantity = coinsToSats(
-    BigNumber.minimum(
-      openDEXquoteAssetMaxInbound,
-      centralizedExchangeQuoteAssetBalance
-    )
-      .dividedBy(price)
-      .toNumber()
+  const buyPrice = price.minus(margin);
+  const sellPrice = price.plus(margin);
+  const buyQuantity = BigNumber.minimum(
+    openDEXbaseAssetMaxInbound,
+    openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
+    centralizedExchangeBaseAssetBalance
   );
-  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const sellQuantity = BigNumber.minimum(
+    openDEXbaseAssetMaxOutbound,
+    openDEXquoteAssetMaxInbound.dividedBy(sellPrice),
+    centralizedExchangeQuoteAssetBalance.dividedBy(price)
+  );
   const buyOrder = {
-    quantity: buyQuantity,
+    quantity: coinsToSats(buyQuantity.toNumber()),
     orderSide: OrderSide.BUY,
     pairId,
-    price: buyPrice,
+    price: buyPrice.toNumber(),
     orderId: uuidv4(),
   };
-  const sellQuantity = coinsToSats(
-    BigNumber.minimum(
-      openDEXbaseAssetMaxOutbound,
-      centralizedExchangeBaseAssetBalance
-    ).toNumber()
-  );
   const sellOrder = {
-    quantity: sellQuantity,
+    quantity: coinsToSats(sellQuantity.toNumber()),
     orderSide: OrderSide.SELL,
     pairId,
-    price: sellPrice,
+    price: sellPrice.toNumber(),
     orderId: uuidv4(),
   };
   return {
