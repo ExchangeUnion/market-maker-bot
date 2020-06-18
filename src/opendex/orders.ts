@@ -37,10 +37,10 @@ const tradeInfoToOpenDEXorders = ({
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
-  const margin = new BigNumber(config.MARGIN);
-  const spread = price.multipliedBy(margin);
-  const buyPrice = price.minus(spread).toNumber();
-  const sellPrice = price.plus(spread).toNumber();
+  const marginPercentage = new BigNumber(config.MARGIN);
+  const margin = price.multipliedBy(marginPercentage);
+  const buyPrice = price.minus(margin).toNumber();
+  const sellPrice = price.plus(margin).toNumber();
   const buyQuantity = coinsToSats(
     BigNumber.minimum(
       openDEXquoteAssetMaxInbound,
