@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
-import { exhaustMap, mapTo } from 'rxjs/operators';
+import { exhaustMap, mapTo, startWith, tap } from 'rxjs/operators';
 import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -57,10 +57,21 @@ const getOpenDEXcomplete$ = ({
   };
   // Mock centralized exchange assets for testing
   const getCentralizedExchangeAssets$ = (config: Config) => {
-    return interval(1000).pipe(
-      mapTo({
-        baseAssetBalance: new BigNumber('123'),
-        quoteAssetBalance: new BigNumber('321'),
+    const testCentralizedBalances = {
+      baseAssetBalance: new BigNumber(
+        config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE
+      ),
+      quoteAssetBalance: new BigNumber(
+        config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE
+      ),
+    };
+    return interval(30000).pipe(
+      startWith(testCentralizedBalances),
+      mapTo(testCentralizedBalances),
+      tap(({ baseAssetBalance, quoteAssetBalance }) => {
+        loggers.centralized.info(
+          `Base asset balance ${baseAssetBalance.toString()} and quote asset balance ${quoteAssetBalance.toString()}`
+        );
       })
     );
   };
