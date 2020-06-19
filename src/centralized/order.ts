@@ -1,5 +1,6 @@
-import { Observable, of } from 'rxjs';
-import { delay, mergeMap, tap } from 'rxjs/operators';
+import { empty, Observable, of } from 'rxjs';
+import { catchError, delay, mergeMap, repeat, tap } from 'rxjs/operators';
+import { RETRY_INTERVAL } from '../constants';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
@@ -45,6 +46,10 @@ const getCentralizedExchangeOrder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   }).pipe(
+    catchError(() => {
+      return empty().pipe(delay(RETRY_INTERVAL));
+    }),
+    repeat(),
     mergeMap(() => {
       return createCentralizedExchangeOrder$(logger);
     })

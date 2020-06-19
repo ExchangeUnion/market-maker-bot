@@ -94,7 +94,7 @@ const getNewTrade$ = ({
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
-    }).pipe(catchArbyError(loggers))
+    })
   ).pipe(mapTo(true), repeat(), takeUntil(shutdown$));
 };
 
