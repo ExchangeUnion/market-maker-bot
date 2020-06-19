@@ -80,7 +80,7 @@ describe('subscribeXudSwaps$', () => {
       expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
       expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
       done();
-    });
+    }, 50);
   });
 
   test('parseError returns null will not emit error', () => {
