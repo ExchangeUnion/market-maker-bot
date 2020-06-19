@@ -1,5 +1,9 @@
 import { Config } from './config';
 import { Level, Loggers } from './logger';
+import {
+  DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
+  DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
+} from './constants';
 
 const testConfig = (): Config => {
   return {
@@ -13,6 +17,8 @@ const testConfig = (): Config => {
     MARGIN: '0.06',
     BASEASSET: 'ETH',
     QUOTEASSET: 'BTC',
+    TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
+    TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
   };
 };
 

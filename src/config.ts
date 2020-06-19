@@ -2,6 +2,10 @@ import { Observable, of } from 'rxjs';
 import { pluck, map } from 'rxjs/operators';
 import { Level } from './logger';
 import { DotenvParseOutput } from 'dotenv';
+import {
+  DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
+  DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
+} from './constants';
 
 export type Config = {
   LOG_LEVEL: Level;
@@ -14,6 +18,8 @@ export type Config = {
   MARGIN: string;
   BASEASSET: string;
   QUOTEASSET: string;
+  TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
+  TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -80,6 +86,12 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
+    TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE:
+      config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE ||
+      DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
+    TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE:
+      config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE ||
+      DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
   };
   return verifiedConfig as Config;
 };
