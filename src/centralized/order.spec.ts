@@ -9,6 +9,7 @@ let testScheduler: TestScheduler;
 type CentralizedExchangeOrderInputEvents = {
   openDEXorderFilled: string;
   createCentralizedExchangeOrder$: string;
+  unsubscribe?: string;
 };
 
 const assertCentralizedExchangeOrder = (
@@ -34,7 +35,9 @@ const assertCentralizedExchangeOrder = (
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
     });
-    expectObservable(centralizedExchangeOrder$).toBe(expected);
+    expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
+      expected
+    );
   });
 };
 
@@ -51,6 +54,26 @@ describe('getCentralizedExchangeOrder$', () => {
       createCentralizedExchangeOrder$: '1s a',
     };
     const expected = '2s a';
+    assertCentralizedExchangeOrder(inputEvents, expected);
+  });
+
+  it('finishes centralized exchange order when OpenDEX filled stream errors afterwards', () => {
+    const inputEvents = {
+      openDEXorderFilled: '1s a #',
+      createCentralizedExchangeOrder$: '5s a',
+      unsubscribe: '7s !',
+    };
+    const expected = '6s a';
+    assertCentralizedExchangeOrder(inputEvents, expected);
+  });
+
+  it('repeats the OpenDEX order filled stream upon error', () => {
+    const inputEvents = {
+      openDEXorderFilled: '1s #',
+      createCentralizedExchangeOrder$: '5s a',
+      unsubscribe: '7s !',
+    };
+    const expected = '';
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 });
