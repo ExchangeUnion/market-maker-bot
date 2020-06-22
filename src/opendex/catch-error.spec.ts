@@ -2,6 +2,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
 import { getLoggers, TestError } from '../test-utils';
 import { catchOpenDEXerror } from './catch-error';
+import { status } from '@grpc/grpc-js';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -140,6 +141,41 @@ describe('catchOpenDEXerror', () => {
       expected,
       unsubscribe,
       expectedSubscriptions,
+    });
+  });
+
+  it('retries recoverable gRPC errors', () => {
+    const recoverableGRPCerrors = [
+      status.UNAVAILABLE,
+      status.UNKNOWN,
+      status.NOT_FOUND,
+      status.ALREADY_EXISTS,
+      status.FAILED_PRECONDITION,
+      status.RESOURCE_EXHAUSTED,
+      status.UNIMPLEMENTED,
+      status.ABORTED,
+      status.DEADLINE_EXCEEDED,
+      status.INTERNAL,
+    ];
+    const ASSERTIONS_PER_TEST = 2;
+    expect.assertions(recoverableGRPCerrors.length * ASSERTIONS_PER_TEST);
+    const inputEvents = '1s #';
+    const expected = '';
+    const expectedSubscriptions = ['^ 999ms !', '6s ^ 999ms !'];
+    const unsubscribe = '10s !';
+    recoverableGRPCerrors.forEach(grpcError => {
+      const inputError = {
+        code: grpcError,
+        message: 'gRPC error',
+      };
+      testSchedulerSetup();
+      assertCatchOpenDEXerror({
+        inputEvents,
+        inputError,
+        expected,
+        unsubscribe,
+        expectedSubscriptions,
+      });
     });
   });
 });
