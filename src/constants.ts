@@ -1,5 +1,5 @@
-// Time in seconds between retry attempts from recoverable errors
-const RETRY_INTERVAL = 5;
+// Time in milliseconds between retry attempts from recoverable errors
+const RETRY_INTERVAL = 5000;
 const DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE = '123';
 const DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE = '321';
 
