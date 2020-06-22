@@ -1,5 +1,11 @@
-import { merge, Observable, throwError, timer } from 'rxjs';
-import { ignoreElements, mapTo, repeat, takeUntil, catchError, mergeMap, delay } from 'rxjs/operators';
+import { merge, Observable } from 'rxjs';
+import {
+  catchError,
+  ignoreElements,
+  mapTo,
+  repeat,
+  takeUntil,
+} from 'rxjs/operators';
 import {
   createCentralizedExchangeOrder$,
   GetCentralizedExchangeOrderParams,
@@ -25,7 +31,7 @@ type GetTradeParams = {
     createCentralizedExchangeOrder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
-  catchArbyError: (
+  catchOpenDEXerror: (
     loggers: Loggers
   ) => (source: Observable<any>) => Observable<any>;
 };
@@ -36,7 +42,7 @@ const getNewTrade$ = ({
   getCentralizedExchangeOrder$,
   getOpenDEXcomplete$,
   shutdown$,
-  catchArbyError,
+  catchOpenDEXerror,
 }: GetTradeParams): Observable<boolean> => {
   return merge(
     getOpenDEXcomplete$({
@@ -44,10 +50,7 @@ const getNewTrade$ = ({
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
-    }).pipe(
-      catchError(catchArbyError(loggers)),
-      ignoreElements()
-    ),
+    }).pipe(catchError(catchOpenDEXerror(loggers)), ignoreElements()),
     getCentralizedExchangeOrder$({
       logger: loggers.centralized,
       config,

@@ -1,8 +1,7 @@
+import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { errors } from '../opendex/errors';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
-import { Observable } from 'rxjs';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -18,13 +17,13 @@ type AssertGetTradeParams = {
     openDEXcomplete$: string;
     getCentralizedExchangeOrder$: string;
     shutdown$: string;
-    catchArbyError$: string;
+    catchOpenDEXerror$: string;
   };
   errorValues?: {
     openDEXcomplete$?: TestError;
     getCentralizedExchangeOrder$?: TestError;
     shutdown$?: TestError;
-    catchArbyError$?: TestError;
+    catchOpenDEXerror$?: TestError;
   };
 };
 
@@ -56,11 +55,11 @@ const assertGetTrade = ({
         errorValues?.openDEXcomplete$
       );
     };
-    const catchArbyError = () => () => {
+    const catchOpenDEXerror = () => () => {
       return cold(
-        inputEvents.catchArbyError$,
+        inputEvents.catchOpenDEXerror$,
         undefined,
-        errorValues?.catchArbyError$
+        errorValues?.catchOpenDEXerror$
       );
     };
     const trade$ = getNewTrade$({
@@ -69,7 +68,7 @@ const assertGetTrade = ({
       getOpenDEXcomplete$,
       config: testConfig(),
       getCentralizedExchangeOrder$,
-      catchArbyError,
+      catchOpenDEXerror,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });
@@ -84,7 +83,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s (a|)',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '3s a',
-      catchArbyError$: '',
+      catchOpenDEXerror$: '',
     };
     const expected = '1s a 999ms a 999ms |';
     assertGetTrade({
@@ -99,7 +98,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '2s (a|)',
       shutdown$: '5s a',
-      catchArbyError$: '500ms (a|)',
+      catchOpenDEXerror$: '500ms (a|)',
     };
     const expected = '2s a 1999ms a 999ms |';
     assertGetTrade({
@@ -114,14 +113,14 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s #',
       getCentralizedExchangeOrder$: '2s a',
       shutdown$: '5s a',
-      catchArbyError$: '1500ms #',
+      catchOpenDEXerror$: '1500ms #',
     };
     const unexpectedError = {
       code: '1234',
       message: 'some unexpected OpenDEX error',
     };
     const errorValues = {
-      catchArbyError$: unexpectedError,
+      catchOpenDEXerror$: unexpectedError,
     };
     const expected = '2s a 499ms #';
     assertGetTrade({
@@ -138,7 +137,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s a',
       getCentralizedExchangeOrder$: '1s #',
       shutdown$: '5s a',
-      catchArbyError$: '',
+      catchOpenDEXerror$: '',
     };
     const expected = '1s #';
     assertGetTrade({
@@ -238,5 +237,4 @@ describe('getTrade$', () => {
     });
   });
   */
-
 });
