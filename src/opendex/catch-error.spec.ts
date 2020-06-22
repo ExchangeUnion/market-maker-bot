@@ -114,23 +114,17 @@ describe('catchOpenDEXerror', () => {
     });
   });
 
-  /*
-  it('retries when price feed lost', () => {
+  it('retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR', () => {
     expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
-    };
-    const expected = '5s |';
+    const inputEvents = '1s #';
+    const inputError = errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR;
+    const expected = '';
+    const unsubscribe = '10s !';
     assertCatchOpenDEXerror({
       inputEvents,
+      inputError,
       expected,
-      errorValues,
+      unsubscribe,
     });
   });
-  */
 });
