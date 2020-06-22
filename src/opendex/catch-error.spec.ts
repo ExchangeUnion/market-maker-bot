@@ -1,8 +1,7 @@
-import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getLoggers, testConfig, TestError } from '../test-utils';
-import { catchOpenDEXerror } from './catch-error';
 import { errors } from '../opendex/errors';
+import { getLoggers, TestError } from '../test-utils';
+import { catchOpenDEXerror } from './catch-error';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -30,12 +29,34 @@ const assertCatchOpenDEXerror = ({
     const { cold, expectObservable } = helpers;
     const input$ = cold(inputEvents, undefined, inputError);
     const output$ = catchOpenDEXerror(getLoggers())(input$);
-    expectObservable(output$, unsubscribe).toBe(expected, undefined, expectedError);
+    expectObservable(output$, unsubscribe).toBe(
+      expected,
+      undefined,
+      expectedError
+    );
   });
 };
 
 describe('catchOpenDEXerror', () => {
   beforeEach(testSchedulerSetup);
+
+  it('does not retry unexpected error', () => {
+    expect.assertions(1);
+    const inputEvents = '1s #';
+    const inputError = {
+      code: 1234,
+      message: 'unexpected',
+    };
+    const expected = '1s #';
+    const unsubscribe = '10s !';
+    assertCatchOpenDEXerror({
+      inputEvents,
+      inputError,
+      expected,
+      expectedError: inputError,
+      unsubscribe,
+    });
+  });
 
   it('retries XUD_CLIENT_INVALID_CERT', () => {
     expect.assertions(1);

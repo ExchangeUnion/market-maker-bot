@@ -6,7 +6,7 @@ import { getOpenDEXcomplete$ } from './opendex/complete';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
-import { catchOpenDEXerror } from './trade/catch-error';
+import { catchOpenDEXerror } from './opendex/catch-error';
 
 export const startArby = ({
   config$,
