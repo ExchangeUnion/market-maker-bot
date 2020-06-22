@@ -1,16 +1,16 @@
+import { status } from '@grpc/grpc-js';
 import { EventEmitter } from 'events';
 import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { SubscribeSwapsRequest } from '../../proto/xudrpc_pb';
 import { testConfig } from '../../test-utils';
-import { grpcErrorCodes } from '../errors';
 import { subscribeXudSwaps$ } from './subscribe-swaps';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');
 
 const CANCELLED_ERROR = {
-  code: grpcErrorCodes.CLIENT_CANCELED,
+  code: status.CANCELLED,
   message: 'Cancelled on client',
 };
 

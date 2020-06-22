@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Config } from '../../config';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
-import { errors, grpcErrorCodes } from '../errors';
+import { errors } from '../errors';
 
 const getXudClient$ = (config: Config): Observable<XudClient> => {
   const client$ = new Observable(subscriber => {
@@ -23,7 +23,7 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
     subscriber.complete();
   }).pipe(
     catchError(error => {
-      if (error.code === grpcErrorCodes.ENOENT) {
+      if (error.code === 'ENOENT') {
         return throwError(
           errors.XUD_CLIENT_INVALID_CERT(config.OPENDEX_CERT_PATH)
         );

@@ -82,42 +82,6 @@ describe('getTrade$', () => {
     });
   });
 
-  it('retries when xud unavailable', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.XUD_UNAVAILABLE,
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it('retries when xud locked', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.XUD_LOCKED,
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
   it('retries when xud cert file not found', () => {
     expect.assertions(1);
     const inputEvents = {
@@ -199,24 +163,6 @@ describe('getTrade$', () => {
     };
     const errorValues = {
       openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it('retries when insufficient outbound balance', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.INSUFFICIENT_OUTBOUND_BALANCE,
     };
     const expected = '5s |';
     assertGetTrade({
