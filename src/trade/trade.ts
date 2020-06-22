@@ -1,11 +1,5 @@
 import { merge, Observable } from 'rxjs';
-import {
-  catchError,
-  ignoreElements,
-  mapTo,
-  repeat,
-  takeUntil,
-} from 'rxjs/operators';
+import { ignoreElements, mapTo, repeat, takeUntil } from 'rxjs/operators';
 import {
   createCentralizedExchangeOrder$,
   GetCentralizedExchangeOrderParams,
@@ -50,7 +44,7 @@ const getNewTrade$ = ({
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
-    }).pipe(catchError(catchOpenDEXerror(loggers)), ignoreElements()),
+    }).pipe(catchOpenDEXerror(loggers), ignoreElements()),
     getCentralizedExchangeOrder$({
       logger: loggers.centralized,
       config,

@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
@@ -55,11 +56,15 @@ const assertGetTrade = ({
         errorValues?.openDEXcomplete$
       );
     };
-    const catchOpenDEXerror = () => () => {
-      return cold(
-        inputEvents.catchOpenDEXerror$,
-        undefined,
-        errorValues?.catchOpenDEXerror$
+    const catchOpenDEXerror = () => (source: Observable<unknown>) => {
+      return source.pipe(
+        catchError(() => {
+          return cold(
+            inputEvents.catchOpenDEXerror$,
+            undefined,
+            errorValues?.catchOpenDEXerror$
+          );
+        })
       );
     };
     const trade$ = getNewTrade$({
@@ -120,6 +125,7 @@ describe('getTrade$', () => {
       message: 'some unexpected OpenDEX error',
     };
     const errorValues = {
+      openDEXcomplete$: unexpectedError,
       catchOpenDEXerror$: unexpectedError,
     };
     const expected = '2s a 499ms #';
@@ -145,96 +151,4 @@ describe('getTrade$', () => {
       expected,
     });
   });
-
-  /*
-  it('retries when xud cert file not found', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.XUD_CLIENT_INVALID_CERT('/invalid/cert/path'),
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it('retries when unable to retrieve asset balance', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.BALANCE_MISSING('ETH'),
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it("retries when unable to retrieve asset's trading limits", () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.TRADING_LIMITS_MISSING('BTC'),
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it('retries when unable to retrieve orders list', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.INVALID_ORDERS_LIST('ETH/BTC'),
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-
-  it('retries when price feed lost', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '',
-      shutdown$: '5s a',
-    };
-    const errorValues = {
-      openDEXcomplete$: errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
-    };
-    const expected = '5s |';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      errorValues,
-    });
-  });
-  */
 });
