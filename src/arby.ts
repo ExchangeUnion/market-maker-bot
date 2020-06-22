@@ -1,19 +1,15 @@
-import { Observable } from 'rxjs';
+import { concat, Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
+import { getCentralizedExchangeOrder$ } from './centralized/order';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
+import { catchOpenDEXerror } from './opendex/catch-error';
 import { getOpenDEXcomplete$ } from './opendex/complete';
+import { getCleanup$ } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
-import { getCentralizedExchangeOrder$ } from './centralized/order';
-import { catchOpenDEXerror } from './opendex/catch-error';
 
-export const startArby = ({
-  config$,
-  getLoggers,
-  shutdown$,
-  trade$,
-}: {
+type StartArbyParams = {
   config$: Observable<Config>;
   getLoggers: (config: Config) => Loggers;
   shutdown$: Observable<unknown>;
@@ -24,8 +20,17 @@ export const startArby = ({
     getOpenDEXcomplete$,
     shutdown$,
   }: GetTradeParams) => Observable<boolean>;
-}): Observable<any> => {
-  return config$.pipe(
+  cleanup$: () => Observable<unknown>;
+};
+
+export const startArby = ({
+  config$,
+  getLoggers,
+  shutdown$,
+  trade$,
+  cleanup$,
+}: StartArbyParams): Observable<any> => {
+  const tradeComplete$ = config$.pipe(
     mergeMap((config: Config) => {
       const loggers = getLoggers(config);
       loggers.global.info('Starting. Hello, Arby.');
@@ -40,6 +45,7 @@ export const startArby = ({
     }),
     takeUntil(shutdown$)
   );
+  return concat(tradeComplete$, cleanup$());
 };
 
 const getLoggers = (config: Config) => {
@@ -52,8 +58,8 @@ if (!module.parent) {
     config$: getConfig$(),
     getLoggers,
     shutdown$: getStartShutdown$(),
+    cleanup$: getCleanup$,
   }).subscribe({
-    next: () => console.log('Trade complete.'),
     error: error => {
       if (error.message) {
         console.log(`Error: ${error.message}`);
