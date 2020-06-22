@@ -1,24 +1,15 @@
 import { merge, Observable, throwError, timer } from 'rxjs';
+import { ignoreElements, mapTo, repeat, takeUntil, catchError, mergeMap, delay } from 'rxjs/operators';
 import {
-  catchError,
-  ignoreElements,
-  mapTo,
-  mergeMapTo,
-  repeat,
-  takeUntil,
-} from 'rxjs/operators';
-import {
-  GetCentralizedExchangeOrderParams,
   createCentralizedExchangeOrder$,
+  GetCentralizedExchangeOrderParams,
 } from '../centralized/order';
 import { Config } from '../config';
-import { RETRY_INTERVAL } from '../constants';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
-import { errorCodes } from '../opendex/errors';
-import { getTradeInfo$ } from './info';
 import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
+import { getTradeInfo$ } from './info';
 
 type GetTradeParams = {
   config: Config;
@@ -34,42 +25,9 @@ type GetTradeParams = {
     createCentralizedExchangeOrder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
-};
-
-const catchArbyError = (loggers: Loggers) => {
-  return (source: Observable<any>) => {
-    return source.pipe(
-      catchError((e, caught) => {
-        const retry = () => {
-          // retry after interval
-          return timer(RETRY_INTERVAL * 1000).pipe(mergeMapTo(caught));
-        };
-        // check if we're dealing with an error that
-        // can be recovered from
-        if (
-          e.code === errorCodes.XUD_CLIENT_INVALID_CERT ||
-          e.code === errorCodes.BALANCE_MISSING ||
-          e.code === errorCodes.TRADING_LIMITS_MISSING ||
-          e.code === errorCodes.INVALID_ORDERS_LIST
-        ) {
-          loggers.opendex.warn(
-            `${e.message}. Retrying in ${RETRY_INTERVAL} seconds.`
-          );
-          return retry();
-        } else if (
-          e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
-        ) {
-          loggers.centralized.warn(
-            `${e.message}. Retrying in ${RETRY_INTERVAL} seconds.`
-          );
-          return retry();
-        }
-        // unexpected or unrecoverable error should stop
-        // the application
-        return throwError(e);
-      })
-    );
-  };
+  catchArbyError: (
+    loggers: Loggers
+  ) => (source: Observable<any>) => Observable<any>;
 };
 
 const getNewTrade$ = ({
@@ -78,6 +36,7 @@ const getNewTrade$ = ({
   getCentralizedExchangeOrder$,
   getOpenDEXcomplete$,
   shutdown$,
+  catchArbyError,
 }: GetTradeParams): Observable<boolean> => {
   return merge(
     getOpenDEXcomplete$({
@@ -85,7 +44,10 @@ const getNewTrade$ = ({
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
-    }).pipe(catchArbyError(loggers), ignoreElements()),
+    }).pipe(
+      catchError(catchArbyError(loggers)),
+      ignoreElements()
+    ),
     getCentralizedExchangeOrder$({
       logger: loggers.centralized,
       config,

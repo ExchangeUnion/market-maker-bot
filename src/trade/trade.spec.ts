@@ -18,11 +18,13 @@ type AssertGetTradeParams = {
     openDEXcomplete$: string;
     getCentralizedExchangeOrder$: string;
     shutdown$: string;
+    catchArbyError$: string;
   };
   errorValues?: {
     openDEXcomplete$?: TestError;
     getCentralizedExchangeOrder$?: TestError;
     shutdown$?: TestError;
+    catchArbyError$?: TestError;
   };
 };
 
@@ -54,12 +56,20 @@ const assertGetTrade = ({
         errorValues?.openDEXcomplete$
       );
     };
+    const catchArbyError = () => () => {
+      return cold(
+        inputEvents.catchArbyError$,
+        undefined,
+        errorValues?.catchArbyError$
+      );
+    };
     const trade$ = getNewTrade$({
       shutdown$,
       loggers: getLoggers(),
       getOpenDEXcomplete$,
       config: testConfig(),
       getCentralizedExchangeOrder$,
+      catchArbyError,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });
@@ -74,6 +84,7 @@ describe('getTrade$', () => {
       openDEXcomplete$: '1s (a|)',
       getCentralizedExchangeOrder$: '1s (a|)',
       shutdown$: '3s a',
+      catchArbyError$: '',
     };
     const expected = '1s a 999ms a 999ms |';
     assertGetTrade({
@@ -82,6 +93,61 @@ describe('getTrade$', () => {
     });
   });
 
+  it('retries when recoverable OpenDEX error happens', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '2s (a|)',
+      shutdown$: '5s a',
+      catchArbyError$: '500ms (a|)',
+    };
+    const expected = '2s a 1999ms a 999ms |';
+    assertGetTrade({
+      inputEvents,
+      expected,
+    });
+  });
+
+  it('stops when unexpected OpenDEX error happens', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s #',
+      getCentralizedExchangeOrder$: '2s a',
+      shutdown$: '5s a',
+      catchArbyError$: '1500ms #',
+    };
+    const unexpectedError = {
+      code: '1234',
+      message: 'some unexpected OpenDEX error',
+    };
+    const errorValues = {
+      catchArbyError$: unexpectedError,
+    };
+    const expected = '2s a 499ms #';
+    assertGetTrade({
+      inputEvents,
+      expected,
+      expectedError: unexpectedError,
+      errorValues,
+    });
+  });
+
+  it('stops when centralized exchange error happens', () => {
+    expect.assertions(1);
+    const inputEvents = {
+      openDEXcomplete$: '1s a',
+      getCentralizedExchangeOrder$: '1s #',
+      shutdown$: '5s a',
+      catchArbyError$: '',
+    };
+    const expected = '1s #';
+    assertGetTrade({
+      inputEvents,
+      expected,
+    });
+  });
+
+  /*
   it('retries when xud cert file not found', () => {
     expect.assertions(1);
     const inputEvents = {
@@ -171,50 +237,6 @@ describe('getTrade$', () => {
       errorValues,
     });
   });
+  */
 
-  it('stops when unexpected OpenDEX error happens', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s #',
-      getCentralizedExchangeOrder$: '1s a',
-      shutdown$: '5s a',
-    };
-    const unexpectedError = {
-      code: '1234',
-      message: 'some unexpected error',
-    };
-    const errorValues = {
-      openDEXcomplete$: unexpectedError,
-    };
-    const expected = '1s #';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      expectedError: unexpectedError,
-      errorValues,
-    });
-  });
-
-  it('stops when unexpected centralized exchange error happens', () => {
-    expect.assertions(1);
-    const inputEvents = {
-      openDEXcomplete$: '1s a',
-      getCentralizedExchangeOrder$: '1s #',
-      shutdown$: '5s a',
-    };
-    const unexpectedError = {
-      code: '1234',
-      message: 'some unexpected error',
-    };
-    const errorValues = {
-      getCentralizedExchangeOrder$: unexpectedError,
-    };
-    const expected = '1s #';
-    assertGetTrade({
-      inputEvents,
-      expected,
-      expectedError: unexpectedError,
-      errorValues,
-    });
-  });
 });
