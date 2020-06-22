@@ -49,6 +49,7 @@ const createOpenDEXorders$ = ({
   createXudOrder$,
 }: CreateOpenDEXordersParams): Observable<boolean> => {
   return getXudClient$(config).pipe(
+    tap(() => logger.trace('Starting to update OpenDEX orders')),
     // remove all existing orders
     mergeMap(client => {
       return removeOpenDEXorders$({
@@ -83,7 +84,7 @@ const createOpenDEXorders$ = ({
       const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));
       return ordersComplete$;
     }),
-    tap(() => logger.trace('OpenDEX orders updated.')),
+    tap(() => logger.trace('OpenDEX orders updated')),
     take(1)
   );
 };
