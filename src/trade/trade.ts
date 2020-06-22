@@ -1,5 +1,5 @@
 import { merge, Observable } from 'rxjs';
-import { ignoreElements, mapTo, repeat, takeUntil } from 'rxjs/operators';
+import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
 import {
   createCentralizedExchangeOrder$,
   GetCentralizedExchangeOrderParams,
@@ -51,7 +51,14 @@ const getNewTrade$ = ({
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
     })
-  ).pipe(mapTo(true), repeat(), takeUntil(shutdown$));
+  ).pipe(
+    tap(() => {
+      loggers.global.info('Trade complete');
+    }),
+    mapTo(true),
+    repeat(),
+    takeUntil(shutdown$)
+  );
 };
 
 export { getNewTrade$, GetTradeParams };

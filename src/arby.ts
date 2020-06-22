@@ -1,19 +1,17 @@
-import { Observable } from 'rxjs';
+import { concat, Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
+import { getCentralizedExchangeOrder$ } from './centralized/order';
+import { removeCEXorders$ } from './centralized/remove-orders';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
+import { catchOpenDEXerror } from './opendex/catch-error';
 import { getOpenDEXcomplete$ } from './opendex/complete';
+import { removeOpenDEXorders$ } from './opendex/remove-orders';
+import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
-import { getCentralizedExchangeOrder$ } from './centralized/order';
-import { catchOpenDEXerror } from './opendex/catch-error';
 
-export const startArby = ({
-  config$,
-  getLoggers,
-  shutdown$,
-  trade$,
-}: {
+type StartArbyParams = {
   config$: Observable<Config>;
   getLoggers: (config: Config) => Loggers;
   shutdown$: Observable<unknown>;
@@ -24,21 +22,41 @@ export const startArby = ({
     getOpenDEXcomplete$,
     shutdown$,
   }: GetTradeParams) => Observable<boolean>;
-}): Observable<any> => {
+  cleanup$: ({
+    config,
+    removeOpenDEXorders$,
+  }: GetCleanupParams) => Observable<unknown>;
+};
+
+export const startArby = ({
+  config$,
+  getLoggers,
+  shutdown$,
+  trade$,
+  cleanup$,
+}: StartArbyParams): Observable<any> => {
   return config$.pipe(
-    mergeMap((config: Config) => {
+    mergeMap(config => {
       const loggers = getLoggers(config);
       loggers.global.info('Starting. Hello, Arby.');
-      return trade$({
+      const tradeComplete$ = trade$({
         config,
         loggers,
         getOpenDEXcomplete$,
         shutdown$,
         getCentralizedExchangeOrder$,
         catchOpenDEXerror,
-      });
-    }),
-    takeUntil(shutdown$)
+      }).pipe(takeUntil(shutdown$));
+      return concat(
+        tradeComplete$,
+        cleanup$({
+          config,
+          loggers,
+          removeOpenDEXorders$,
+          removeCEXorders$,
+        })
+      );
+    })
   );
 };
 
@@ -52,8 +70,8 @@ if (!module.parent) {
     config$: getConfig$(),
     getLoggers,
     shutdown$: getStartShutdown$(),
+    cleanup$: getCleanup$,
   }).subscribe({
-    next: () => console.log('Trade complete.'),
     error: error => {
       if (error.message) {
         console.log(`Error: ${error.message}`);
@@ -61,6 +79,6 @@ if (!module.parent) {
         console.log(error);
       }
     },
-    complete: () => console.log('Received shutdown signal.'),
+    complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
   });
 }
