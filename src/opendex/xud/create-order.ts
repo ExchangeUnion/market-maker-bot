@@ -1,5 +1,5 @@
 import { Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 import { Logger } from '../../logger';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { PlaceOrderRequest, PlaceOrderResponse } from '../../proto/xudrpc_pb';
@@ -50,9 +50,17 @@ const createXudOrder$ = ({
           parseGrpcError,
         })
       );
-    }).pipe(take(1));
+    }).pipe(
+      tap(() => {
+        logger.trace(`Order ${orderId} created`);
+      }),
+      take(1)
+    );
     return createXudOrder$ as Observable<PlaceOrderResponse>;
   } else {
+    logger.trace(
+      `Did not create ${orderSideMapping[orderSide]} order because calculated quantity was 0`
+    );
     return of((null as unknown) as PlaceOrderResponse);
   }
 };
