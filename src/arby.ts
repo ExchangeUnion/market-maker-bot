@@ -1,11 +1,13 @@
 import { concat, Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
+import { removeCEXorders$ } from './centralized/remove-orders';
 import { Config, getConfig$ } from './config';
 import { Logger, Loggers } from './logger';
 import { catchOpenDEXerror } from './opendex/catch-error';
 import { getOpenDEXcomplete$ } from './opendex/complete';
-import { getCleanup$ } from './trade/cleanup';
+import { removeOpenDEXorders$ } from './opendex/remove-orders';
+import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 
@@ -20,7 +22,10 @@ type StartArbyParams = {
     getOpenDEXcomplete$,
     shutdown$,
   }: GetTradeParams) => Observable<boolean>;
-  cleanup$: () => Observable<unknown>;
+  cleanup$: ({
+    config,
+    removeOpenDEXorders$,
+  }: GetCleanupParams) => Observable<unknown>;
 };
 
 export const startArby = ({
@@ -30,22 +35,29 @@ export const startArby = ({
   trade$,
   cleanup$,
 }: StartArbyParams): Observable<any> => {
-  const tradeComplete$ = config$.pipe(
-    mergeMap((config: Config) => {
+  return config$.pipe(
+    mergeMap(config => {
       const loggers = getLoggers(config);
       loggers.global.info('Starting. Hello, Arby.');
-      return trade$({
+      const tradeComplete$ = trade$({
         config,
         loggers,
         getOpenDEXcomplete$,
         shutdown$,
         getCentralizedExchangeOrder$,
         catchOpenDEXerror,
-      });
-    }),
-    takeUntil(shutdown$)
+      }).pipe(takeUntil(shutdown$));
+      return concat(
+        tradeComplete$,
+        cleanup$({
+          config,
+          loggers,
+          removeOpenDEXorders$,
+          removeCEXorders$,
+        })
+      );
+    })
   );
-  return concat(tradeComplete$, cleanup$());
 };
 
 const getLoggers = (config: Config) => {
@@ -67,6 +79,6 @@ if (!module.parent) {
         console.log(error);
       }
     },
-    complete: () => console.log('Received shutdown signal.'),
+    complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
   });
 }
