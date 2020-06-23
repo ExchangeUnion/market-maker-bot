@@ -29,11 +29,19 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
+    const processSwapSuccess = (acc: string, curr: string) => {
+      return acc + curr;
+    };
+    const quantityGreaterThanCEXminimum = (v: string) => {
+      return v.length > 2;
+    };
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
+      processSwapSuccess,
+      quantityGreaterThanCEXminimum,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected
@@ -48,22 +56,13 @@ describe('getCentralizedExchangeOrder$', () => {
     });
   });
 
-  it('waits for OpenDEX order to be filled before executing centralized exchange order', () => {
-    const inputEvents = {
-      openDEXorderFilled: '1s a',
-      createCentralizedExchangeOrder$: '1s a',
-    };
-    const expected = '2s a';
-    assertCentralizedExchangeOrder(inputEvents, expected);
-  });
-
   it('finishes centralized exchange order when OpenDEX filled stream errors afterwards', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s a #',
+      openDEXorderFilled: '1s a 999ms a 999ms a #',
       createCentralizedExchangeOrder$: '5s a',
-      unsubscribe: '7s !',
+      unsubscribe: '10s !',
     };
-    const expected = '6s a';
+    const expected = '8s a';
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 
@@ -74,6 +73,16 @@ describe('getCentralizedExchangeOrder$', () => {
       unsubscribe: '7s !',
     };
     const expected = '';
+    assertCentralizedExchangeOrder(inputEvents, expected);
+  });
+
+  it('accumulates filled values until threshold and executes CEX orders in order', () => {
+    const inputEvents = {
+      openDEXorderFilled: '1s a 999ms a 999ms a',
+      createCentralizedExchangeOrder$: '5s (a|)',
+      unsubscribe: '20s !',
+    };
+    const expected = '8s a 4999ms a 4999ms a';
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 });
