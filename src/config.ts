@@ -1,11 +1,7 @@
-import { Observable, of } from 'rxjs';
-import { pluck, map } from 'rxjs/operators';
-import { Level } from './logger';
 import { DotenvParseOutput } from 'dotenv';
-import {
-  DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
-  DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
-} from './constants';
+import { Observable, of } from 'rxjs';
+import { map, pluck } from 'rxjs/operators';
+import { Level } from './logger';
 
 export type Config = {
   LOG_LEVEL: Level;
@@ -33,6 +29,8 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'MARGIN',
   'BASEASSET',
   'QUOTEASSET',
+  'TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE',
+  'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
 ];
 
 const setLogLevel = (logLevel: string): Level => {
@@ -86,12 +84,6 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
-    TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE:
-      config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE ||
-      DEFAULT_TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
-    TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE:
-      config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE ||
-      DEFAULT_TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
   };
   return verifiedConfig as Config;
 };
