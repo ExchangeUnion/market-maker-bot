@@ -29,8 +29,8 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const getCounterTradeInfo = (acc: string, curr: string) => {
-      return acc + curr;
+    const getCounterTradeInfo = (v: any) => {
+      return v;
     };
     const shouldCreateCEXorder = (v: string) => {
       return v.length > 2;

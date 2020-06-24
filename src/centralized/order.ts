@@ -16,6 +16,10 @@ import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
+import {
+  CounterTradeInfo,
+  GetCounterTradeInfoParams,
+} from '../trade/counter-trade-info';
 
 const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
   return of(null).pipe(
@@ -42,7 +46,10 @@ type GetCentralizedExchangeOrderParams = {
     subscribeXudSwaps$,
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
-  getCounterTradeInfo: (acc: string, curr: string) => string;
+  getCounterTradeInfo: ({
+    swapSuccess,
+    asset,
+  }: GetCounterTradeInfoParams) => CounterTradeInfo;
   shouldCreateCEXorder: (v: string) => boolean;
 };
 
