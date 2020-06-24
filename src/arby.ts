@@ -28,6 +28,32 @@ type StartArbyParams = {
   }: GetCleanupParams) => Observable<unknown>;
 };
 
+const logConfig = (config: Config, logger: Logger) => {
+  const {
+    LOG_LEVEL,
+    DATA_DIR,
+    OPENDEX_CERT_PATH,
+    OPENDEX_RPC_HOST,
+    OPENDEX_RPC_PORT,
+    MARGIN,
+    BASEASSET,
+    QUOTEASSET,
+    TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
+    TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
+  } = config;
+  logger.info(`Running with config:
+LOG_LEVEL: ${LOG_LEVEL}
+DATA_DIR: ${DATA_DIR}
+OPENDEX_CERT_PATH: ${OPENDEX_CERT_PATH}
+OPENDEX_RPC_HOST: ${OPENDEX_RPC_HOST}
+OPENDEX_RPC_PORT: ${OPENDEX_RPC_PORT}
+MARGIN: ${MARGIN}
+BASEASSET: ${BASEASSET}
+QUOTEASSET: ${QUOTEASSET}
+TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: ${TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE}
+TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: ${TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE}`);
+};
+
 export const startArby = ({
   config$,
   getLoggers,
@@ -39,6 +65,7 @@ export const startArby = ({
     mergeMap(config => {
       const loggers = getLoggers(config);
       loggers.global.info('Starting. Hello, Arby.');
+      logConfig(config, loggers.global);
       const tradeComplete$ = trade$({
         config,
         loggers,
