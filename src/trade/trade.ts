@@ -11,7 +11,7 @@ import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 import { getTradeInfo$ } from './info';
 import { processSwapSuccess } from './process-swapsuccess';
-import { quantityGreaterThanCEXminimum } from '../centralized/order-filter';
+import { shouldCreateCEXorder } from '../centralized/order-filter';
 
 type GetTradeParams = {
   config: Config;
@@ -53,7 +53,7 @@ const getNewTrade$ = ({
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
       processSwapSuccess,
-      quantityGreaterThanCEXminimum,
+      shouldCreateCEXorder,
     })
   ).pipe(
     tap(() => {

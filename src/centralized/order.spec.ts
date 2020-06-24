@@ -32,7 +32,7 @@ const assertCentralizedExchangeOrder = (
     const processSwapSuccess = (acc: string, curr: string) => {
       return acc + curr;
     };
-    const quantityGreaterThanCEXminimum = (v: string) => {
+    const shouldCreateCEXorder = (v: string) => {
       return v.length > 2;
     };
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
@@ -41,7 +41,7 @@ const assertCentralizedExchangeOrder = (
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
       processSwapSuccess,
-      quantityGreaterThanCEXminimum,
+      shouldCreateCEXorder,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

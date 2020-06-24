@@ -1,5 +1,5 @@
-const quantityGreaterThanCEXminimum = (v: string): boolean => {
+const shouldCreateCEXorder = (v: string): boolean => {
   return v.length > 2;
 };
 
-export { quantityGreaterThanCEXminimum };
+export { shouldCreateCEXorder };

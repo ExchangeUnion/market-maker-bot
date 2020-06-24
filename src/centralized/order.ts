@@ -43,7 +43,7 @@ type GetCentralizedExchangeOrderParams = {
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
   processSwapSuccess: (acc: string, curr: string) => string;
-  quantityGreaterThanCEXminimum: (v: string) => boolean;
+  shouldCreateCEXorder: (v: string) => boolean;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -52,7 +52,7 @@ const getCentralizedExchangeOrder$ = ({
   getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
   processSwapSuccess,
-  quantityGreaterThanCEXminimum,
+  shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   const orderFilled$ = getOpenDEXorderFilled$({
     config,
@@ -78,7 +78,7 @@ const getCentralizedExchangeOrder$ = ({
       return acc + curr;
     }, ''),
     // filter based on minimum CEX order quantity
-    filter(quantityGreaterThanCEXminimum),
+    filter(shouldCreateCEXorder),
     // reset the filled quantity and start from
     // the beginning
     take(1),
