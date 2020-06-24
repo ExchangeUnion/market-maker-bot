@@ -42,7 +42,7 @@ type GetCentralizedExchangeOrderParams = {
     subscribeXudSwaps$,
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
-  processSwapSuccess: (acc: string, curr: string) => string;
+  getCounterTradeInfo: (acc: string, curr: string) => string;
   shouldCreateCEXorder: (v: string) => boolean;
 };
 
@@ -51,7 +51,7 @@ const getCentralizedExchangeOrder$ = ({
   config,
   getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
-  processSwapSuccess,
+  getCounterTradeInfo,
   shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   const orderFilled$ = getOpenDEXorderFilled$({
@@ -67,7 +67,7 @@ const getCentralizedExchangeOrder$ = ({
     repeat()
     // TODO: perhaps this should be done within
     // the context of getOpenDEXorderFilled$?
-    // map -> processSwapSuccess
+    // map -> getCounterTradeInfo
   );
   return orderFilled$.pipe(
     // accumulate OpenDEX order fills

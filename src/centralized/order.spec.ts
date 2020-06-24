@@ -29,7 +29,7 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const processSwapSuccess = (acc: string, curr: string) => {
+    const getCounterTradeInfo = (acc: string, curr: string) => {
       return acc + curr;
     };
     const shouldCreateCEXorder = (v: string) => {
@@ -40,7 +40,7 @@ const assertCentralizedExchangeOrder = (
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
-      processSwapSuccess,
+      getCounterTradeInfo,
       shouldCreateCEXorder,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(

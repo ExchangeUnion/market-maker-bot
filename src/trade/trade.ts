@@ -10,7 +10,7 @@ import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 import { getTradeInfo$ } from './info';
-import { processSwapSuccess } from './process-swapsuccess';
+import { getCounterTradeInfo } from './counter-trade-info';
 import { shouldCreateCEXorder } from '../centralized/order-filter';
 
 type GetTradeParams = {
@@ -52,7 +52,7 @@ const getNewTrade$ = ({
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
-      processSwapSuccess,
+      getCounterTradeInfo,
       shouldCreateCEXorder,
     })
   ).pipe(
