@@ -1,8 +1,8 @@
-import { TestScheduler } from 'rxjs/testing';
-import { getCentralizedExchangeOrder$ } from './order';
-import { testConfig, getLoggers } from '../test-utils';
-import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Observable } from 'rxjs';
+import { TestScheduler } from 'rxjs/testing';
+import { SwapSuccess } from '../proto/xudrpc_pb';
+import { getLoggers, testConfig } from '../test-utils';
+import { getCentralizedExchangeOrder$ } from './order';
 
 let testScheduler: TestScheduler;
 
@@ -29,11 +29,13 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const accumulateOrderFills = (v: any) => {
-      return v;
-    };
-    const shouldCreateCEXorder = (v: string) => {
-      return v.length > 2;
+    const accumulateFillsScan = () => (v: any) => v;
+    const accumulateOrderFills = (v: any) => v;
+    const shouldCreateCEXorder = (v: any) => {
+      if (v === 'a') {
+        return true;
+      }
+      return false;
     };
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
@@ -41,6 +43,7 @@ const assertCentralizedExchangeOrder = (
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
       accumulateOrderFills,
+      accumulateFillsScan,
       shouldCreateCEXorder,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
@@ -58,7 +61,7 @@ describe('getCentralizedExchangeOrder$', () => {
 
   it('finishes centralized exchange order when OpenDEX filled stream errors afterwards', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s a 999ms a 999ms a #',
+      openDEXorderFilled: '1s b 999ms b 999ms a #',
       createCentralizedExchangeOrder$: '5s a',
       unsubscribe: '10s !',
     };
@@ -76,9 +79,9 @@ describe('getCentralizedExchangeOrder$', () => {
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 
-  it('accumulates filled values until threshold and executes CEX orders in order', () => {
+  it('filters quantities less than allowed minimum', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s a 999ms a 999ms a',
+      openDEXorderFilled: '1s b 999ms b 999ms a',
       createCentralizedExchangeOrder$: '5s (a|)',
       unsubscribe: '20s !',
     };

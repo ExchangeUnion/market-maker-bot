@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { empty, Observable, of } from 'rxjs';
 import {
   catchError,
@@ -5,7 +6,6 @@ import {
   delay,
   filter,
   repeat,
-  scan,
   take,
   tap,
 } from 'rxjs/operators';
@@ -16,7 +16,6 @@ import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import BigNumber from 'bignumber.js';
 
 const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
   return of(null).pipe(
@@ -46,7 +45,11 @@ type GetCentralizedExchangeOrderParams = {
   accumulateOrderFills: (
     asset: string
   ) => (acc: BigNumber, curr: SwapSuccess) => BigNumber;
-  shouldCreateCEXorder: (v: string) => boolean;
+  accumulateFillsScan: (
+    accumulator: (acc: BigNumber, curr: SwapSuccess) => BigNumber,
+    startingValue: BigNumber
+  ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
+  shouldCreateCEXorder: (filledQuantity: BigNumber) => boolean;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -55,6 +58,7 @@ const getCentralizedExchangeOrder$ = ({
   getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
   accumulateOrderFills,
+  accumulateFillsScan,
   shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   const orderFilled$ = getOpenDEXorderFilled$({
@@ -69,14 +73,12 @@ const getCentralizedExchangeOrder$ = ({
     }),
     repeat()
   );
+  const startingValue = new BigNumber('1');
   return orderFilled$.pipe(
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
-    // TODO: accept accumulateOrderFills as param
-    scan((acc, curr) => {
-      return acc + curr;
-    }, ''),
+    accumulateFillsScan(accumulateOrderFills(config.BASEASSET), startingValue),
     // filter based on minimum CEX order quantity
     filter(shouldCreateCEXorder),
     // reset the filled quantity and start from
