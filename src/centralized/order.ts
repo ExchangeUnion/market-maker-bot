@@ -16,10 +16,7 @@ import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import {
-  CounterTradeInfo,
-  GetCounterTradeInfoParams,
-} from '../trade/counter-trade-info';
+import BigNumber from 'bignumber.js';
 
 const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
   return of(null).pipe(
@@ -46,10 +43,9 @@ type GetCentralizedExchangeOrderParams = {
     subscribeXudSwaps$,
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
-  getCounterTradeInfo: ({
-    swapSuccess,
-    asset,
-  }: GetCounterTradeInfoParams) => CounterTradeInfo;
+  accumulateOrderFills: (
+    asset: string
+  ) => (acc: BigNumber, curr: SwapSuccess) => BigNumber;
   shouldCreateCEXorder: (v: string) => boolean;
 };
 
@@ -58,7 +54,7 @@ const getCentralizedExchangeOrder$ = ({
   config,
   getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
-  getCounterTradeInfo,
+  accumulateOrderFills,
   shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   const orderFilled$ = getOpenDEXorderFilled$({
@@ -72,9 +68,6 @@ const getCentralizedExchangeOrder$ = ({
       return empty().pipe(delay(RETRY_INTERVAL));
     }),
     repeat()
-    // TODO: perhaps this should be done within
-    // the context of getOpenDEXorderFilled$?
-    // map -> getCounterTradeInfo
   );
   return orderFilled$.pipe(
     // accumulate OpenDEX order fills
