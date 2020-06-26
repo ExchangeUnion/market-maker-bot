@@ -30,7 +30,7 @@ const assertCentralizedExchangeOrder = (
       ) as unknown) as Observable<null>;
     };
     const accumulateOrderFillsForAsset = () => (v: any) => v;
-    const shouldCreateCEXorder = (v: any) => (v === 'a' ? true : false);
+    const shouldCreateCEXorder = () => (v: any) => (v === 'a' ? true : false);
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,

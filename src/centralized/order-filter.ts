@@ -1,8 +1,19 @@
 import BigNumber from 'bignumber.js';
+import { Asset } from '../constants';
 
-const shouldCreateCEXorder = (quantity: BigNumber): boolean => {
-  const MINIMUM_CEX_QUANTITY = new BigNumber('123');
-  return quantity.isGreaterThanOrEqualTo(MINIMUM_CEX_QUANTITY);
+type MinimumCEXquantities = {
+  BTC: BigNumber;
+  ETH: BigNumber;
 };
 
-export { shouldCreateCEXorder };
+const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
+  BTC: new BigNumber('0.0001'),
+  ETH: new BigNumber('0.004'),
+};
+const shouldCreateCEXorder = (asset: Asset) => {
+  return (quantity: BigNumber): boolean => {
+    return quantity.isGreaterThanOrEqualTo(MINIMUM_ORDER_SIZE[asset]);
+  };
+};
+
+export { shouldCreateCEXorder, MINIMUM_ORDER_SIZE };

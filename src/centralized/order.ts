@@ -10,7 +10,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { Config } from '../config';
-import { RETRY_INTERVAL } from '../constants';
+import { RETRY_INTERVAL, Asset } from '../constants';
 import { Logger } from '../logger';
 import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
 import { getXudClient$ } from '../opendex/xud/client';
@@ -45,7 +45,9 @@ type GetCentralizedExchangeOrderParams = {
   accumulateOrderFillsForAsset: (
     asset: string
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
-  shouldCreateCEXorder: (filledQuantity: BigNumber) => boolean;
+  shouldCreateCEXorder: (
+    asset: Asset
+  ) => (filledQuantity: BigNumber) => boolean;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -74,7 +76,7 @@ const getCentralizedExchangeOrder$ = ({
     // has been reached
     accumulateOrderFillsForAsset(config.QUOTEASSET),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder),
+    filter(shouldCreateCEXorder(config.QUOTEASSET)),
     // reset the filled quantity and start from
     // the beginning
     take(1),
