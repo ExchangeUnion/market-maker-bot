@@ -27,7 +27,6 @@ const getCleanup$ = ({
   removeOpenDEXorders$,
   removeCEXorders$,
 }: GetCleanupParams): Observable<unknown> => {
-  loggers.global.info('Cleaning up all orders before shutting down');
   return combineLatest(
     removeOpenDEXorders$({
       config,

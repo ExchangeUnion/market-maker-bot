@@ -29,21 +29,14 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const accumulateFillsScan = () => (v: any) => v;
-    const accumulateOrderFills = (v: any) => v;
-    const shouldCreateCEXorder = (v: any) => {
-      if (v === 'a') {
-        return true;
-      }
-      return false;
-    };
+    const accumulateOrderFillsForAsset = () => (v: any) => v;
+    const shouldCreateCEXorder = (v: any) => (v === 'a' ? true : false);
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
       getOpenDEXorderFilled$,
       createCentralizedExchangeOrder$,
-      accumulateOrderFills,
-      accumulateFillsScan,
+      accumulateOrderFillsForAsset,
       shouldCreateCEXorder,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(

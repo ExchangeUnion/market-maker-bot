@@ -42,12 +42,8 @@ type GetCentralizedExchangeOrderParams = {
     subscribeXudSwaps$,
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
-  accumulateOrderFills: (
+  accumulateOrderFillsForAsset: (
     asset: string
-  ) => (acc: BigNumber, curr: SwapSuccess) => BigNumber;
-  accumulateFillsScan: (
-    accumulator: (acc: BigNumber, curr: SwapSuccess) => BigNumber,
-    startingValue: BigNumber
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (filledQuantity: BigNumber) => boolean;
 };
@@ -57,8 +53,7 @@ const getCentralizedExchangeOrder$ = ({
   config,
   getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
-  accumulateOrderFills,
-  accumulateFillsScan,
+  accumulateOrderFillsForAsset,
   shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   const orderFilled$ = getOpenDEXorderFilled$({
@@ -73,12 +68,11 @@ const getCentralizedExchangeOrder$ = ({
     }),
     repeat()
   );
-  const startingValue = new BigNumber('1');
   return orderFilled$.pipe(
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
-    accumulateFillsScan(accumulateOrderFills(config.BASEASSET), startingValue),
+    accumulateOrderFillsForAsset(config.QUOTEASSET),
     // filter based on minimum CEX order quantity
     filter(shouldCreateCEXorder),
     // reset the filled quantity and start from
