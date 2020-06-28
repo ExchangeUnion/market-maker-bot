@@ -43,7 +43,7 @@ type GetCentralizedExchangeOrderParams = {
   }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
   accumulateOrderFillsForAsset: (
-    asset: string
+    asset: Asset
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (
     asset: Asset
