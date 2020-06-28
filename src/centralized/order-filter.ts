@@ -10,6 +10,7 @@ const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
   BTC: new BigNumber('0.0001'),
   ETH: new BigNumber('0.004'),
 };
+
 const shouldCreateCEXorder = (asset: Asset) => {
   return (quantity: BigNumber): boolean => {
     return quantity.isGreaterThanOrEqualTo(MINIMUM_ORDER_SIZE[asset]);

@@ -45,7 +45,7 @@ const assertCentralizedExchangeOrder = (
   });
 };
 
-describe('getCentralizedExchangeOrder$', () => {
+describe.skip('getCentralizedExchangeOrder$', () => {
   beforeEach(() => {
     testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);

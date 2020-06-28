@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { empty, Observable, of, partition } from 'rxjs';
+import { empty, Observable, of, partition, merge } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -82,27 +82,46 @@ const getCentralizedExchangeOrder$ = ({
     }),
     tap(() => console.log(`Order filled - received ${config.BASEASSET}`)),
   );
-  return orderFilled$.pipe(
-    filter((swapSuccess: SwapSuccess) => {
-      return swapSuccess.getCurrencyReceived() === config.QUOTEASSET;
-    }),
-    tap(() => console.log(`Order filled - received ${config.QUOTEASSET}`)),
-    /*
+  const buyQuoteAsset$ = receivedQuoteAsset$.pipe(
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
     accumulateOrderFillsForAsset(config.QUOTEASSET),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.QUOTEASSET)),
+    filter(shouldCreateCEXorder(config.BASEASSET)),
     // reset the filled quantity and start from
     // the beginning
-    */
     take(1),
     repeat(),
     // queue up CEX orders and process them 1 by 1
-    concatMap(() => {
+    concatMap((buyQuantity) => {
+      logger.info(`CREATING A BUY ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`);
       return createCentralizedExchangeOrder$(logger);
     })
+  );
+  const sellQuoteAsset$ = receivedBaseAsset$.pipe(
+    // accumulate OpenDEX order fills
+    // until the minimum required CEX quantity
+    // has been reached
+    accumulateOrderFillsForAsset(config.BASEASSET),
+    tap((quantity) => {
+      logger.info(`quantity before filter ${quantity.toFixed()}`);
+    }),
+    // filter based on minimum CEX order quantity
+    filter(shouldCreateCEXorder(config.QUOTEASSET)),
+    // reset the filled quantity and start from
+    // the beginning
+    take(1),
+    repeat(),
+    // queue up CEX orders and process them 1 by 1
+    concatMap((buyQuantity) => {
+      logger.info(`CREATING A SELL ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`);
+      return createCentralizedExchangeOrder$(logger);
+    })
+  );
+  return merge(
+    buyQuoteAsset$,
+    sellQuoteAsset$,
   );
 };
 

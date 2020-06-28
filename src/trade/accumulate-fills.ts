@@ -7,7 +7,6 @@ import { Asset } from '../constants';
 
 const accumulateOrderFillsForAsset = (asset: Asset) => {
   const SEED_VALUE = new BigNumber('0');
-  /*
   const ETHaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
     if (curr.getCurrencyReceived() === asset) {
       const quantityReceived = new BigNumber(
@@ -19,7 +18,7 @@ const accumulateOrderFillsForAsset = (asset: Asset) => {
     }
   };
   const BTCaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
-    if (curr.getCurrencySent() === asset) {
+    if (curr.getCurrencyReceived() === asset) {
       const quantitySent = new BigNumber(satsToCoinsStr(curr.getAmountSent()));
       return acc.plus(quantitySent);
     } else {
@@ -36,40 +35,9 @@ const accumulateOrderFillsForAsset = (asset: Asset) => {
         throw new Error('Unrecognized asset to accumulate');
     }
   };
-  */
   return (source: Observable<SwapSuccess>) => {
     return source.pipe(
-      scan((acc: BigNumber, curr: SwapSuccess) => {
-        switch (curr.getCurrencyReceived()) {
-          case 'ETH':
-            return acc.plus(
-              new BigNumber(satsToCoinsStr(curr.getAmountReceived()))
-            );
-          case 'BTC':
-            return acc.plus(
-              new BigNumber(satsToCoinsStr(curr.getAmountSent()))
-            );
-          default:
-            return acc;
-        }
-      }, SEED_VALUE)
-      /*
-        if (curr.getCurrencyReceived() === asset) {
-          console.log('getting into this block');
-          const quantityReceived = new BigNumber(
-            satsToCoinsStr(curr.getAmountReceived())
-          );
-          return acc.plus(quantityReceived);
-        } else if (curr.getCurrencySent() === asset) {
-          console.log('and also getting into this block?');
-          const quantitySent = new BigNumber(
-            satsToCoinsStr(curr.getAmountSent())
-          );
-          return acc.plus(quantitySent);
-        } else {
-          return acc;
-        }
-        */
+      scan(getAccumulator(asset), SEED_VALUE)
     );
   };
 };
