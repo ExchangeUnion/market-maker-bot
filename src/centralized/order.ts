@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { empty, Observable, of } from 'rxjs';
+import { empty, Observable, of, partition } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -70,7 +70,24 @@ const getCentralizedExchangeOrder$ = ({
     }),
     repeat()
   );
+  const receivedQuoteAsset$ = orderFilled$.pipe(
+    filter((swapSuccess: SwapSuccess) => {
+      return swapSuccess.getCurrencyReceived() === config.QUOTEASSET;
+    }),
+    tap(() => console.log(`Order filled - received ${config.QUOTEASSET}`)),
+  );
+  const receivedBaseAsset$ = orderFilled$.pipe(
+    filter((swapSuccess: SwapSuccess) => {
+      return swapSuccess.getCurrencyReceived() === config.BASEASSET;
+    }),
+    tap(() => console.log(`Order filled - received ${config.BASEASSET}`)),
+  );
   return orderFilled$.pipe(
+    filter((swapSuccess: SwapSuccess) => {
+      return swapSuccess.getCurrencyReceived() === config.QUOTEASSET;
+    }),
+    tap(() => console.log(`Order filled - received ${config.QUOTEASSET}`)),
+    /*
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
@@ -79,6 +96,7 @@ const getCentralizedExchangeOrder$ = ({
     filter(shouldCreateCEXorder(config.QUOTEASSET)),
     // reset the filled quantity and start from
     // the beginning
+    */
     take(1),
     repeat(),
     // queue up CEX orders and process them 1 by 1
