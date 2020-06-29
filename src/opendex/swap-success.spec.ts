@@ -16,8 +16,9 @@ type AssertOpenDEXswapSuccess = {
   inputEvents: {
     xudClient$: string;
     subscribeXudSwaps$: string;
+    unsubscribe: string;
   };
-  inputValues: {
+  inputValues?: {
     subscribeXudSwaps$: {
       a: SwapSuccess;
       b: SwapSuccess;
@@ -26,9 +27,10 @@ type AssertOpenDEXswapSuccess = {
   expectedEvents: {
     receivedBaseAssetSwapSuccess$: string;
     receivedQuoteAssetSwapSuccess$: string;
-    xudSwaps$subscriptions: string;
+    xudSwaps$subscriptions: string | string[];
+    xudClien$subscriptions: string | string[];
   };
-  expectedValues: {
+  expectedValues?: {
     receivedBaseAssetSwapSuccess$: {
       a: SwapSuccess;
     };
@@ -48,12 +50,13 @@ const assertOpenDEXswapSuccess = ({
 }: AssertOpenDEXswapSuccess) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable, expectSubscriptions } = helpers;
+    const xudClient$ = cold(inputEvents.xudClient$);
     const getXudClient$ = () => {
-      return (cold(inputEvents.xudClient$) as unknown) as Observable<XudClient>;
+      return (xudClient$ as unknown) as Observable<XudClient>;
     };
     const xudSwapSuccess$ = cold(
       inputEvents.subscribeXudSwaps$,
-      inputValues.subscribeXudSwaps$
+      inputValues?.subscribeXudSwaps$
     );
     const subscribeXudSwaps$ = () => {
       return (xudSwapSuccess$ as unknown) as Observable<SwapSuccess>;
@@ -66,16 +69,25 @@ const assertOpenDEXswapSuccess = ({
       getXudClient$,
       subscribeXudSwaps$,
     });
-    expectObservable(receivedBaseAssetSwapSuccess$).toBe(
+    expectObservable(
+      receivedBaseAssetSwapSuccess$,
+      inputEvents.unsubscribe
+    ).toBe(
       expectedEvents.receivedBaseAssetSwapSuccess$,
-      expectedValues.receivedBaseAssetSwapSuccess$
+      expectedValues?.receivedBaseAssetSwapSuccess$
     );
-    expectObservable(receivedQuoteAssetSwapSuccess$).toBe(
+    expectObservable(
+      receivedQuoteAssetSwapSuccess$,
+      inputEvents.unsubscribe
+    ).toBe(
       expectedEvents.receivedQuoteAssetSwapSuccess$,
-      expectedValues.receivedQuoteAssetSwapSuccess$
+      expectedValues?.receivedQuoteAssetSwapSuccess$
     );
     expectSubscriptions(xudSwapSuccess$.subscriptions).toBe(
       expectedEvents.xudSwaps$subscriptions
+    );
+    expectSubscriptions(xudClient$.subscriptions).toBe(
+      expectedEvents.xudClien$subscriptions
     );
   });
 };
@@ -87,6 +99,7 @@ describe('getOpenDEXswapSuccess$', () => {
     const inputEvents = {
       xudClient$: '1s a',
       subscribeXudSwaps$: '1s a 1s b',
+      unsubscribe: '4s !',
     };
     const { BASEASSET, QUOTEASSET } = config;
     const swapSuccessA = ({
@@ -104,7 +117,8 @@ describe('getOpenDEXswapSuccess$', () => {
     const expectedEvents = {
       receivedBaseAssetSwapSuccess$: '2s a',
       receivedQuoteAssetSwapSuccess$: '3001ms a',
-      xudSwaps$subscriptions: '1s ^',
+      xudSwaps$subscriptions: '1s ^ 2999ms !',
+      xudClien$subscriptions: '^ 3999ms !',
     };
     const expectedValues = {
       receivedBaseAssetSwapSuccess$: {
@@ -122,23 +136,39 @@ describe('getOpenDEXswapSuccess$', () => {
     });
   });
 
-  /*
-  it('errors when xudClient$ errors', () => {
+  it('catches xudClient$ error silently and retries', () => {
     const inputEvents = {
       xudClient$: '1s #',
-      subscribeXudSwaps$: '1s a',
+      subscribeXudSwaps$: '',
+      unsubscribe: '10s !',
     };
-    const expectedEvents = '1s #';
-    assertOpenDEXswapSuccess(inputEvents, expectedEvents);
+    const expectedEvents = {
+      receivedBaseAssetSwapSuccess$: '',
+      receivedQuoteAssetSwapSuccess$: '',
+      xudClien$subscriptions: ['^ 999ms !', '6s ^ 999ms !'],
+      xudSwaps$subscriptions: [],
+    };
+    assertOpenDEXswapSuccess({
+      inputEvents,
+      expectedEvents,
+    });
   });
 
-  it('errors when subscribeXudSwaps$ errors', () => {
+  it('catches subscribeXudSwaps$ error silently and retries', () => {
     const inputEvents = {
       xudClient$: '1s a',
-      subscribeXudSwaps$: '1s #',
+      subscribeXudSwaps$: '1s a',
+      unsubscribe: '10s !',
     };
-    const expectedEvents = '2s #';
-    assertOpenDEXswapSuccess(inputEvents, expectedEvents);
+    const expectedEvents = {
+      receivedBaseAssetSwapSuccess$: '',
+      receivedQuoteAssetSwapSuccess$: '',
+      xudClien$subscriptions: ['^ 1999ms !', '7s ^ 1999ms !'],
+      xudSwaps$subscriptions: ['1s ^ 999ms !', '8s ^ 999ms !'],
+    };
+    assertOpenDEXswapSuccess({
+      inputEvents,
+      expectedEvents,
+    });
   });
-  */
 });
