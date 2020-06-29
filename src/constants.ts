@@ -3,4 +3,9 @@ const RETRY_INTERVAL = 5000;
 
 type Asset = 'BTC' | 'ETH';
 
-export { RETRY_INTERVAL, Asset };
+enum OrderSide {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export { RETRY_INTERVAL, Asset, OrderSide };
