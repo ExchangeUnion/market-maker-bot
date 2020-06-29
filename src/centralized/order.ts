@@ -43,6 +43,7 @@ const getCentralizedExchangeOrder$ = ({
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   return getOrderBuilder$({
     config,
+    logger,
     getOpenDEXswapSuccess$,
     accumulateOrderFillsForAsset,
     shouldCreateCEXorder,

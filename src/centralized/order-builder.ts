@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Observable, merge } from 'rxjs';
-import { filter, repeat, take, map } from 'rxjs/operators';
+import { filter, repeat, take, map, tap } from 'rxjs/operators';
 import { Config } from '../config';
 import { Asset, OrderSide } from '../constants';
 import {
@@ -10,9 +10,11 @@ import {
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
+import { Logger } from '../logger';
 
 type GetOrderBuilderParams = {
   config: Config;
+  logger: Logger;
   getOpenDEXswapSuccess$: ({
     config,
     getXudClient$,
@@ -33,6 +35,7 @@ type CEXorder = {
 
 const getOrderBuilder$ = ({
   config,
+  logger,
   getOpenDEXswapSuccess$,
   accumulateOrderFillsForAsset,
   shouldCreateCEXorder,
@@ -45,10 +48,17 @@ const getOrderBuilder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   });
-  const buyQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
+  const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForAsset(config.QUOTEASSET),
+    tap((quantity: BigNumber) => {
+      logger.trace(
+        `Swap success. Accumulated ${
+          config.BASEASSET
+        } quantity to BUY: ${quantity.toFixed()}`
+      );
+    }),
     // filter based on minimum CEX order quantity
     filter(shouldCreateCEXorder(config.BASEASSET)),
     map(quantity => {
@@ -59,10 +69,17 @@ const getOrderBuilder$ = ({
     take(1),
     repeat()
   );
-  const sellQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
+  const sellQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForAsset(config.BASEASSET),
+    tap((quantity: BigNumber) => {
+      logger.trace(
+        `Swap success. Accumulated ${
+          config.BASEASSET
+        } quantity to SELL: ${quantity.toFixed()}`
+      );
+    }),
     // filter based on minimum CEX order quantity
     filter(shouldCreateCEXorder(config.QUOTEASSET)),
     map(quantity => {

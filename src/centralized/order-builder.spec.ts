@@ -1,9 +1,10 @@
 import { getOrderBuilder$, CEXorder } from './order-builder';
 import { TestScheduler } from 'rxjs/testing';
-import { testConfig } from '../test-utils';
+import { testConfig, getLoggers } from '../test-utils';
 import { Observable } from 'rxjs';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { OrderSide } from '../constants';
+import BigNumber from 'bignumber.js';
 
 let testScheduler: TestScheduler;
 
@@ -12,6 +13,14 @@ const assertOrderBuilder = (
     receivedBaseAssetSwapSuccess$: string;
     receivedQuoteAssetSwapSuccess$: string;
     unsubscribe?: string;
+  },
+  inputValues: {
+    receivedBaseAssetSwapSuccess$: {
+      a: BigNumber;
+    };
+    receivedQuoteAssetSwapSuccess$: {
+      b: BigNumber;
+    };
   },
   expected: string,
   expectedValues: {
@@ -24,10 +33,12 @@ const assertOrderBuilder = (
     const getOpenDEXswapSuccess$ = () => {
       return {
         receivedBaseAssetSwapSuccess$: (cold(
-          inputEvents.receivedBaseAssetSwapSuccess$
+          inputEvents.receivedBaseAssetSwapSuccess$,
+          inputValues.receivedBaseAssetSwapSuccess$
         ) as unknown) as Observable<SwapSuccess>,
         receivedQuoteAssetSwapSuccess$: (cold(
-          inputEvents.receivedQuoteAssetSwapSuccess$
+          inputEvents.receivedQuoteAssetSwapSuccess$,
+          inputValues.receivedQuoteAssetSwapSuccess$
         ) as unknown) as Observable<SwapSuccess>,
       };
     };
@@ -39,6 +50,7 @@ const assertOrderBuilder = (
     });
     const orderBuilder$ = getOrderBuilder$({
       config,
+      logger: getLoggers().centralized,
       getOpenDEXswapSuccess$,
       accumulateOrderFillsForAsset,
       shouldCreateCEXorder,
@@ -71,17 +83,27 @@ describe('getCentralizedExchangeOrder$', () => {
       receivedQuoteAssetSwapSuccess$: '1400ms b',
       unsubscribe: '3s !',
     };
+    const receivedBaseAssetQuantity = new BigNumber('40');
+    const receivedQuoteAssetQuantity = new BigNumber('1');
+    const inputValues = {
+      receivedBaseAssetSwapSuccess$: {
+        a: receivedBaseAssetQuantity,
+      },
+      receivedQuoteAssetSwapSuccess$: {
+        b: receivedQuoteAssetQuantity,
+      },
+    };
     const expected = '1s a 399ms b 599ms a 799ms b';
     const expectedValues = {
       a: ({
-        quantity: 'a',
-        side: OrderSide.BUY,
-      } as unknown) as CEXorder,
-      b: ({
-        quantity: 'b',
+        quantity: receivedBaseAssetQuantity,
         side: OrderSide.SELL,
       } as unknown) as CEXorder,
+      b: ({
+        quantity: receivedQuoteAssetQuantity,
+        side: OrderSide.BUY,
+      } as unknown) as CEXorder,
     };
-    assertOrderBuilder(inputEvents, expected, expectedValues);
+    assertOrderBuilder(inputEvents, inputValues, expected, expectedValues);
   });
 });
