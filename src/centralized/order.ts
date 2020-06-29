@@ -1,16 +1,8 @@
 import BigNumber from 'bignumber.js';
-import { empty, merge, Observable, of } from 'rxjs';
-import {
-  catchError,
-  concatMap,
-  delay,
-  filter,
-  repeat,
-  take,
-  tap,
-} from 'rxjs/operators';
+import { merge, Observable, of } from 'rxjs';
+import { concatMap, delay, filter, repeat, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
-import { Asset, RETRY_INTERVAL } from '../constants';
+import { Asset } from '../constants';
 import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
@@ -69,23 +61,7 @@ const getCentralizedExchangeOrder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   });
-  const receivedQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
-    // error and retry silently so that ongoing
-    // CEX orders won't be cancelled
-    catchError(() => {
-      return empty().pipe(delay(RETRY_INTERVAL));
-    }),
-    repeat()
-  );
-  const receivedBaseAsset$ = receivedBaseAssetSwapSuccess$.pipe(
-    // error and retry silently so that ongoing
-    // CEX orders won't be cancelled
-    catchError(() => {
-      return empty().pipe(delay(RETRY_INTERVAL));
-    }),
-    repeat()
-  );
-  const buyQuoteAsset$ = receivedQuoteAsset$.pipe(
+  const buyQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
@@ -104,7 +80,7 @@ const getCentralizedExchangeOrder$ = ({
       return createCentralizedExchangeOrder$(logger);
     })
   );
-  const sellQuoteAsset$ = receivedBaseAsset$.pipe(
+  const sellQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills
     // until the minimum required CEX quantity
     // has been reached
