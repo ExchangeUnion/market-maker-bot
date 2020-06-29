@@ -26,6 +26,7 @@ type AssertOpenDEXswapSuccess = {
   expectedEvents: {
     receivedBaseAssetSwapSuccess$: string;
     receivedQuoteAssetSwapSuccess$: string;
+    xudSwaps$subscriptions: string;
   };
   expectedValues: {
     receivedBaseAssetSwapSuccess$: {
@@ -46,15 +47,16 @@ const assertOpenDEXswapSuccess = ({
   expectedValues,
 }: AssertOpenDEXswapSuccess) => {
   testScheduler.run(helpers => {
-    const { cold, expectObservable } = helpers;
+    const { cold, expectObservable, expectSubscriptions } = helpers;
     const getXudClient$ = () => {
       return (cold(inputEvents.xudClient$) as unknown) as Observable<XudClient>;
     };
+    const xudSwapSuccess$ = cold(
+      inputEvents.subscribeXudSwaps$,
+      inputValues.subscribeXudSwaps$
+    );
     const subscribeXudSwaps$ = () => {
-      return (cold(
-        inputEvents.subscribeXudSwaps$,
-        inputValues.subscribeXudSwaps$
-      ) as unknown) as Observable<SwapSuccess>;
+      return (xudSwapSuccess$ as unknown) as Observable<SwapSuccess>;
     };
     const {
       receivedBaseAssetSwapSuccess$,
@@ -71,6 +73,9 @@ const assertOpenDEXswapSuccess = ({
     expectObservable(receivedQuoteAssetSwapSuccess$).toBe(
       expectedEvents.receivedQuoteAssetSwapSuccess$,
       expectedValues.receivedQuoteAssetSwapSuccess$
+    );
+    expectSubscriptions(xudSwapSuccess$.subscriptions).toBe(
+      expectedEvents.xudSwaps$subscriptions
     );
   });
 };
@@ -99,6 +104,7 @@ describe('getOpenDEXswapSuccess$', () => {
     const expectedEvents = {
       receivedBaseAssetSwapSuccess$: '2s a',
       receivedQuoteAssetSwapSuccess$: '3001ms a',
+      xudSwaps$subscriptions: '1s ^',
     };
     const expectedValues = {
       receivedBaseAssetSwapSuccess$: {

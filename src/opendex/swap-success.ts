@@ -1,5 +1,5 @@
 import { Observable, partition } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { mergeMap, share } from 'rxjs/operators';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { Config } from '../config';
@@ -32,7 +32,8 @@ const getOpenDEXswapSuccess$ = ({
     getXudClient$(config).pipe(
       mergeMap(client => {
         return subscribeXudSwaps$({ client, config, parseGrpcError });
-      })
+      }),
+      share(),
     ),
     swapSuccess => {
       return swapSuccess.getCurrencyReceived() === config.BASEASSET;
