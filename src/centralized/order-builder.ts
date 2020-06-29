@@ -81,7 +81,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.QUOTEASSET)),
+    filter(shouldCreateCEXorder(config.BASEASSET)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),

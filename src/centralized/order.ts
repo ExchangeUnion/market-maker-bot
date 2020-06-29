@@ -49,7 +49,7 @@ const getCentralizedExchangeOrder$ = ({
     shouldCreateCEXorder,
   }).pipe(
     mergeMap(order => {
-      logger.info(`CREATING: ${JSON.stringify(order)}`);
+      logger.info(`Building CEX order: ${JSON.stringify(order)}`);
       return createCentralizedExchangeOrder$(logger);
     })
   );
