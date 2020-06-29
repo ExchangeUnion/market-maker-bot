@@ -1,15 +1,14 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { SwapSuccess } from '../proto/xudrpc_pb';
 import { getLoggers, testConfig } from '../test-utils';
 import { getCentralizedExchangeOrder$ } from './order';
+import { CEXorder } from './order-builder';
 
 let testScheduler: TestScheduler;
 
 const assertCentralizedExchangeOrder = (
   inputEvents: {
-    receivedBaseAssetSwapSuccess$: string;
-    receivedQuoteAssetSwapSuccess$: string;
+    orderBuilder$: string;
     createCentralizedExchangeOrder$: string;
     unsubscribe?: string;
   },
@@ -18,30 +17,21 @@ const assertCentralizedExchangeOrder = (
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const config = testConfig();
-    const getOpenDEXswapSuccess$ = () => {
-      return {
-        receivedBaseAssetSwapSuccess$: (cold(
-          inputEvents.receivedBaseAssetSwapSuccess$
-        ) as unknown) as Observable<SwapSuccess>,
-        receivedQuoteAssetSwapSuccess$: (cold(
-          inputEvents.receivedQuoteAssetSwapSuccess$
-        ) as unknown) as Observable<SwapSuccess>,
-      };
+    const getOrderBuilder$ = () => {
+      return (cold(inputEvents.orderBuilder$) as unknown) as Observable<
+        CEXorder
+      >;
     };
     const createCentralizedExchangeOrder$ = () => {
       return (cold(
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const accumulateOrderFillsForAsset = () => (v: any) => v;
-    const shouldCreateCEXorder = () => (v: any) => (v === 'a' ? true : false);
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
-      getOpenDEXswapSuccess$,
+      getOrderBuilder$,
       createCentralizedExchangeOrder$,
-      accumulateOrderFillsForAsset,
-      shouldCreateCEXorder,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected
@@ -49,43 +39,20 @@ const assertCentralizedExchangeOrder = (
   });
 };
 
-describe.skip('getCentralizedExchangeOrder$', () => {
+describe('getCentralizedExchangeOrder$', () => {
   beforeEach(() => {
     testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);
     });
   });
 
-  it('finishes centralized exchange order when OpenDEX filled stream errors afterwards', () => {
+  it('executes queued up orders', () => {
     const inputEvents = {
-      receivedBaseAssetSwapSuccess$: '1s b 999ms b 999ms a #',
-      receivedQuoteAssetSwapSuccess$: '1s b 999ms b 999ms a #',
+      orderBuilder$: '1s a',
       createCentralizedExchangeOrder$: '5s a',
       unsubscribe: '10s !',
     };
-    const expected = '8s a';
-    assertCentralizedExchangeOrder(inputEvents, expected);
-  });
-
-  it('repeats the OpenDEX order filled stream upon error', () => {
-    const inputEvents = {
-      receivedBaseAssetSwapSuccess$: '1s #',
-      receivedQuoteAssetSwapSuccess$: '1s #',
-      createCentralizedExchangeOrder$: '5s a',
-      unsubscribe: '7s !',
-    };
-    const expected = '';
-    assertCentralizedExchangeOrder(inputEvents, expected);
-  });
-
-  it('filters quantities less than allowed minimum', () => {
-    const inputEvents = {
-      receivedBaseAssetSwapSuccess$: '1s b 999ms b 999ms a',
-      receivedQuoteAssetSwapSuccess$: '1s b 999ms b 999ms a',
-      createCentralizedExchangeOrder$: '5s (a|)',
-      unsubscribe: '20s !',
-    };
-    const expected = '8s a 4999ms a 4999ms a';
+    const expected = '6s a';
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 });

@@ -1,16 +1,11 @@
-import BigNumber from 'bignumber.js';
-import { merge, Observable, of } from 'rxjs';
-import { concatMap, delay, filter, repeat, take, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { delay, mergeMap, tap } from 'rxjs/operators';
+import { accumulateOrderFillsForAsset } from '../trade/accumulate-fills';
 import { Config } from '../config';
-import { Asset } from '../constants';
 import { Logger } from '../logger';
-import {
-  GetOpenDEXswapSuccessParams,
-  OpenDEXswapSuccess,
-} from '../opendex/swap-success';
-import { getXudClient$ } from '../opendex/xud/client';
-import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
-import { SwapSuccess } from '../proto/xudrpc_pb';
+import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
+import { CEXorder, GetOrderBuilderParams } from './order-builder';
+import { shouldCreateCEXorder } from './order-filter';
 
 const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
   return of(null).pipe(
@@ -31,78 +26,32 @@ const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
 type GetCentralizedExchangeOrderParams = {
   logger: Logger;
   config: Config;
-  getOpenDEXswapSuccess$: ({
-    config,
-    getXudClient$,
-    subscribeXudSwaps$,
-  }: GetOpenDEXswapSuccessParams) => OpenDEXswapSuccess;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
-  accumulateOrderFillsForAsset: (
-    asset: Asset
-  ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
-  shouldCreateCEXorder: (
-    asset: Asset
-  ) => (filledQuantity: BigNumber) => boolean;
+  getOrderBuilder$: ({
+    config,
+    getOpenDEXswapSuccess$,
+    accumulateOrderFillsForAsset,
+    shouldCreateCEXorder,
+  }: GetOrderBuilderParams) => Observable<CEXorder>;
 };
 
 const getCentralizedExchangeOrder$ = ({
   logger,
   config,
-  getOpenDEXswapSuccess$,
   createCentralizedExchangeOrder$,
-  accumulateOrderFillsForAsset,
-  shouldCreateCEXorder,
+  getOrderBuilder$,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
-  const {
-    receivedBaseAssetSwapSuccess$,
-    receivedQuoteAssetSwapSuccess$,
-  } = getOpenDEXswapSuccess$({
+  return getOrderBuilder$({
     config,
-    getXudClient$,
-    subscribeXudSwaps$,
-  });
-  const buyQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
-    // accumulate OpenDEX order fills
-    // until the minimum required CEX quantity
-    // has been reached
-    accumulateOrderFillsForAsset(config.QUOTEASSET),
-    // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.BASEASSET)),
-    // reset the filled quantity and start from
-    // the beginning
-    take(1),
-    repeat(),
-    // queue up CEX orders and process them 1 by 1
-    concatMap(buyQuantity => {
-      logger.info(
-        `CREATING A BUY ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`
-      );
+    getOpenDEXswapSuccess$,
+    accumulateOrderFillsForAsset,
+    shouldCreateCEXorder,
+  }).pipe(
+    mergeMap(order => {
+      logger.info(`CREATING: ${JSON.stringify(order)}`);
       return createCentralizedExchangeOrder$(logger);
     })
   );
-  const sellQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
-    // accumulate OpenDEX order fills
-    // until the minimum required CEX quantity
-    // has been reached
-    accumulateOrderFillsForAsset(config.BASEASSET),
-    tap(quantity => {
-      logger.info(`quantity before filter ${quantity.toFixed()}`);
-    }),
-    // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.QUOTEASSET)),
-    // reset the filled quantity and start from
-    // the beginning
-    take(1),
-    repeat(),
-    // queue up CEX orders and process them 1 by 1
-    concatMap(buyQuantity => {
-      logger.info(
-        `CREATING A SELL ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`
-      );
-      return createCentralizedExchangeOrder$(logger);
-    })
-  );
-  return merge(buyQuoteAsset$, sellQuoteAsset$);
 };
 
 export {
