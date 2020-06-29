@@ -6,23 +6,27 @@ import { getCentralizedExchangeOrder$ } from './order';
 
 let testScheduler: TestScheduler;
 
-type CentralizedExchangeOrderInputEvents = {
-  openDEXorderFilled: string;
-  createCentralizedExchangeOrder$: string;
-  unsubscribe?: string;
-};
-
 const assertCentralizedExchangeOrder = (
-  inputEvents: CentralizedExchangeOrderInputEvents,
+  inputEvents: {
+    receivedBaseAssetSwapSuccess$: string;
+    receivedQuoteAssetSwapSuccess$: string;
+    createCentralizedExchangeOrder$: string;
+    unsubscribe?: string;
+  },
   expected: string
 ) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const config = testConfig();
-    const getOpenDEXorderFilled$ = () => {
-      return (cold(inputEvents.openDEXorderFilled) as unknown) as Observable<
-        SwapSuccess
-      >;
+    const getOpenDEXswapSuccess$ = () => {
+      return {
+        receivedBaseAssetSwapSuccess$: (cold(
+          inputEvents.receivedBaseAssetSwapSuccess$
+        ) as unknown) as Observable<SwapSuccess>,
+        receivedQuoteAssetSwapSuccess$: (cold(
+          inputEvents.receivedQuoteAssetSwapSuccess$
+        ) as unknown) as Observable<SwapSuccess>,
+      };
     };
     const createCentralizedExchangeOrder$ = () => {
       return (cold(
@@ -34,7 +38,7 @@ const assertCentralizedExchangeOrder = (
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
-      getOpenDEXorderFilled$,
+      getOpenDEXswapSuccess$,
       createCentralizedExchangeOrder$,
       accumulateOrderFillsForAsset,
       shouldCreateCEXorder,
@@ -54,7 +58,8 @@ describe.skip('getCentralizedExchangeOrder$', () => {
 
   it('finishes centralized exchange order when OpenDEX filled stream errors afterwards', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s b 999ms b 999ms a #',
+      receivedBaseAssetSwapSuccess$: '1s b 999ms b 999ms a #',
+      receivedQuoteAssetSwapSuccess$: '1s b 999ms b 999ms a #',
       createCentralizedExchangeOrder$: '5s a',
       unsubscribe: '10s !',
     };
@@ -64,7 +69,8 @@ describe.skip('getCentralizedExchangeOrder$', () => {
 
   it('repeats the OpenDEX order filled stream upon error', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s #',
+      receivedBaseAssetSwapSuccess$: '1s #',
+      receivedQuoteAssetSwapSuccess$: '1s #',
       createCentralizedExchangeOrder$: '5s a',
       unsubscribe: '7s !',
     };
@@ -74,7 +80,8 @@ describe.skip('getCentralizedExchangeOrder$', () => {
 
   it('filters quantities less than allowed minimum', () => {
     const inputEvents = {
-      openDEXorderFilled: '1s b 999ms b 999ms a',
+      receivedBaseAssetSwapSuccess$: '1s b 999ms b 999ms a',
+      receivedQuoteAssetSwapSuccess$: '1s b 999ms b 999ms a',
       createCentralizedExchangeOrder$: '5s (a|)',
       unsubscribe: '20s !',
     };

@@ -8,7 +8,7 @@ import { Config } from '../config';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
-import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
+import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
 import { getTradeInfo$ } from './info';
 import { accumulateOrderFillsForAsset } from './accumulate-fills';
 import { shouldCreateCEXorder } from '../centralized/order-filter';
@@ -23,7 +23,7 @@ type GetTradeParams = {
   getCentralizedExchangeOrder$: ({
     logger,
     config,
-    getOpenDEXorderFilled$,
+    getOpenDEXswapSuccess$,
     createCentralizedExchangeOrder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
@@ -50,7 +50,7 @@ const getNewTrade$ = ({
     getCentralizedExchangeOrder$({
       logger: loggers.centralized,
       config,
-      getOpenDEXorderFilled$,
+      getOpenDEXswapSuccess$,
       createCentralizedExchangeOrder$,
       accumulateOrderFillsForAsset,
       shouldCreateCEXorder,

@@ -108,10 +108,10 @@ describe('accumulateOrderFillsForAsset$', () => {
         getAmountSent: () => 500000,
       } as SwapSuccess;
       const swapSuccessC = {
-        getAmountReceived: () =>  750000,
+        getAmountReceived: () => 750000,
         getCurrencyReceived: () => 'BTC',
         getCurrencySent: () => 'ETH',
-        getAmountSent: () =>  300000000,
+        getAmountSent: () => 300000000,
       } as SwapSuccess;
       const inputValues = {
         a: swapSuccessA,
@@ -133,5 +133,4 @@ describe('accumulateOrderFillsForAsset$', () => {
       });
     });
   });
-
 });

@@ -36,9 +36,7 @@ const accumulateOrderFillsForAsset = (asset: Asset) => {
     }
   };
   return (source: Observable<SwapSuccess>) => {
-    return source.pipe(
-      scan(getAccumulator(asset), SEED_VALUE)
-    );
+    return source.pipe(scan(getAccumulator(asset), SEED_VALUE));
   };
 };
 

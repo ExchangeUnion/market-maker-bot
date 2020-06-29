@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { empty, Observable, of, partition, merge } from 'rxjs';
+import { empty, merge, Observable, of } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -10,9 +10,12 @@ import {
   tap,
 } from 'rxjs/operators';
 import { Config } from '../config';
-import { RETRY_INTERVAL, Asset } from '../constants';
+import { Asset, RETRY_INTERVAL } from '../constants';
 import { Logger } from '../logger';
-import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
+import {
+  GetOpenDEXswapSuccessParams,
+  OpenDEXswapSuccess,
+} from '../opendex/swap-success';
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
@@ -36,11 +39,11 @@ const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
 type GetCentralizedExchangeOrderParams = {
   logger: Logger;
   config: Config;
-  getOpenDEXorderFilled$: ({
+  getOpenDEXswapSuccess$: ({
     config,
     getXudClient$,
     subscribeXudSwaps$,
-  }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
+  }: GetOpenDEXswapSuccessParams) => OpenDEXswapSuccess;
   createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
   accumulateOrderFillsForAsset: (
     asset: Asset
@@ -53,16 +56,20 @@ type GetCentralizedExchangeOrderParams = {
 const getCentralizedExchangeOrder$ = ({
   logger,
   config,
-  getOpenDEXorderFilled$,
+  getOpenDEXswapSuccess$,
   createCentralizedExchangeOrder$,
   accumulateOrderFillsForAsset,
   shouldCreateCEXorder,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
-  const orderFilled$ = getOpenDEXorderFilled$({
+  const {
+    receivedBaseAssetSwapSuccess$,
+    receivedQuoteAssetSwapSuccess$,
+  } = getOpenDEXswapSuccess$({
     config,
     getXudClient$,
     subscribeXudSwaps$,
-  }).pipe(
+  });
+  const receivedQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // error and retry silently so that ongoing
     // CEX orders won't be cancelled
     catchError(() => {
@@ -70,17 +77,13 @@ const getCentralizedExchangeOrder$ = ({
     }),
     repeat()
   );
-  const receivedQuoteAsset$ = orderFilled$.pipe(
-    filter((swapSuccess: SwapSuccess) => {
-      return swapSuccess.getCurrencyReceived() === config.QUOTEASSET;
+  const receivedBaseAsset$ = receivedBaseAssetSwapSuccess$.pipe(
+    // error and retry silently so that ongoing
+    // CEX orders won't be cancelled
+    catchError(() => {
+      return empty().pipe(delay(RETRY_INTERVAL));
     }),
-    tap(() => console.log(`Order filled - received ${config.QUOTEASSET}`)),
-  );
-  const receivedBaseAsset$ = orderFilled$.pipe(
-    filter((swapSuccess: SwapSuccess) => {
-      return swapSuccess.getCurrencyReceived() === config.BASEASSET;
-    }),
-    tap(() => console.log(`Order filled - received ${config.BASEASSET}`)),
+    repeat()
   );
   const buyQuoteAsset$ = receivedQuoteAsset$.pipe(
     // accumulate OpenDEX order fills
@@ -94,8 +97,10 @@ const getCentralizedExchangeOrder$ = ({
     take(1),
     repeat(),
     // queue up CEX orders and process them 1 by 1
-    concatMap((buyQuantity) => {
-      logger.info(`CREATING A BUY ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`);
+    concatMap(buyQuantity => {
+      logger.info(
+        `CREATING A BUY ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`
+      );
       return createCentralizedExchangeOrder$(logger);
     })
   );
@@ -104,7 +109,7 @@ const getCentralizedExchangeOrder$ = ({
     // until the minimum required CEX quantity
     // has been reached
     accumulateOrderFillsForAsset(config.BASEASSET),
-    tap((quantity) => {
+    tap(quantity => {
       logger.info(`quantity before filter ${quantity.toFixed()}`);
     }),
     // filter based on minimum CEX order quantity
@@ -114,15 +119,14 @@ const getCentralizedExchangeOrder$ = ({
     take(1),
     repeat(),
     // queue up CEX orders and process them 1 by 1
-    concatMap((buyQuantity) => {
-      logger.info(`CREATING A SELL ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`);
+    concatMap(buyQuantity => {
+      logger.info(
+        `CREATING A SELL ETH ORDER FOR AMOUNT: ${buyQuantity.toFixed()}`
+      );
       return createCentralizedExchangeOrder$(logger);
     })
   );
-  return merge(
-    buyQuoteAsset$,
-    sellQuoteAsset$,
-  );
+  return merge(buyQuoteAsset$, sellQuoteAsset$);
 };
 
 export {
