@@ -44,11 +44,9 @@ const assertTradeInfo = (
         ExchangeAssetAllocation
       >;
     };
-    const getCentralizedExchangePrice$ = () => {
-      return cold(inputEvents.getCentralizedExchangePrice$) as Observable<
-        BigNumber
-      >;
-    };
+    const centralizedExchangePrice$ = cold(
+      inputEvents.getCentralizedExchangePrice$
+    ) as Observable<BigNumber>;
     const tradeInfoArrayToObject = (v: any) => {
       return (v.join('') as unknown) as TradeInfo;
     };
@@ -57,7 +55,7 @@ const assertTradeInfo = (
       loggers: getLoggers(),
       openDexAssets$: getOpenDEXassets$,
       centralizedExchangeAssets$: getCentralizedExchangeAssets$,
-      centralizedExchangePrice$: getCentralizedExchangePrice$,
+      centralizedExchangePrice$,
       tradeInfoArrayToObject,
     });
     expectObservable(tradeInfo$).toBe(expected, expectedValues);

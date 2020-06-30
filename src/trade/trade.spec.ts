@@ -3,6 +3,7 @@ import { catchError } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
+import BigNumber from 'bignumber.js';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -67,6 +68,9 @@ const assertGetTrade = ({
         })
       );
     };
+    const getCentralizedExchangePrice$ = () => {
+      return (cold('') as unknown) as Observable<BigNumber>;
+    };
     const trade$ = getNewTrade$({
       shutdown$,
       loggers: getLoggers(),
@@ -74,6 +78,7 @@ const assertGetTrade = ({
       config: testConfig(),
       getCentralizedExchangeOrder$,
       catchOpenDEXerror,
+      getCentralizedExchangePrice$,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });
