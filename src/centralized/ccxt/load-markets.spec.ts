@@ -2,7 +2,7 @@ import { loadMarkets$ } from './load-markets';
 import { Exchange } from 'ccxt';
 
 describe('CCXT', () => {
-  it('has ETH/BTC trading pair', done => {
+  it('loads markets', done => {
     expect.assertions(1);
     const markets = 'marketsResponse';
     const exchange = ({
