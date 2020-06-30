@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { interval, Observable } from 'rxjs';
-import { exhaustMap, mapTo, startWith, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { exhaustMap } from 'rxjs/operators';
 import { Config } from '../config';
 import { Loggers } from '../logger';
 import {
@@ -17,6 +17,7 @@ import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
 import { getXudTradingLimits$ } from './xud/trading-limits';
+import { getCentralizedExchangeAssets$ } from '../centralized/assets';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -55,26 +56,6 @@ const getOpenDEXcomplete$ = ({
       xudBalance$: getXudBalance$,
       xudTradingLimits$: getXudTradingLimits$,
     });
-  };
-  // Mock centralized exchange assets for testing
-  const getCentralizedExchangeAssets$ = (config: Config) => {
-    const testCentralizedBalances = {
-      baseAssetBalance: new BigNumber(
-        config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE
-      ),
-      quoteAssetBalance: new BigNumber(
-        config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE
-      ),
-    };
-    return interval(30000).pipe(
-      startWith(testCentralizedBalances),
-      mapTo(testCentralizedBalances),
-      tap(({ baseAssetBalance, quoteAssetBalance }) => {
-        loggers.centralized.info(
-          `Base asset balance ${baseAssetBalance.toString()} and quote asset balance ${quoteAssetBalance.toString()}`
-        );
-      })
-    );
   };
   return tradeInfo$({
     config,
