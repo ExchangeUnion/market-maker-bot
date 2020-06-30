@@ -3,6 +3,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { getOpenDEXcomplete$ } from './complete';
+import BigNumber from 'bignumber.js';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -30,11 +31,15 @@ describe('getOpenDEXcomplete$', () => {
       const getTradeInfo$ = () => {
         return hot(inputEvents.tradeInfo$) as Observable<TradeInfo>;
       };
+      const centralizedExchangePrice$ = (cold('') as unknown) as Observable<
+        BigNumber
+      >;
       const trade$ = getOpenDEXcomplete$({
         config: testConfig(),
         loggers: getLoggers(),
         tradeInfo$: getTradeInfo$,
         createOpenDEXorders$,
+        centralizedExchangePrice$,
       });
       expectObservable(trade$).toBe(expected, { a: true });
     });

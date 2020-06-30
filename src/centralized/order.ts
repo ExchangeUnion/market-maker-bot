@@ -1,57 +1,80 @@
-import { empty, Observable, of } from 'rxjs';
-import { catchError, delay, mergeMap, repeat, tap } from 'rxjs/operators';
-import { RETRY_INTERVAL } from '../constants';
+import BigNumber from 'bignumber.js';
+import { Observable, timer } from 'rxjs';
+import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
-import { GetOpenDEXorderFilledParams } from '../opendex/order-filled';
-import { getXudClient$ } from '../opendex/xud/client';
-import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
-import { SwapSuccess } from '../proto/xudrpc_pb';
+import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
+import { accumulateOrderFillsForAsset } from '../trade/accumulate-fills';
+import { CEXorder, GetOrderBuilderParams } from './order-builder';
+import { shouldCreateCEXorder } from './order-filter';
 
-const createCentralizedExchangeOrder$ = (logger: Logger): Observable<null> => {
-  return of(null).pipe(
-    tap(() =>
+type CreateCEXorderParams = {
+  logger: Logger;
+  centralizedExchangePrice$: Observable<BigNumber>;
+  order: CEXorder;
+};
+const createCentralizedExchangeOrder$ = ({
+  logger,
+  centralizedExchangePrice$,
+  order,
+}: CreateCEXorderParams): Observable<null> => {
+  return centralizedExchangePrice$.pipe(
+    take(1),
+    mergeMap(price => {
       logger.info(
-        'Starting centralized exchange order. TODO(karl): order quantity and side.'
-      )
-    ),
-    delay(5000),
-    tap(() =>
-      logger.info(
-        'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
-      )
-    )
+        `Starting centralized exchange ${order.side} order (quantity: ${
+          order.quantity
+        }, price: ${price.toFixed()})`
+      );
+      return timer(5000).pipe(
+        tap(() =>
+          logger.info(
+            'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
+          )
+        )
+      );
+    }),
+    mapTo(null)
   );
 };
 
 type GetCentralizedExchangeOrderParams = {
   logger: Logger;
   config: Config;
-  getOpenDEXorderFilled$: ({
+  createCentralizedExchangeOrder$: ({
+    logger,
+    centralizedExchangePrice$,
+    order,
+  }: CreateCEXorderParams) => Observable<null>;
+  getOrderBuilder$: ({
     config,
-    getXudClient$,
-    subscribeXudSwaps$,
-  }: GetOpenDEXorderFilledParams) => Observable<SwapSuccess>;
-  createCentralizedExchangeOrder$: (logger: Logger) => Observable<null>;
+    getOpenDEXswapSuccess$,
+    accumulateOrderFillsForAsset,
+    shouldCreateCEXorder,
+  }: GetOrderBuilderParams) => Observable<CEXorder>;
+  centralizedExchangePrice$: Observable<BigNumber>;
 };
 
 const getCentralizedExchangeOrder$ = ({
   logger,
   config,
-  getOpenDEXorderFilled$,
   createCentralizedExchangeOrder$,
+  getOrderBuilder$,
+  centralizedExchangePrice$,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
-  return getOpenDEXorderFilled$({
+  return getOrderBuilder$({
     config,
-    getXudClient$,
-    subscribeXudSwaps$,
+    logger,
+    getOpenDEXswapSuccess$,
+    accumulateOrderFillsForAsset,
+    shouldCreateCEXorder,
   }).pipe(
-    catchError(() => {
-      return empty().pipe(delay(RETRY_INTERVAL));
-    }),
-    repeat(),
-    mergeMap(() => {
-      return createCentralizedExchangeOrder$(logger);
+    mergeMap(order => {
+      return createCentralizedExchangeOrder$({
+        logger,
+        centralizedExchangePrice$,
+        order,
+      });
     })
   );
 };

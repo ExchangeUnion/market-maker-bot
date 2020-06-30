@@ -1,7 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { interval, Observable } from 'rxjs';
 import { exhaustMap, mapTo, startWith, tap } from 'rxjs/operators';
-import { getCentralizedExchangePrice$ } from '../centralized/exchange-price';
 import { Config } from '../config';
 import { Loggers } from '../logger';
 import {
@@ -36,6 +35,7 @@ type GetOpenDEXcompleteParams = {
     getXudClient$,
     createXudOrder$,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
+  centralizedExchangePrice$: Observable<BigNumber>;
 };
 
 const getOpenDEXcomplete$ = ({
@@ -43,6 +43,7 @@ const getOpenDEXcomplete$ = ({
   loggers,
   tradeInfo$,
   createOpenDEXorders$,
+  centralizedExchangePrice$,
 }: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
@@ -81,7 +82,7 @@ const getOpenDEXcomplete$ = ({
     tradeInfoArrayToObject,
     openDexAssets$: openDEXassetsWithConfig,
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,
-    centralizedExchangePrice$: getCentralizedExchangePrice$,
+    centralizedExchangePrice$,
   }).pipe(
     // ignore new trade information when creating orders
     // is already in progress

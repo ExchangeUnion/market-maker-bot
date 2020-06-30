@@ -2,7 +2,6 @@ import { BigNumber } from 'bignumber.js';
 import { equals } from 'ramda';
 import { combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
-import { CentralizedExchangePriceParams } from 'src/centralized/exchange-price';
 import { Loggers } from 'src/logger';
 import { Config } from '../config';
 
@@ -13,9 +12,7 @@ type GetTradeInfoParams = {
   centralizedExchangeAssets$: (
     config: Config
   ) => Observable<ExchangeAssetAllocation>;
-  centralizedExchangePrice$: ({
-    config: Config,
-  }: CentralizedExchangePriceParams) => Observable<BigNumber>;
+  centralizedExchangePrice$: Observable<BigNumber>;
   tradeInfoArrayToObject: ([
     openDexAssets,
     centralizedExchangeAssets,
@@ -77,10 +74,9 @@ const getTradeInfo$ = ({
     // wait for all the necessary tradeInfo
     openDexAssets$(config),
     centralizedExchangeAssets$(config),
-    centralizedExchangePrice$({
-      config,
-      logger: loggers.centralized,
-    }).pipe(tap(price => loggers.centralized.trace(`New price: ${price}`)))
+    centralizedExchangePrice$.pipe(
+      tap(price => loggers.centralized.trace(`New price: ${price}`))
+    )
   ).pipe(
     // map it to an object
     map(tradeInfoArrayToObject),

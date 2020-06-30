@@ -1,14 +1,16 @@
+import BigNumber from 'bignumber.js';
 import { merge, Observable } from 'rxjs';
 import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
+import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
 import {
   createCentralizedExchangeOrder$,
   GetCentralizedExchangeOrderParams,
 } from '../centralized/order';
+import { getOrderBuilder$ } from '../centralized/order-builder';
 import { Config } from '../config';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
-import { getOpenDEXorderFilled$ } from '../opendex/order-filled';
 import { getTradeInfo$ } from './info';
 
 type GetTradeParams = {
@@ -21,13 +23,17 @@ type GetTradeParams = {
   getCentralizedExchangeOrder$: ({
     logger,
     config,
-    getOpenDEXorderFilled$,
+    getOrderBuilder$,
     createCentralizedExchangeOrder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
   catchOpenDEXerror: (
     loggers: Loggers
   ) => (source: Observable<any>) => Observable<any>;
+  getCentralizedExchangePrice$: ({
+    logger,
+    config,
+  }: CentralizedExchangePriceParams) => Observable<BigNumber>;
 };
 
 const getNewTrade$ = ({
@@ -37,19 +43,26 @@ const getNewTrade$ = ({
   getOpenDEXcomplete$,
   shutdown$,
   catchOpenDEXerror,
+  getCentralizedExchangePrice$,
 }: GetTradeParams): Observable<boolean> => {
+  const centralizedExchangePrice$ = getCentralizedExchangePrice$({
+    config,
+    logger: loggers.centralized,
+  });
   return merge(
     getOpenDEXcomplete$({
       config,
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
+      centralizedExchangePrice$,
     }).pipe(catchOpenDEXerror(loggers), ignoreElements()),
     getCentralizedExchangeOrder$({
       logger: loggers.centralized,
       config,
-      getOpenDEXorderFilled$,
+      getOrderBuilder$,
       createCentralizedExchangeOrder$,
+      centralizedExchangePrice$,
     })
   ).pipe(
     tap(() => {
