@@ -3,6 +3,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../test-utils';
 import { getCentralizedExchangeOrder$ } from './order';
 import { CEXorder } from './order-builder';
+import BigNumber from 'bignumber.js';
 
 let testScheduler: TestScheduler;
 
@@ -27,11 +28,15 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
+    const centralizedExchangePrice$ = (cold('') as unknown) as Observable<
+      BigNumber
+    >;
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
       getOrderBuilder$,
       createCentralizedExchangeOrder$,
+      centralizedExchangePrice$,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

@@ -62,6 +62,7 @@ const getNewTrade$ = ({
       config,
       getOrderBuilder$,
       createCentralizedExchangeOrder$,
+      centralizedExchangePrice$,
     })
   ).pipe(
     tap(() => {
