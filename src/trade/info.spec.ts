@@ -9,6 +9,7 @@ import {
   TradeInfo,
   tradeInfoArrayToObject,
 } from './info';
+import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -50,7 +51,9 @@ const assertTradeInfo = (
     const tradeInfoArrayToObject = (v: any) => {
       return (v.join('') as unknown) as TradeInfo;
     };
+    const exchange = (null as unknown) as Exchange;
     const tradeInfo$ = getTradeInfo$({
+      exchange,
       config: testConfig(),
       loggers: getLoggers(),
       openDexAssets$: getOpenDEXassets$,

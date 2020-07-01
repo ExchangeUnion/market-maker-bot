@@ -12,6 +12,7 @@ import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { getTradeInfo$ } from './info';
+import { initBinance } from '../centralized/ccxt/init';
 
 type GetTradeParams = {
   config: Config;
@@ -49,9 +50,11 @@ const getNewTrade$ = ({
     config,
     logger: loggers.centralized,
   });
+  const CEX = initBinance(config);
   return merge(
     getOpenDEXcomplete$({
       config,
+      exchange: CEX,
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,

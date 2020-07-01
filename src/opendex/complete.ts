@@ -18,10 +18,12 @@ import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
 import { getXudTradingLimits$ } from './xud/trading-limits';
 import { getCentralizedExchangeAssets$ } from '../centralized/assets';
+import { Exchange } from 'ccxt';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
   loggers: Loggers;
+  exchange: Exchange;
   tradeInfo$: ({
     config,
     openDexAssets$,
@@ -42,6 +44,7 @@ type GetOpenDEXcompleteParams = {
 const getOpenDEXcomplete$ = ({
   config,
   loggers,
+  exchange,
   tradeInfo$,
   createOpenDEXorders$,
   centralizedExchangePrice$,
@@ -60,6 +63,7 @@ const getOpenDEXcomplete$ = ({
   return tradeInfo$({
     config,
     loggers,
+    exchange,
     tradeInfoArrayToObject,
     openDexAssets$: openDEXassetsWithConfig,
     centralizedExchangeAssets$: getCentralizedExchangeAssets$,

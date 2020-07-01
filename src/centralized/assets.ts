@@ -1,29 +1,17 @@
 import { BigNumber } from 'bignumber.js';
-import { interval } from 'rxjs';
-import { mapTo, startWith, tap } from 'rxjs/operators';
+import { Balances, Exchange } from 'ccxt';
+import { curry } from 'ramda';
+import { interval, Observable } from 'rxjs';
+import { map, mapTo, repeatWhen, startWith, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
+import { ExchangeAssetAllocation } from '../trade/info';
 
-type GetCentralizedExchangeAssetsParams = {
-  config: Config;
-  logger: Logger;
-};
-// Mock centralized exchange assets for testing
-const getCentralizedExchangeAssets$ = ({
-  config,
-  logger,
-}: GetCentralizedExchangeAssetsParams) => {
-  const testCentralizedBalances = {
-    baseAssetBalance: new BigNumber(
-      config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE
-    ),
-    quoteAssetBalance: new BigNumber(
-      config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE
-    ),
-  };
-  return interval(30000).pipe(
-    startWith(testCentralizedBalances),
-    mapTo(testCentralizedBalances),
+const logAssetAllocation = (
+  logger: Logger,
+  source: Observable<ExchangeAssetAllocation>
+) => {
+  return source.pipe(
     tap(({ baseAssetBalance, quoteAssetBalance }) => {
       logger.info(
         `Base asset balance ${baseAssetBalance.toString()} and quote asset balance ${quoteAssetBalance.toString()}`
@@ -32,4 +20,60 @@ const getCentralizedExchangeAssets$ = ({
   );
 };
 
-export { getCentralizedExchangeAssets$, GetCentralizedExchangeAssetsParams };
+type GetCentralizedExchangeAssetsParams = {
+  config: Config;
+  logger: Logger;
+  exchange: Exchange;
+  CEXfetchBalance$: (exchange: Exchange) => Observable<Balances>;
+  convertBalances: (
+    config: Config,
+    balances: Balances
+  ) => ExchangeAssetAllocation;
+  logAssetAllocation: (
+    logger: Logger,
+    source: Observable<ExchangeAssetAllocation>
+  ) => Observable<ExchangeAssetAllocation>;
+};
+
+const getCentralizedExchangeAssets$ = ({
+  config,
+  logger,
+  exchange,
+  CEXfetchBalance$,
+  convertBalances,
+  logAssetAllocation,
+}: GetCentralizedExchangeAssetsParams): Observable<ExchangeAssetAllocation> => {
+  const logAssetAllocationWithLogger = curry(logAssetAllocation)(logger);
+  if (config.LIVE_CEX) {
+    const convertBalancesWithConfig = curry(convertBalances)(config);
+    return CEXfetchBalance$(exchange).pipe(
+      map(convertBalancesWithConfig),
+      logAssetAllocationWithLogger,
+      take(1),
+      // refetch assets every 30 seconds
+      repeatWhen(() => {
+        return interval(30000);
+      })
+    );
+  } else {
+    const testCentralizedBalances = {
+      baseAssetBalance: new BigNumber(
+        config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE
+      ),
+      quoteAssetBalance: new BigNumber(
+        config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE
+      ),
+    };
+    return interval(30000).pipe(
+      startWith(testCentralizedBalances),
+      mapTo(testCentralizedBalances),
+      logAssetAllocationWithLogger
+    );
+  }
+};
+
+export {
+  getCentralizedExchangeAssets$,
+  GetCentralizedExchangeAssetsParams,
+  logAssetAllocation,
+};

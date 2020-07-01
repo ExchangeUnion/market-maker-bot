@@ -4,6 +4,7 @@ import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { getOpenDEXcomplete$ } from './complete';
 import BigNumber from 'bignumber.js';
+import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -34,7 +35,9 @@ describe('getOpenDEXcomplete$', () => {
       const centralizedExchangePrice$ = (cold('') as unknown) as Observable<
         BigNumber
       >;
+      const exchange = (null as unknown) as Exchange;
       const trade$ = getOpenDEXcomplete$({
+        exchange,
         config: testConfig(),
         loggers: getLoggers(),
         tradeInfo$: getTradeInfo$,

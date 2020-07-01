@@ -15,6 +15,7 @@ const testConfig = (): Config => {
     QUOTEASSET: 'BTC',
     TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
     TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
+    LIVE_CEX: false,
   };
 };
 
