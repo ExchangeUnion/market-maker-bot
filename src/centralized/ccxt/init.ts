@@ -1,11 +1,21 @@
+import { Dictionary, Exchange, Market } from 'ccxt';
+import { Observable } from 'rxjs';
+import { mapTo } from 'rxjs/operators';
 import { Config } from '../../config';
-import ccxt from 'ccxt';
 
-const initBinance = (config: Config) => {
-  return new ccxt.binance({
-    apiKey: config.BINANCE_API_KEY,
-    secret: config.BINANCE_API_SECRET,
-  });
+type InitBinanceParams = {
+  config: Config;
+  loadMarkets$: (exchange: Exchange) => Observable<Dictionary<Market>>;
+  getExchange: (config: Config) => Exchange;
 };
 
-export { initBinance };
+const initBinance$ = ({
+  getExchange,
+  config,
+  loadMarkets$,
+}: InitBinanceParams): Observable<Exchange> => {
+  const exchange = getExchange(config);
+  return loadMarkets$(exchange).pipe(mapTo(exchange));
+};
+
+export { initBinance$ };

@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { merge, Observable } from 'rxjs';
 import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
+import { initBinance$ } from '../centralized/ccxt/init';
+import { loadMarkets$ } from '../centralized/ccxt/load-markets';
 import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
 import {
   createCentralizedExchangeOrder$,
@@ -12,7 +14,7 @@ import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { getTradeInfo$ } from './info';
-import { initBinance } from '../centralized/ccxt/init';
+import { getExchange } from '../centralized/ccxt/exchange';
 
 type GetTradeParams = {
   config: Config;
@@ -50,11 +52,15 @@ const getNewTrade$ = ({
     config,
     logger: loggers.centralized,
   });
-  const CEX = initBinance(config);
+  const CEX = initBinance$({
+    config,
+    loadMarkets$,
+    getExchange,
+  });
   return merge(
     getOpenDEXcomplete$({
       config,
-      exchange: CEX,
+      CEX,
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,

@@ -1,19 +1,47 @@
-import ccxt from 'ccxt';
-import { initBinance } from './init';
+import { Dictionary, Exchange, Market } from 'ccxt';
+import { Observable } from 'rxjs';
+import { TestScheduler } from 'rxjs/testing';
 import { testConfig } from '../../test-utils';
+import { initBinance$ } from './init';
 
-jest.mock('ccxt');
+let testScheduler: TestScheduler;
+
+const assertInitBinance = (
+  inputEvents: {
+    loadMarkets$: string;
+  },
+  expected: string
+) => {
+  testScheduler.run(helpers => {
+    const { cold, expectObservable } = helpers;
+    const loadMarkets$ = () => {
+      return (cold(inputEvents.loadMarkets$) as unknown) as Observable<
+        Dictionary<Market>
+      >;
+    };
+    const config = testConfig();
+    const getExchange = () => ('a' as unknown) as Exchange;
+    const centralizedExchangeOrder$ = initBinance$({
+      config,
+      loadMarkets$,
+      getExchange,
+    });
+    expectObservable(centralizedExchangeOrder$).toBe(expected);
+  });
+};
 
 describe('CCXT', () => {
-  it('initializes binance with api key and secret', () => {
-    const config = testConfig();
-    initBinance(config);
-    expect(ccxt.binance).toHaveBeenCalledTimes(1);
-    expect(ccxt.binance).toHaveBeenCalledWith(
-      expect.objectContaining({
-        apiKey: config.BINANCE_API_KEY,
-        secret: config.BINANCE_API_SECRET,
-      })
-    );
+  beforeEach(() => {
+    testScheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  it('loads markets after init', () => {
+    const inputEvents = {
+      loadMarkets$: '1s a',
+    };
+    const expected = '1s a';
+    assertInitBinance(inputEvents, expected);
   });
 });

@@ -15,7 +15,7 @@ import { convertBalances } from '../centralized/convert-balances';
 type GetTradeInfoParams = {
   config: Config;
   loggers: Loggers;
-  exchange: Exchange;
+  CEX: Observable<Exchange>;
   openDexAssets$: (config: Config) => Observable<OpenDEXassetAllocation>;
   centralizedExchangeAssets$: ({
     config,
@@ -78,14 +78,14 @@ const getTradeInfo$ = ({
   centralizedExchangeAssets$,
   centralizedExchangePrice$,
   tradeInfoArrayToObject,
-  exchange,
+  CEX,
 }: GetTradeInfoParams): Observable<TradeInfo> => {
   return combineLatest(
     // wait for all the necessary tradeInfo
     openDexAssets$(config),
     centralizedExchangeAssets$({
       config,
-      exchange,
+      CEX,
       logger: loggers.centralized,
       CEXfetchBalance$: fetchBalance$,
       convertBalances,

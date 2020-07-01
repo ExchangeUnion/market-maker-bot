@@ -5,7 +5,7 @@ import { getCentralizedExchangeAssets$ } from './assets';
 import { ExchangeAssetAllocation } from '../trade/info';
 import BigNumber from 'bignumber.js';
 import { Exchange, Balances } from 'ccxt';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 let testScheduler: TestScheduler;
 
@@ -29,7 +29,7 @@ const assertCEXassets = ({
 }: AssertCEXassetsParams) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
-    const exchange = (null as unknown) as Exchange;
+    const CEX = (of(null) as unknown) as Observable<Exchange>;
     const CEXfetchBalance$ = () => {
       return (cold(inputEvents.CEXfetchBalance$) as unknown) as Observable<
         Balances
@@ -40,7 +40,7 @@ const assertCEXassets = ({
     const CEXassets$ = getCentralizedExchangeAssets$({
       logger: getLoggers().centralized,
       config,
-      exchange,
+      CEX,
       CEXfetchBalance$,
       convertBalances,
       logAssetAllocation,

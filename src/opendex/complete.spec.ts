@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
@@ -35,9 +35,9 @@ describe('getOpenDEXcomplete$', () => {
       const centralizedExchangePrice$ = (cold('') as unknown) as Observable<
         BigNumber
       >;
-      const exchange = (null as unknown) as Exchange;
+      const CEX = (of(null) as unknown) as Observable<Exchange>;
       const trade$ = getOpenDEXcomplete$({
-        exchange,
+        CEX,
         config: testConfig(),
         loggers: getLoggers(),
         tradeInfo$: getTradeInfo$,
