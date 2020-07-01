@@ -1,6 +1,13 @@
 import BigNumber from 'bignumber.js';
 import { Observable, timer } from 'rxjs';
-import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import {
+  mapTo,
+  mergeMap,
+  take,
+  tap,
+  withLatestFrom,
+  startWith,
+} from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
@@ -69,7 +76,10 @@ const getCentralizedExchangeOrder$ = ({
     accumulateOrderFillsForAsset,
     shouldCreateCEXorder,
   }).pipe(
-    mergeMap(order => {
+    withLatestFrom(
+      centralizedExchangePrice$.pipe(startWith(new BigNumber('0')))
+    ),
+    mergeMap(([order, price]) => {
       return createCentralizedExchangeOrder$({
         logger,
         centralizedExchangePrice$,

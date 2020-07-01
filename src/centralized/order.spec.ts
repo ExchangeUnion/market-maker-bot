@@ -11,6 +11,7 @@ const assertCentralizedExchangeOrder = (
   inputEvents: {
     orderBuilder$: string;
     createCentralizedExchangeOrder$: string;
+    centralizedExchangePrice$: string;
     unsubscribe?: string;
   },
   expected: string
@@ -28,9 +29,9 @@ const assertCentralizedExchangeOrder = (
         inputEvents.createCentralizedExchangeOrder$
       ) as unknown) as Observable<null>;
     };
-    const centralizedExchangePrice$ = (cold('') as unknown) as Observable<
-      BigNumber
-    >;
+    const centralizedExchangePrice$ = (cold(
+      inputEvents.centralizedExchangePrice$
+    ) as unknown) as Observable<BigNumber>;
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       logger: getLoggers().centralized,
       config,
@@ -51,9 +52,21 @@ describe('getCentralizedExchangeOrder$', () => {
     });
   });
 
-  it('executes queued up orders', () => {
+  it('executes queued up orders with latest price', () => {
     const inputEvents = {
       orderBuilder$: '1s a',
+      centralizedExchangePrice$: '500ms a',
+      createCentralizedExchangeOrder$: '5s a',
+      unsubscribe: '10s !',
+    };
+    const expected = '6s a';
+    assertCentralizedExchangeOrder(inputEvents, expected);
+  });
+
+  it('proceeds without knowing CEX price', () => {
+    const inputEvents = {
+      orderBuilder$: '1s a',
+      centralizedExchangePrice$: '2s a',
       createCentralizedExchangeOrder$: '5s a',
       unsubscribe: '10s !',
     };
