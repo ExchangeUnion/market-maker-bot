@@ -4,12 +4,19 @@ import BigNumber from 'bignumber.js';
 import { Observable, from } from 'rxjs';
 import { Config } from '../../config';
 
-const createOrder$ = (
-  config: Config,
-  exchange: Exchange,
-  side: OrderSide,
-  quantity: BigNumber
-): Observable<Order> => {
+type CreateOrderParams = {
+  config: Config;
+  exchange: Exchange;
+  side: OrderSide;
+  quantity: BigNumber;
+};
+
+const createOrder$ = ({
+  config,
+  exchange,
+  side,
+  quantity,
+}: CreateOrderParams): Observable<Order> => {
   return from(
     exchange.createMarketOrder(
       `${config.BASEASSET}/${config.QUOTEASSET}`,
@@ -19,4 +26,4 @@ const createOrder$ = (
   );
 };
 
-export { createOrder$ };
+export { createOrder$, CreateOrderParams };

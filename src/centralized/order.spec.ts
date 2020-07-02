@@ -4,6 +4,7 @@ import { getLoggers, testConfig } from '../test-utils';
 import { getCentralizedExchangeOrder$ } from './order';
 import { CEXorder } from './order-builder';
 import BigNumber from 'bignumber.js';
+import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 
@@ -32,7 +33,9 @@ const assertCentralizedExchangeOrder = (
     const centralizedExchangePrice$ = (cold(
       inputEvents.centralizedExchangePrice$
     ) as unknown) as Observable<BigNumber>;
+    const CEX = (cold('') as unknown) as Observable<Exchange>;
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
+      CEX,
       logger: getLoggers().centralized,
       config,
       getOrderBuilder$,

@@ -65,6 +65,7 @@ const getNewTrade$ = ({
       centralizedExchangePrice$,
     }).pipe(catchOpenDEXerror(loggers), ignoreElements()),
     getCentralizedExchangeOrder$({
+      CEX,
       logger: loggers.centralized,
       config,
       getOrderBuilder$,

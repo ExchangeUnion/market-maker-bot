@@ -16,18 +16,18 @@ describe('CCXT', () => {
     const config = testConfig();
     const orderQuantity = new BigNumber('0.01');
     const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
-    const buyOrder$ = createOrder$(
+    const buyOrder$ = createOrder$({
       config,
       exchange,
-      OrderSide.BUY,
-      orderQuantity
-    );
-    const sellOrder$ = createOrder$(
+      side: OrderSide.BUY,
+      quantity: orderQuantity,
+    });
+    const sellOrder$ = createOrder$({
       config,
       exchange,
-      OrderSide.SELL,
-      orderQuantity
-    );
+      side: OrderSide.SELL,
+      quantity: orderQuantity,
+    });
     merge(buyOrder$, sellOrder$).subscribe({
       next: actualOrderResponse => {
         expect(actualOrderResponse).toEqual(orderResponse);

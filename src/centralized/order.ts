@@ -8,8 +8,11 @@ import { accumulateOrderFillsForAsset } from '../trade/accumulate-fills';
 import { ExecuteCEXorderParams } from './execute-order';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
 import { shouldCreateCEXorder } from './order-filter';
+import { createOrder$ } from './ccxt/create-order';
+import { Exchange } from 'ccxt';
 
 type GetCentralizedExchangeOrderParams = {
+  CEX: Observable<Exchange>;
   logger: Logger;
   config: Config;
   executeCEXorder$: ({
@@ -27,6 +30,7 @@ type GetCentralizedExchangeOrderParams = {
 };
 
 const getCentralizedExchangeOrder$ = ({
+  CEX,
   logger,
   config,
   executeCEXorder$,
@@ -45,6 +49,8 @@ const getCentralizedExchangeOrder$ = ({
     ),
     mergeMap(([order, price]) => {
       return executeCEXorder$({
+        CEX,
+        createOrder$,
         config,
         logger,
         price,
