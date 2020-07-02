@@ -4,10 +4,8 @@ import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
 import { initBinance$ } from '../centralized/ccxt/init';
 import { loadMarkets$ } from '../centralized/ccxt/load-markets';
 import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
-import {
-  createCentralizedExchangeOrder$,
-  GetCentralizedExchangeOrderParams,
-} from '../centralized/order';
+import { GetCentralizedExchangeOrderParams } from '../centralized/order';
+import { executeCEXorder$ } from '../centralized/execute-order';
 import { getOrderBuilder$ } from '../centralized/order-builder';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -27,7 +25,7 @@ type GetTradeParams = {
     logger,
     config,
     getOrderBuilder$,
-    createCentralizedExchangeOrder$,
+    executeCEXorder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
   catchOpenDEXerror: (
@@ -70,7 +68,7 @@ const getNewTrade$ = ({
       logger: loggers.centralized,
       config,
       getOrderBuilder$,
-      createCentralizedExchangeOrder$,
+      executeCEXorder$,
       centralizedExchangePrice$,
     })
   ).pipe(

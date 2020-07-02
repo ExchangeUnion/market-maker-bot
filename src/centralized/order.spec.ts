@@ -10,7 +10,7 @@ let testScheduler: TestScheduler;
 const assertCentralizedExchangeOrder = (
   inputEvents: {
     orderBuilder$: string;
-    createCentralizedExchangeOrder$: string;
+    executeCEXorder$: string;
     centralizedExchangePrice$: string;
     unsubscribe?: string;
   },
@@ -24,10 +24,10 @@ const assertCentralizedExchangeOrder = (
         CEXorder
       >;
     };
-    const createCentralizedExchangeOrder$ = () => {
-      return (cold(
-        inputEvents.createCentralizedExchangeOrder$
-      ) as unknown) as Observable<null>;
+    const executeCEXorder$ = () => {
+      return (cold(inputEvents.executeCEXorder$) as unknown) as Observable<
+        null
+      >;
     };
     const centralizedExchangePrice$ = (cold(
       inputEvents.centralizedExchangePrice$
@@ -36,7 +36,7 @@ const assertCentralizedExchangeOrder = (
       logger: getLoggers().centralized,
       config,
       getOrderBuilder$,
-      createCentralizedExchangeOrder$,
+      executeCEXorder$,
       centralizedExchangePrice$,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
@@ -56,7 +56,7 @@ describe('getCentralizedExchangeOrder$', () => {
     const inputEvents = {
       orderBuilder$: '1s a',
       centralizedExchangePrice$: '500ms a',
-      createCentralizedExchangeOrder$: '5s a',
+      executeCEXorder$: '5s a',
       unsubscribe: '10s !',
     };
     const expected = '6s a';
@@ -67,7 +67,7 @@ describe('getCentralizedExchangeOrder$', () => {
     const inputEvents = {
       orderBuilder$: '1s a',
       centralizedExchangePrice$: '2s a',
-      createCentralizedExchangeOrder$: '5s a',
+      executeCEXorder$: '5s a',
       unsubscribe: '10s !',
     };
     const expected = '6s a';
