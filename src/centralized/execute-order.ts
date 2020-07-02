@@ -40,12 +40,21 @@ const executeCEXorder$ = ({
   if (config.LIVE_CEX) {
     return CEX.pipe(
       concatMap(exchange => {
+        logger.info(
+          `Starting centralized exchange market ${order.side} order (quantity: ${order.quantity})`
+        );
         return createOrder$({
           exchange,
           config,
           side: order.side,
           quantity: order.quantity,
-        });
+        }).pipe(
+          tap((order) =>
+            logger.info(
+              `Centralized exchange order finished: ${JSON.stringify(order)}`
+            )
+          )
+        );
       }),
       catchError((e, caught) => {
         logger.warn(`Failed to execute CEX order: ${e}. Retrying in 1000ms`);
