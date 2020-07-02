@@ -6,6 +6,7 @@ const errorCodes = {
   TRADING_LIMITS_MISSING: `${errorCodePrefix}.3`,
   INVALID_ORDERS_LIST: `${errorCodePrefix}.4`,
   CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: `${errorCodePrefix}.5`,
+  CEX_INVALID_CREDENTIALS: `${errorCodePrefix}.6`,
 };
 
 type ArbyError = {
@@ -33,6 +34,10 @@ const errors = {
   CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: {
     message: 'Price feed lost',
     code: errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
+  },
+  CEX_INVALID_CREDENTIALS: {
+    message: 'Invalid BINANCE_API_KEY or BINANCE_API_SECRET',
+    code: errorCodes.CEX_INVALID_CREDENTIALS,
   },
 };
 

@@ -49,7 +49,7 @@ const executeCEXorder$ = ({
           side: order.side,
           quantity: order.quantity,
         }).pipe(
-          tap((order) =>
+          tap(order =>
             logger.info(
               `Centralized exchange order finished: ${JSON.stringify(order)}`
             )

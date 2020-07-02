@@ -2,8 +2,9 @@ import { Observable, throwError, timer } from 'rxjs';
 import { catchError, mergeMapTo } from 'rxjs/operators';
 import { RETRY_INTERVAL } from '../constants';
 import { Loggers, Logger } from '../logger';
-import { errorCodes } from '../opendex/errors';
+import { errorCodes, errors } from '../opendex/errors';
 import { status } from '@grpc/grpc-js';
+import { AuthenticationError } from 'ccxt';
 
 const catchOpenDEXerror = (loggers: Loggers) => {
   return (source: Observable<any>) => {
@@ -44,6 +45,9 @@ const catchOpenDEXerror = (loggers: Loggers) => {
         }
         // unexpected or unrecoverable error should stop
         // the application
+        if (e instanceof AuthenticationError) {
+          return throwError(errors.CEX_INVALID_CREDENTIALS);
+        }
         return throwError(e);
       })
     );
