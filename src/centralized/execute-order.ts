@@ -1,21 +1,24 @@
 import BigNumber from 'bignumber.js';
-import { Observable, timer } from 'rxjs';
-import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import { Observable, of, timer } from 'rxjs';
+import { mapTo, mergeMap, tap } from 'rxjs/operators';
 import { Logger } from '../logger';
 import { CEXorder } from './order-builder';
+import { Config } from '../config';
 
 type ExecuteCEXorderParams = {
+  config: Config;
   logger: Logger;
-  centralizedExchangePrice$: Observable<BigNumber>;
+  price: BigNumber;
   order: CEXorder;
 };
+
 const executeCEXorder$ = ({
+  config,
   logger,
-  centralizedExchangePrice$,
+  price,
   order,
 }: ExecuteCEXorderParams): Observable<null> => {
-  return centralizedExchangePrice$.pipe(
-    take(1),
+  return of(price).pipe(
     mergeMap(price => {
       logger.info(
         `Starting centralized exchange ${order.side} order (quantity: ${

@@ -14,7 +14,7 @@ type GetCentralizedExchangeOrderParams = {
   config: Config;
   executeCEXorder$: ({
     logger,
-    centralizedExchangePrice$,
+    price,
     order,
   }: ExecuteCEXorderParams) => Observable<null>;
   getOrderBuilder$: ({
@@ -45,8 +45,9 @@ const getCentralizedExchangeOrder$ = ({
     ),
     mergeMap(([order, price]) => {
       return executeCEXorder$({
+        config,
         logger,
-        centralizedExchangePrice$,
+        price,
         order,
       });
     })
