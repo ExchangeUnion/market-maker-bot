@@ -17,6 +17,7 @@ export type Config = {
   QUOTEASSET: Asset;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
   TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
+  LIVE_CEX: boolean;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -32,6 +33,7 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'QUOTEASSET',
   'TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE',
   'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
+  'LIVE_CEX',
 ];
 
 const setLogLevel = (logLevel: string): Level => {
@@ -85,6 +87,7 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
+    LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
   };
   return verifiedConfig as Config;
 };

@@ -3,6 +3,7 @@ import { errors } from '../opendex/errors';
 import { getLoggers, TestError } from '../test-utils';
 import { catchOpenDEXerror } from './catch-error';
 import { status } from '@grpc/grpc-js';
+import { AuthenticationError } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -13,7 +14,7 @@ const testSchedulerSetup = () => {
 
 type AssertCatchOpenDEXerrorParams = {
   inputEvents: string;
-  inputError?: TestError;
+  inputError?: TestError | AuthenticationError;
   expected: string;
   expectedSubscriptions: string | string[];
   expectedError?: TestError;
@@ -59,6 +60,26 @@ describe('catchOpenDEXerror', () => {
       inputError,
       expected,
       expectedError: inputError,
+      unsubscribe,
+      expectedSubscriptions,
+    });
+  });
+
+  it('remaps CCXT AuthenticationError', () => {
+    expect.assertions(2);
+    const inputEvents = '1s #';
+    const inputError = new AuthenticationError(
+      'Signature for this request is not valid.'
+    );
+    const expected = '1s #';
+    const expectedSubscriptions = '^ 999ms !';
+    const unsubscribe = '10s !';
+    const expectedError = errors.CEX_INVALID_CREDENTIALS;
+    assertCatchOpenDEXerror({
+      inputEvents,
+      inputError,
+      expected,
+      expectedError,
       unsubscribe,
       expectedSubscriptions,
     });

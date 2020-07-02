@@ -1,51 +1,25 @@
 import BigNumber from 'bignumber.js';
-import { Observable, timer } from 'rxjs';
-import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { mergeMap, startWith, withLatestFrom } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
 import { accumulateOrderFillsForAsset } from '../trade/accumulate-fills';
+import { ExecuteCEXorderParams } from './execute-order';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
 import { shouldCreateCEXorder } from './order-filter';
-
-type CreateCEXorderParams = {
-  logger: Logger;
-  centralizedExchangePrice$: Observable<BigNumber>;
-  order: CEXorder;
-};
-const createCentralizedExchangeOrder$ = ({
-  logger,
-  centralizedExchangePrice$,
-  order,
-}: CreateCEXorderParams): Observable<null> => {
-  return centralizedExchangePrice$.pipe(
-    take(1),
-    mergeMap(price => {
-      logger.info(
-        `Starting centralized exchange ${order.side} order (quantity: ${
-          order.quantity
-        }, price: ${price.toFixed()})`
-      );
-      return timer(5000).pipe(
-        tap(() =>
-          logger.info(
-            'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
-          )
-        )
-      );
-    }),
-    mapTo(null)
-  );
-};
+import { createOrder$ } from './ccxt/create-order';
+import { Exchange } from 'ccxt';
 
 type GetCentralizedExchangeOrderParams = {
+  CEX: Observable<Exchange>;
   logger: Logger;
   config: Config;
-  createCentralizedExchangeOrder$: ({
+  executeCEXorder$: ({
     logger,
-    centralizedExchangePrice$,
+    price,
     order,
-  }: CreateCEXorderParams) => Observable<null>;
+  }: ExecuteCEXorderParams) => Observable<null>;
   getOrderBuilder$: ({
     config,
     getOpenDEXswapSuccess$,
@@ -56,9 +30,10 @@ type GetCentralizedExchangeOrderParams = {
 };
 
 const getCentralizedExchangeOrder$ = ({
+  CEX,
   logger,
   config,
-  createCentralizedExchangeOrder$,
+  executeCEXorder$,
   getOrderBuilder$,
   centralizedExchangePrice$,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
@@ -69,18 +44,20 @@ const getCentralizedExchangeOrder$ = ({
     accumulateOrderFillsForAsset,
     shouldCreateCEXorder,
   }).pipe(
-    mergeMap(order => {
-      return createCentralizedExchangeOrder$({
+    withLatestFrom(
+      centralizedExchangePrice$.pipe(startWith(new BigNumber('0')))
+    ),
+    mergeMap(([order, price]) => {
+      return executeCEXorder$({
+        CEX,
+        createOrder$,
+        config,
         logger,
-        centralizedExchangePrice$,
+        price,
         order,
       });
     })
   );
 };
 
-export {
-  getCentralizedExchangeOrder$,
-  GetCentralizedExchangeOrderParams,
-  createCentralizedExchangeOrder$,
-};
+export { getCentralizedExchangeOrder$, GetCentralizedExchangeOrderParams };

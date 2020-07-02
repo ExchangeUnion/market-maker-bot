@@ -8,7 +8,7 @@ type MinimumCEXquantities = {
 
 const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
   BTC: new BigNumber('0.0001'),
-  ETH: new BigNumber('0.004'),
+  ETH: new BigNumber('0.005'),
 };
 
 const shouldCreateCEXorder = (asset: Asset) => {

@@ -1,17 +1,18 @@
 import BigNumber from 'bignumber.js';
 import { merge, Observable } from 'rxjs';
 import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
+import { initBinance$ } from '../centralized/ccxt/init';
+import { loadMarkets$ } from '../centralized/ccxt/load-markets';
 import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
-import {
-  createCentralizedExchangeOrder$,
-  GetCentralizedExchangeOrderParams,
-} from '../centralized/order';
+import { GetCentralizedExchangeOrderParams } from '../centralized/order';
+import { executeCEXorder$ } from '../centralized/execute-order';
 import { getOrderBuilder$ } from '../centralized/order-builder';
 import { Config } from '../config';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { getTradeInfo$ } from './info';
+import { getExchange } from '../centralized/ccxt/exchange';
 
 type GetTradeParams = {
   config: Config;
@@ -24,7 +25,7 @@ type GetTradeParams = {
     logger,
     config,
     getOrderBuilder$,
-    createCentralizedExchangeOrder$,
+    executeCEXorder$,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
   catchOpenDEXerror: (
@@ -49,19 +50,26 @@ const getNewTrade$ = ({
     config,
     logger: loggers.centralized,
   });
+  const CEX = initBinance$({
+    config,
+    loadMarkets$,
+    getExchange,
+  });
   return merge(
     getOpenDEXcomplete$({
       config,
+      CEX,
       createOpenDEXorders$,
       loggers,
       tradeInfo$: getTradeInfo$,
       centralizedExchangePrice$,
     }).pipe(catchOpenDEXerror(loggers), ignoreElements()),
     getCentralizedExchangeOrder$({
+      CEX,
       logger: loggers.centralized,
       config,
       getOrderBuilder$,
-      createCentralizedExchangeOrder$,
+      executeCEXorder$,
       centralizedExchangePrice$,
     })
   ).pipe(
