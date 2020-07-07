@@ -66,6 +66,17 @@ describe('getCentralizedExchangeOrder$', () => {
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 
+  it('does not stop if latest price errors', () => {
+    const inputEvents = {
+      orderBuilder$: '1s a',
+      centralizedExchangePrice$: '500ms #',
+      executeCEXorder$: '5s a',
+      unsubscribe: '10s !',
+    };
+    const expected = '6s a';
+    assertCentralizedExchangeOrder(inputEvents, expected);
+  });
+
   it('proceeds without knowing CEX price', () => {
     const inputEvents = {
       orderBuilder$: '1s a',
