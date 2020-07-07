@@ -1,5 +1,6 @@
 import { concat, Observable } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
+import { initBinance$ } from './centralized/ccxt/init';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
 import { removeCEXorders$ } from './centralized/remove-orders';
@@ -77,6 +78,7 @@ export const startArby = ({
         getCentralizedExchangeOrder$,
         catchOpenDEXerror,
         getCentralizedExchangePrice$,
+        initBinance$,
       }).pipe(takeUntil(shutdown$));
       return concat(
         tradeComplete$,
