@@ -51,7 +51,7 @@ const getCentralizedExchangePrice$ = ({
   });
   return priceObservable.pipe(
     // if we have not received a price value in 20 seconds we'll error
-    timeout(20000),
+    timeout(10000),
     catchError(() => {
       return throwError(errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR);
     }),
