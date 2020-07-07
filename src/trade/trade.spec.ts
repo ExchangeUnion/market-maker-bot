@@ -4,6 +4,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
 import BigNumber from 'bignumber.js';
+import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -71,7 +72,11 @@ const assertGetTrade = ({
     const getCentralizedExchangePrice$ = () => {
       return (cold('') as unknown) as Observable<BigNumber>;
     };
+    const initBinance$ = () => {
+      return (cold('') as unknown) as Observable<Exchange>;
+    };
     const trade$ = getNewTrade$({
+      initBinance$,
       shutdown$,
       loggers: getLoggers(),
       getOpenDEXcomplete$,

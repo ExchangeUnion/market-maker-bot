@@ -18,4 +18,4 @@ const initBinance$ = ({
   return loadMarkets$(exchange).pipe(mapTo(exchange));
 };
 
-export { initBinance$ };
+export { initBinance$, InitBinanceParams };
