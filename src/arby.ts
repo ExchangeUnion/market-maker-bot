@@ -1,5 +1,5 @@
 import { concat, Observable } from 'rxjs';
-import { mergeMap, takeUntil } from 'rxjs/operators';
+import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 import { initBinance$ } from './centralized/ccxt/init';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
@@ -87,6 +87,16 @@ export const startArby = ({
           loggers,
           removeOpenDEXorders$,
           removeCEXorders$,
+        })
+      ).pipe(
+        catchError(() => {
+          loggers.global.info('Unrecoverable error. Cleaning up');
+          return cleanup$({
+            config,
+            loggers,
+            removeOpenDEXorders$,
+            removeCEXorders$,
+          });
         })
       );
     })
