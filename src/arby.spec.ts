@@ -72,4 +72,18 @@ describe('startArby', () => {
       expected,
     });
   });
+
+  it('performs cleanup when getTrade$ errors', () => {
+    const inputEvents = {
+      config$: 'a',
+      getTrade$: '500ms #',
+      shutdown$: '10s c',
+      cleanup$: '2s a',
+    };
+    const expected = '2500ms a';
+    assertStartArby({
+      inputEvents,
+      expected,
+    });
+  });
 });
