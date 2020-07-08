@@ -13,6 +13,7 @@ import { Config } from '../config';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
+import { getCleanup$, GetCleanupParams } from './cleanup';
 import { getTradeInfo$ } from './info';
 
 type GetTradeParams = {
@@ -30,7 +31,14 @@ type GetTradeParams = {
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
   catchOpenDEXerror: (
-    loggers: Loggers
+    loggers: Loggers,
+    config: Config,
+    getCleanup$: ({
+      config,
+      loggers,
+      removeOpenDEXorders$,
+      removeCEXorders$,
+    }: GetCleanupParams) => Observable<unknown>
   ) => (source: Observable<any>) => Observable<any>;
   getCentralizedExchangePrice$: ({
     logger,
@@ -70,7 +78,7 @@ const getNewTrade$ = ({
       loggers,
       tradeInfo$: getTradeInfo$,
       centralizedExchangePrice$,
-    }).pipe(catchOpenDEXerror(loggers), ignoreElements()),
+    }).pipe(catchOpenDEXerror(loggers, config, getCleanup$), ignoreElements()),
     getCentralizedExchangeOrder$({
       CEX,
       logger: loggers.centralized,

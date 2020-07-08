@@ -1,12 +1,25 @@
-import { Observable, throwError, timer } from 'rxjs';
-import { catchError, mergeMapTo } from 'rxjs/operators';
-import { RETRY_INTERVAL } from '../constants';
-import { Loggers, Logger } from '../logger';
-import { errorCodes, errors } from '../opendex/errors';
 import { status } from '@grpc/grpc-js';
 import { AuthenticationError } from 'ccxt';
+import { concat, Observable, throwError, timer } from 'rxjs';
+import { catchError, ignoreElements, mergeMapTo } from 'rxjs/operators';
+import { removeCEXorders$ } from '../centralized/remove-orders';
+import { Config } from '../config';
+import { RETRY_INTERVAL } from '../constants';
+import { Logger, Loggers } from '../logger';
+import { errorCodes, errors } from '../opendex/errors';
+import { GetCleanupParams } from '../trade/cleanup';
+import { removeOpenDEXorders$ } from './remove-orders';
 
-const catchOpenDEXerror = (loggers: Loggers) => {
+const catchOpenDEXerror = (
+  loggers: Loggers,
+  config: Config,
+  getCleanup$: ({
+    config,
+    loggers,
+    removeOpenDEXorders$,
+    removeCEXorders$,
+  }: GetCleanupParams) => Observable<unknown>
+) => {
   return (source: Observable<any>) => {
     return source.pipe(
       catchError((e, caught) => {
@@ -41,7 +54,16 @@ const catchOpenDEXerror = (loggers: Loggers) => {
           e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
         ) {
           logMessage(loggers.centralized);
-          return retry();
+          return concat(
+            getCleanup$({
+              config,
+              loggers,
+              removeOpenDEXorders$,
+              removeCEXorders$,
+            }).pipe(ignoreElements()),
+            timer(RETRY_INTERVAL).pipe(ignoreElements()),
+            caught
+          );
         }
         // unexpected or unrecoverable error should stop
         // the application
