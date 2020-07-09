@@ -17,13 +17,15 @@ const createOrder$ = ({
   side,
   quantity,
 }: CreateOrderParams): Observable<Order> => {
-  return defer(() => from(
-    exchange.createMarketOrder(
-      `${config.BASEASSET}/${config.QUOTEASSET}`,
-      side,
-      quantity.toNumber()
+  return defer(() =>
+    from(
+      exchange.createMarketOrder(
+        `${config.BASEASSET}/${config.QUOTEASSET}`,
+        side,
+        quantity.toNumber()
+      )
     )
-  ));
+  );
 };
 
 export { createOrder$, CreateOrderParams };

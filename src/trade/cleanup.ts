@@ -32,7 +32,10 @@ type GetCleanupParams = {
     logger: Logger,
     config: Config,
     exchange: Exchange,
-    fetchOpenOrders$: (exchange: Exchange) => Observable<Order[]>,
+    fetchOpenOrders$: (
+      exchange: Exchange,
+      config: Config
+    ) => Observable<Order[]>,
     cancelOrder$: (exchange: Exchange, orderId: string) => Observable<Order>
   ) => Observable<unknown>;
   CEX: Exchange;

@@ -1,8 +1,14 @@
 import { Exchange, Order } from 'ccxt';
-import { from, Observable, defer } from 'rxjs';
+import { defer, from, Observable } from 'rxjs';
+import { Config } from '../../config';
 
-const fetchOpenOrders$ = (exchange: Exchange): Observable<Order[]> => {
-  return defer(() => from(exchange.fetchOpenOrders()));
+const fetchOpenOrders$ = (
+  exchange: Exchange,
+  config: Config
+): Observable<Order[]> => {
+  return defer(() =>
+    from(exchange.fetchOpenOrders(`${config.BASEASSET}/${config.QUOTEASSET}`))
+  );
 };
 
 export { fetchOpenOrders$ };
