@@ -2,6 +2,7 @@ import { TestScheduler } from 'rxjs/testing';
 import { getCleanup$ } from './cleanup';
 import { testConfig, getLoggers } from '../test-utils';
 import { Observable } from 'rxjs';
+import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -36,11 +37,13 @@ const assertGetTrade = ({
     };
     const CEXorders$ = cold(inputEvents.removeCEXorders$);
     const removeCEXorders$ = () => CEXorders$;
+    const CEX = (null as unknown) as Exchange;
     const cleanup$ = getCleanup$({
       loggers: getLoggers(),
       config: testConfig(),
       removeOpenDEXorders$,
       removeCEXorders$,
+      CEX,
     });
     expectObservable(cleanup$, inputEvents.unsubscribe).toBe(expected);
     expectSubscriptions(CEXorders$.subscriptions).toBe(

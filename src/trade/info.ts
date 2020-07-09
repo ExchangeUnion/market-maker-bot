@@ -15,7 +15,7 @@ import { convertBalances } from '../centralized/convert-balances';
 type GetTradeInfoParams = {
   config: Config;
   loggers: Loggers;
-  CEX: Observable<Exchange>;
+  CEX: Exchange;
   openDexAssets$: (config: Config) => Observable<OpenDEXassetAllocation>;
   centralizedExchangeAssets$: ({
     config,

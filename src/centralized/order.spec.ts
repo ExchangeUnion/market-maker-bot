@@ -33,7 +33,7 @@ const assertCentralizedExchangeOrder = (
     const centralizedExchangePrice$ = (cold(
       inputEvents.centralizedExchangePrice$
     ) as unknown) as Observable<BigNumber>;
-    const CEX = (cold('') as unknown) as Observable<Exchange>;
+    const CEX = (null as unknown) as Exchange;
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       CEX,
       logger: getLoggers().centralized,

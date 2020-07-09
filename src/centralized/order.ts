@@ -17,7 +17,7 @@ import { createOrder$ } from './ccxt/create-order';
 import { Exchange } from 'ccxt';
 
 type GetCentralizedExchangeOrderParams = {
-  CEX: Observable<Exchange>;
+  CEX: Exchange;
   logger: Logger;
   config: Config;
   executeCEXorder$: ({

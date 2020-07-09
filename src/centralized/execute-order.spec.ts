@@ -16,7 +16,6 @@ const assertExecuteCEXorder = (
     price: BigNumber;
     order: CEXorder;
     createOrder$: string;
-    CEX: string;
     unsubscribe?: string;
   },
   expected: string
@@ -26,7 +25,7 @@ const assertExecuteCEXorder = (
     const createOrder$ = () => {
       return (cold(inputEvents.createOrder$) as unknown) as Observable<Order>;
     };
-    const CEX = (cold(inputEvents.CEX) as unknown) as Observable<Exchange>;
+    const CEX = (null as unknown) as Exchange;
     const CEXorder$ = executeCEXorder$({
       CEX,
       config: inputEvents.config,
@@ -51,7 +50,6 @@ describe('executeCEXorder$', () => {
   it('executes a mock CEX order in test mode', () => {
     const inputEvents = {
       createOrder$: '',
-      CEX: '',
       config: testConfig(),
       price: new BigNumber('123'),
       order: {
@@ -70,7 +68,6 @@ describe('executeCEXorder$', () => {
     };
     const inputEvents = {
       createOrder$: '1s a',
-      CEX: '1s a',
       config,
       price: new BigNumber('123'),
       order: {
@@ -78,7 +75,7 @@ describe('executeCEXorder$', () => {
         side: OrderSide.BUY,
       },
     };
-    const expected = '2s (a|)';
+    const expected = '1s (a|)';
     assertExecuteCEXorder(inputEvents, expected);
   });
 
@@ -89,7 +86,6 @@ describe('executeCEXorder$', () => {
     };
     const inputEvents = {
       createOrder$: '1s # 1s a',
-      CEX: '1s a',
       config,
       price: new BigNumber('123'),
       order: {

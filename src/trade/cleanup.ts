@@ -1,3 +1,4 @@
+import { Exchange, Order } from 'ccxt';
 import { curry } from 'ramda';
 import { combineLatest, Observable, timer } from 'rxjs';
 import {
@@ -7,6 +8,8 @@ import {
   take,
   tap,
 } from 'rxjs/operators';
+import { cancelOrder$ } from '../centralized/ccxt/cancel-order';
+import { fetchOpenOrders$ } from '../centralized/ccxt/fetch-open-orders';
 import { Config } from '../config';
 import { Logger, Loggers } from '../logger';
 import { processListorders } from '../opendex/process-listorders';
@@ -25,7 +28,14 @@ type GetCleanupParams = {
     removeXudOrder$,
     processListorders,
   }: RemoveOpenDEXordersParams) => Observable<null>;
-  removeCEXorders$: (logger: Logger) => Observable<unknown>;
+  removeCEXorders$: (
+    logger: Logger,
+    config: Config,
+    exchange: Exchange,
+    fetchOpenOrders$: (exchange: Exchange) => Observable<Order[]>,
+    cancelOrder$: (exchange: Exchange, orderId: string) => Observable<Order>
+  ) => Observable<unknown>;
+  CEX: Exchange;
 };
 
 const getCleanup$ = ({
@@ -33,6 +43,7 @@ const getCleanup$ = ({
   loggers,
   removeOpenDEXorders$,
   removeCEXorders$,
+  CEX,
 }: GetCleanupParams): Observable<unknown> => {
   const retryOnError = (logger: Logger, source: Observable<any>) => {
     return source.pipe(
@@ -58,7 +69,13 @@ const getCleanup$ = ({
         loggers.opendex.info('All OpenDEX orders have been removed');
       })
     ),
-    removeCEXorders$(loggers.centralized).pipe(retryonErrorCEX)
+    removeCEXorders$(
+      loggers.centralized,
+      config,
+      CEX,
+      fetchOpenOrders$,
+      cancelOrder$
+    ).pipe(retryonErrorCEX)
   ).pipe(take(1), ignoreElements());
 };
 
