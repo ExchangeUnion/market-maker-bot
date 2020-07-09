@@ -36,7 +36,11 @@ type GetCleanupParams = {
       exchange: Exchange,
       config: Config
     ) => Observable<Order[]>,
-    cancelOrder$: (exchange: Exchange, orderId: string) => Observable<Order>
+    cancelOrder$: (
+      exchange: Exchange,
+      config: Config,
+      orderId: string
+    ) => Observable<Order>
   ) => Observable<unknown>;
   CEX: Exchange;
 };
@@ -79,7 +83,14 @@ const getCleanup$ = ({
       CEX,
       fetchOpenOrders$,
       cancelOrder$
-    ).pipe(retryonErrorCEX)
+    ).pipe(
+      retryonErrorCEX,
+      tap({
+        complete: () => {
+          loggers.centralized.info('All CEX orders have been removed');
+        },
+      })
+    )
   ).pipe(take(1), ignoreElements());
 };
 

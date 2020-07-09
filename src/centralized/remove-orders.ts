@@ -9,7 +9,11 @@ const removeCEXorders$ = (
   config: Config,
   exchange: Exchange,
   fetchOpenOrders$: (exchange: Exchange, config: Config) => Observable<Order[]>,
-  cancelOrder$: (exchange: Exchange, orderId: string) => Observable<Order>
+  cancelOrder$: (
+    exchange: Exchange,
+    config: Config,
+    orderId: string
+  ) => Observable<Order>
 ): Observable<unknown> => {
   if (config.LIVE_CEX) {
     const getOrderIds = (orders: Order[]) => orders.map(order => order.id);
@@ -17,7 +21,7 @@ const removeCEXorders$ = (
       map(getOrderIds),
       mergeMap(orderIds => {
         const cancelOrders$ = orderIds.map(orderId =>
-          cancelOrder$(exchange, orderId)
+          cancelOrder$(exchange, config, orderId)
         );
         if (cancelOrders$.length) {
           return forkJoin(cancelOrders$);

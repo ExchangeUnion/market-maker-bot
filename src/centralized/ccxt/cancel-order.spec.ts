@@ -1,5 +1,6 @@
 import { cancelOrder$ } from './cancel-order';
 import { Exchange } from 'ccxt';
+import { testConfig } from '../../test-utils';
 
 describe('CCXT', () => {
   it('cancel order', done => {
@@ -10,11 +11,14 @@ describe('CCXT', () => {
       cancelOrder: mockCancelOrder,
     } as unknown) as Exchange;
     const orderId = '123';
-    const orders$ = cancelOrder$(exchange, orderId);
+    const config = testConfig();
+    const { BASEASSET, QUOTEASSET } = config;
+    const tradingPair = `${BASEASSET}/${QUOTEASSET}`;
+    const orders$ = cancelOrder$(exchange, config, orderId);
     orders$.subscribe({
       next: actualResponse => {
         expect(actualResponse).toEqual(cancelOrderResponse);
-        expect(mockCancelOrder).toHaveBeenCalledWith(orderId);
+        expect(mockCancelOrder).toHaveBeenCalledWith(orderId, tradingPair);
       },
       complete: done,
     });
