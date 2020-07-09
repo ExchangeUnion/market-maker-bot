@@ -1,7 +1,7 @@
 import { Exchange, Order } from 'ccxt';
 import { OrderSide } from '../../constants';
 import BigNumber from 'bignumber.js';
-import { Observable, from } from 'rxjs';
+import { Observable, from, defer } from 'rxjs';
 import { Config } from '../../config';
 
 type CreateOrderParams = {
@@ -17,11 +17,13 @@ const createOrder$ = ({
   side,
   quantity,
 }: CreateOrderParams): Observable<Order> => {
-  return from(
-    exchange.createMarketOrder(
-      `${config.BASEASSET}/${config.QUOTEASSET}`,
-      side,
-      quantity.toNumber()
+  return defer(() =>
+    from(
+      exchange.createMarketOrder(
+        `${config.BASEASSET}/${config.QUOTEASSET}`,
+        side,
+        quantity.toNumber()
+      )
     )
   );
 };

@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { Observable, of } from 'rxjs';
+import { Exchange } from 'ccxt';
+import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../test-utils';
 import {
@@ -9,7 +10,6 @@ import {
   TradeInfo,
   tradeInfoArrayToObject,
 } from './info';
-import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -51,7 +51,7 @@ const assertTradeInfo = (
     const tradeInfoArrayToObject = (v: any) => {
       return (v.join('') as unknown) as TradeInfo;
     };
-    const CEX = (of(null) as unknown) as Observable<Exchange>;
+    const CEX = (null as unknown) as Exchange;
     const tradeInfo$ = getTradeInfo$({
       CEX,
       config: testConfig(),

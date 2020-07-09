@@ -23,8 +23,8 @@ const logAssetAllocation = (
 type GetCentralizedExchangeAssetsParams = {
   config: Config;
   logger: Logger;
-  CEX: Observable<Exchange>;
-  CEXfetchBalance$: (exchange: Observable<Exchange>) => Observable<Balances>;
+  CEX: Exchange;
+  CEXfetchBalance$: (exchange: Exchange) => Observable<Balances>;
   convertBalances: (
     config: Config,
     balances: Balances

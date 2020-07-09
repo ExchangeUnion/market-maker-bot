@@ -23,7 +23,7 @@ import { Exchange } from 'ccxt';
 type GetOpenDEXcompleteParams = {
   config: Config;
   loggers: Loggers;
-  CEX: Observable<Exchange>;
+  CEX: Exchange;
   tradeInfo$: ({
     config,
     openDexAssets$,

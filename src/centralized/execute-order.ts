@@ -3,7 +3,6 @@ import { Exchange, Order } from 'ccxt';
 import { Observable, of, timer } from 'rxjs';
 import {
   catchError,
-  concatMap,
   mapTo,
   mergeMap,
   mergeMapTo,
@@ -16,7 +15,7 @@ import { CreateOrderParams } from './ccxt/create-order';
 import { CEXorder } from './order-builder';
 
 type ExecuteCEXorderParams = {
-  CEX: Observable<Exchange>;
+  CEX: Exchange;
   config: Config;
   logger: Logger;
   price: BigNumber;
@@ -38,24 +37,20 @@ const executeCEXorder$ = ({
   createOrder$,
 }: ExecuteCEXorderParams): Observable<null> => {
   if (config.LIVE_CEX) {
-    return CEX.pipe(
-      concatMap(exchange => {
+    logger.info(
+      `Starting centralized exchange market ${order.side} order (quantity: ${order.quantity})`
+    );
+    return createOrder$({
+      exchange: CEX,
+      config,
+      side: order.side,
+      quantity: order.quantity,
+    }).pipe(
+      tap(order =>
         logger.info(
-          `Starting centralized exchange market ${order.side} order (quantity: ${order.quantity})`
-        );
-        return createOrder$({
-          exchange,
-          config,
-          side: order.side,
-          quantity: order.quantity,
-        }).pipe(
-          tap(order =>
-            logger.info(
-              `Centralized exchange order finished: ${JSON.stringify(order)}`
-            )
-          )
-        );
-      }),
+          `Centralized exchange order finished: ${JSON.stringify(order)}`
+        )
+      ),
       catchError((e, caught) => {
         logger.warn(`Failed to execute CEX order: ${e}. Retrying in 1000ms`);
         return timer(1000).pipe(mergeMapTo(caught));
@@ -72,11 +67,7 @@ const executeCEXorder$ = ({
           }, price: ${price.toFixed()})`
         );
         return timer(5000).pipe(
-          tap(() =>
-            logger.info(
-              'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
-            )
-          )
+          tap(() => logger.info('Centralized exchange order finished.'))
         );
       }),
       mapTo(null)

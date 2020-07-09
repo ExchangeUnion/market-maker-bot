@@ -1,3 +1,4 @@
+import { Exchange, Order } from 'ccxt';
 import { curry } from 'ramda';
 import { combineLatest, Observable, timer } from 'rxjs';
 import {
@@ -7,6 +8,8 @@ import {
   take,
   tap,
 } from 'rxjs/operators';
+import { cancelOrder$ } from '../centralized/ccxt/cancel-order';
+import { fetchOpenOrders$ } from '../centralized/ccxt/fetch-open-orders';
 import { Config } from '../config';
 import { Logger, Loggers } from '../logger';
 import { processListorders } from '../opendex/process-listorders';
@@ -25,7 +28,21 @@ type GetCleanupParams = {
     removeXudOrder$,
     processListorders,
   }: RemoveOpenDEXordersParams) => Observable<null>;
-  removeCEXorders$: (logger: Logger) => Observable<unknown>;
+  removeCEXorders$: (
+    logger: Logger,
+    config: Config,
+    exchange: Exchange,
+    fetchOpenOrders$: (
+      exchange: Exchange,
+      config: Config
+    ) => Observable<Order[]>,
+    cancelOrder$: (
+      exchange: Exchange,
+      config: Config,
+      orderId: string
+    ) => Observable<Order>
+  ) => Observable<unknown>;
+  CEX: Exchange;
 };
 
 const getCleanup$ = ({
@@ -33,11 +50,13 @@ const getCleanup$ = ({
   loggers,
   removeOpenDEXorders$,
   removeCEXorders$,
+  CEX,
 }: GetCleanupParams): Observable<unknown> => {
   const retryOnError = (logger: Logger, source: Observable<any>) => {
     return source.pipe(
-      catchError((_e, caught) => {
-        logger.warn('Failed to remove orders. Retrying in 1000ms');
+      catchError((e, caught) => {
+        const msg = e.message || e;
+        logger.warn(`Failed to remove orders: ${msg} - retrying in 1000ms`);
         return timer(1000).pipe(mergeMapTo(caught));
       })
     );
@@ -58,7 +77,20 @@ const getCleanup$ = ({
         loggers.opendex.info('All OpenDEX orders have been removed');
       })
     ),
-    removeCEXorders$(loggers.centralized).pipe(retryonErrorCEX)
+    removeCEXorders$(
+      loggers.centralized,
+      config,
+      CEX,
+      fetchOpenOrders$,
+      cancelOrder$
+    ).pipe(
+      retryonErrorCEX,
+      tap({
+        complete: () => {
+          loggers.centralized.info('All CEX orders have been removed');
+        },
+      })
+    )
   ).pipe(take(1), ignoreElements());
 };
 

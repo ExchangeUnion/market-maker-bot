@@ -3,7 +3,7 @@ import { errors } from '../opendex/errors';
 import { getLoggers, TestError, testConfig } from '../test-utils';
 import { catchOpenDEXerror } from './catch-error';
 import { status } from '@grpc/grpc-js';
-import { AuthenticationError } from 'ccxt';
+import { AuthenticationError, Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -38,10 +38,12 @@ const assertCatchOpenDEXerror = ({
     const cleanup$ = cold('1s a|');
     const getCleanup$ = () => cleanup$;
     const config = testConfig();
+    const CEX = (null as unknown) as Exchange;
     const output$ = catchOpenDEXerror(
       getLoggers(),
       config,
-      getCleanup$
+      getCleanup$,
+      CEX
     )(input$);
     expectObservable(output$, unsubscribe).toBe(
       expected,

@@ -1,15 +1,8 @@
-import { Exchange, Balances } from 'ccxt';
-import { from, Observable } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { Balances, Exchange } from 'ccxt';
+import { defer, from, Observable } from 'rxjs';
 
-const fetchBalance$ = (
-  exchange: Observable<Exchange>
-): Observable<Balances> => {
-  return exchange.pipe(
-    mergeMap(exchange => {
-      return from(exchange.fetchBalance());
-    })
-  );
+const fetchBalance$ = (exchange: Exchange): Observable<Balances> => {
+  return defer(() => from(exchange.fetchBalance()));
 };
 
 export { fetchBalance$ };

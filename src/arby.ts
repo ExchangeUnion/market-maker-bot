@@ -1,6 +1,9 @@
+import { Exchange } from 'ccxt';
 import { concat, Observable } from 'rxjs';
 import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
-import { initBinance$ } from './centralized/ccxt/init';
+import { getExchange } from './centralized/ccxt/exchange';
+import { initBinance$, InitBinanceParams } from './centralized/ccxt/init';
+import { loadMarkets$ } from './centralized/ccxt/load-markets';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
 import { removeCEXorders$ } from './centralized/remove-orders';
@@ -28,6 +31,11 @@ type StartArbyParams = {
     config,
     removeOpenDEXorders$,
   }: GetCleanupParams) => Observable<unknown>;
+  initBinance$: ({
+    getExchange,
+    config,
+    loadMarkets$,
+  }: InitBinanceParams) => Observable<Exchange>;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -64,39 +72,51 @@ export const startArby = ({
   shutdown$,
   trade$,
   cleanup$,
+  initBinance$,
 }: StartArbyParams): Observable<any> => {
   return config$.pipe(
     mergeMap(config => {
-      const loggers = getLoggers(config);
-      loggers.global.info('Starting. Hello, Arby.');
-      logConfig(config, loggers.global);
-      const tradeComplete$ = trade$({
+      const CEX$ = initBinance$({
         config,
-        loggers,
-        getOpenDEXcomplete$,
-        shutdown$,
-        getCentralizedExchangeOrder$,
-        catchOpenDEXerror,
-        getCentralizedExchangePrice$,
-        initBinance$,
-      }).pipe(takeUntil(shutdown$));
-      return concat(
-        tradeComplete$,
-        cleanup$({
-          config,
-          loggers,
-          removeOpenDEXorders$,
-          removeCEXorders$,
-        })
-      ).pipe(
-        catchError(() => {
-          loggers.global.info('Unrecoverable error. Cleaning up');
-          return cleanup$({
+        loadMarkets$,
+        getExchange,
+      });
+      return CEX$.pipe(
+        mergeMap(CEX => {
+          const loggers = getLoggers(config);
+          loggers.global.info('Starting. Hello, Arby.');
+          logConfig(config, loggers.global);
+          const tradeComplete$ = trade$({
             config,
             loggers,
-            removeOpenDEXorders$,
-            removeCEXorders$,
-          });
+            getOpenDEXcomplete$,
+            shutdown$,
+            getCentralizedExchangeOrder$,
+            catchOpenDEXerror,
+            getCentralizedExchangePrice$,
+            CEX,
+          }).pipe(takeUntil(shutdown$));
+          return concat(
+            tradeComplete$,
+            cleanup$({
+              config,
+              loggers,
+              removeOpenDEXorders$,
+              removeCEXorders$,
+              CEX,
+            })
+          ).pipe(
+            catchError(() => {
+              loggers.global.info('Unrecoverable error. Cleaning up');
+              return cleanup$({
+                config,
+                loggers,
+                removeOpenDEXorders$,
+                removeCEXorders$,
+                CEX,
+              });
+            })
+          );
         })
       );
     })
@@ -114,6 +134,7 @@ if (!module.parent) {
     getLoggers,
     shutdown$: getStartShutdown$(),
     cleanup$: getCleanup$,
+    initBinance$,
   }).subscribe({
     error: error => {
       if (error.message) {

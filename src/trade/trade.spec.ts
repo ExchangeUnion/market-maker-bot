@@ -72,11 +72,9 @@ const assertGetTrade = ({
     const getCentralizedExchangePrice$ = () => {
       return (cold('') as unknown) as Observable<BigNumber>;
     };
-    const initBinance$ = () => {
-      return (cold('') as unknown) as Observable<Exchange>;
-    };
+    const CEX = (null as unknown) as Exchange;
     const trade$ = getNewTrade$({
-      initBinance$,
+      CEX,
       shutdown$,
       loggers: getLoggers(),
       getOpenDEXcomplete$,

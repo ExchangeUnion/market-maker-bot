@@ -1,5 +1,5 @@
 import { status } from '@grpc/grpc-js';
-import { AuthenticationError } from 'ccxt';
+import { AuthenticationError, Exchange } from 'ccxt';
 import { concat, Observable, throwError, timer } from 'rxjs';
 import { catchError, ignoreElements, mergeMapTo } from 'rxjs/operators';
 import { removeCEXorders$ } from '../centralized/remove-orders';
@@ -18,7 +18,8 @@ const catchOpenDEXerror = (
     loggers,
     removeOpenDEXorders$,
     removeCEXorders$,
-  }: GetCleanupParams) => Observable<unknown>
+  }: GetCleanupParams) => Observable<unknown>,
+  CEX: Exchange
 ) => {
   return (source: Observable<any>) => {
     return source.pipe(
@@ -60,6 +61,7 @@ const catchOpenDEXerror = (
               loggers,
               removeOpenDEXorders$,
               removeCEXorders$,
+              CEX,
             }).pipe(ignoreElements()),
             timer(RETRY_INTERVAL).pipe(ignoreElements()),
             caught
