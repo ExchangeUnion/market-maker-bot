@@ -67,11 +67,7 @@ const executeCEXorder$ = ({
           }, price: ${price.toFixed()})`
         );
         return timer(5000).pipe(
-          tap(() =>
-            logger.info(
-              'Centralized exchange order finished. TODO(karl): order fill quantity, price and side.'
-            )
-          )
+          tap(() => logger.info('Centralized exchange order finished.'))
         );
       }),
       mapTo(null)
