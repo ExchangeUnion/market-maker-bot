@@ -1,8 +1,8 @@
 import { Exchange, Market, Dictionary } from 'ccxt';
-import { from, Observable } from 'rxjs';
+import { from, Observable, defer } from 'rxjs';
 
 const loadMarkets$ = (exchange: Exchange): Observable<Dictionary<Market>> => {
-  return from(exchange.loadMarkets());
+  return defer(() => from(exchange.loadMarkets()));
 };
 
 export { loadMarkets$ };
