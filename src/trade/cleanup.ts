@@ -47,8 +47,9 @@ const getCleanup$ = ({
 }: GetCleanupParams): Observable<unknown> => {
   const retryOnError = (logger: Logger, source: Observable<any>) => {
     return source.pipe(
-      catchError((_e, caught) => {
-        logger.warn('Failed to remove orders. Retrying in 1000ms');
+      catchError((e, caught) => {
+        const msg = e.message || e;
+        logger.warn(`Failed to remove orders: ${msg} - retrying in 1000ms`);
         return timer(1000).pipe(mergeMapTo(caught));
       })
     );
