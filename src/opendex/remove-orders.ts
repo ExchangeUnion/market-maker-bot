@@ -1,5 +1,5 @@
 import { forkJoin, Observable, of } from 'rxjs';
-import { map, mapTo, mergeMap } from 'rxjs/operators';
+import { map, mapTo, mergeMap, take } from 'rxjs/operators';
 import { Config } from 'src/config';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { RemoveOrderResponse } from '../proto/xudrpc_pb';
@@ -57,7 +57,8 @@ const removeOpenDEXorders$ = ({
         // continue without removing anything
         return of(null);
       }
-    })
+    }),
+    take(1)
   );
 };
 
