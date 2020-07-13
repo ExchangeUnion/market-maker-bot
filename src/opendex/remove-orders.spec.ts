@@ -65,7 +65,7 @@ describe('removeOpenDEXorders$', () => {
       removeXudOrder$: '1s (a|)',
       activeOrderIds: ['a', 'b', 'c'],
     };
-    const expectedEvents = '3s a';
+    const expectedEvents = '3s (a|)';
     assertRemoveOpenDEXorders(inputEvents, expectedEvents);
   });
 
@@ -76,7 +76,7 @@ describe('removeOpenDEXorders$', () => {
       removeXudOrder$: '1s (a|)',
       activeOrderIds: [],
     };
-    const expectedEvents = '2s a';
+    const expectedEvents = '2s (a|)';
     assertRemoveOpenDEXorders(inputEvents, expectedEvents);
   });
 });
