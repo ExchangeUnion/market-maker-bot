@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { Observable, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
+import { curry } from 'ramda';
 
 /** Get the current date in the given dateFormat, if not provided formats with `YYYY-MM-DD hh:mm:ss.sss`.
  */
@@ -25,3 +26,17 @@ export const getStartShutdown$ = (): Observable<unknown> => {
   process.on('SIGTERM', () => shutdown$.next());
   return shutdown$.asObservable().pipe(take(1));
 };
+
+const debugObservable = (prefix: string, source: Observable<any>) => {
+  return source.pipe(
+    tap({
+      next: v => console.log(`${prefix} next: ${v}`),
+      error: e => console.log(`${prefix} error: ${e}`),
+      complete: () => console.log(`${prefix} complete`),
+    })
+  );
+};
+
+const debugLog = curry(debugObservable);
+
+export { debugLog };
