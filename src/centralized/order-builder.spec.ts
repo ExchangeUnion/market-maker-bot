@@ -54,7 +54,8 @@ const assertOrderBuilder = (
       config,
       logger: getLoggers().centralized,
       getOpenDEXswapSuccess$,
-      accumulateOrderFillsForAssetReceived,
+      accumulateOrderFillsForBaseAssetReceived: accumulateOrderFillsForAssetReceived,
+      accumulateOrderFillsForQuoteAssetReceived: accumulateOrderFillsForAssetReceived,
       shouldCreateCEXorder,
     });
     expectObservable(orderBuilder$, inputEvents.unsubscribe).toBe(
@@ -63,10 +64,7 @@ const assertOrderBuilder = (
     );
     expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledTimes(2);
     expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledWith(
-      config.QUOTEASSET
-    );
-    expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledWith(
-      config.BASEASSET
+      expect.objectContaining(config)
     );
     expect(shouldCreateCEXorder).toHaveBeenCalledTimes(2);
     expect(shouldCreateCEXorder).toHaveBeenCalledWith(config.BASEASSET);
