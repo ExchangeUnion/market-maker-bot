@@ -5,10 +5,10 @@ import { SwapSuccess } from '../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../utils';
 import { Asset } from '../constants';
 
-const accumulateOrderFillsForAssetReceived = (asset: Asset) => {
+const accumulateOrderFillsForAssetReceived = (assetReceived: Asset) => {
   const SEED_VALUE = new BigNumber('0');
   const ETHaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
-    if (curr.getCurrencyReceived() === asset) {
+    if (curr.getCurrencyReceived() === assetReceived) {
       const quantityReceived = new BigNumber(
         satsToCoinsStr(curr.getAmountReceived())
       );
@@ -18,15 +18,15 @@ const accumulateOrderFillsForAssetReceived = (asset: Asset) => {
     }
   };
   const BTCaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
-    if (curr.getCurrencyReceived() === asset) {
+    if (curr.getCurrencyReceived() === assetReceived) {
       const quantitySent = new BigNumber(satsToCoinsStr(curr.getAmountSent()));
       return acc.plus(quantitySent);
     } else {
       return acc;
     }
   };
-  const getAccumulator = (asset: Asset) => {
-    switch (asset) {
+  const getAccumulator = (assetReceived: Asset) => {
+    switch (assetReceived) {
       case 'ETH':
         return ETHaccumulator;
       case 'BTC':
@@ -36,7 +36,7 @@ const accumulateOrderFillsForAssetReceived = (asset: Asset) => {
     }
   };
   return (source: Observable<SwapSuccess>) => {
-    return source.pipe(scan(getAccumulator(asset), SEED_VALUE));
+    return source.pipe(scan(getAccumulator(assetReceived), SEED_VALUE));
   };
 };
 
