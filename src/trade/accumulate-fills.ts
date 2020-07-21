@@ -66,7 +66,32 @@ const accumulateOrderFillsForBaseAssetReceived = curry(
   }
 );
 
+const accumulateOrderFillsForQuoteAssetReceived = curry(
+  (config: Config, source: Observable<SwapSuccess>) => {
+    const SEED_VALUE = new BigNumber('0');
+    return source.pipe(
+      scan((acc: BigNumber, curr: SwapSuccess) => {
+        const PROFIT_ASSET: Asset = 'BTC';
+        if (config.BASEASSET === PROFIT_ASSET) {
+          // accumulate quote asset received when profit asset is the base asset
+          const quantityReceived = new BigNumber(
+            satsToCoinsStr(curr.getAmountReceived())
+          );
+          return acc.plus(quantityReceived);
+        } else {
+          // accumulate base asset sent when profit asset is not base asset
+          const quantitySent = new BigNumber(
+            satsToCoinsStr(curr.getAmountSent())
+          );
+          return acc.plus(quantitySent);
+        }
+      }, SEED_VALUE)
+    );
+  }
+);
+
 export {
   accumulateOrderFillsForAssetReceived,
   accumulateOrderFillsForBaseAssetReceived,
+  accumulateOrderFillsForQuoteAssetReceived,
 };

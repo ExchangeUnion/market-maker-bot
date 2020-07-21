@@ -1,10 +1,12 @@
 import BigNumber from 'bignumber.js';
 import { TestScheduler } from 'rxjs/testing';
-// import { Asset } from '../constants';
-import { SwapSuccess } from '../proto/xudrpc_pb';
-import { accumulateOrderFillsForBaseAssetReceived } from './accumulate-fills';
-import { testConfig } from '../test-utils';
 import { Config } from '../config';
+import { SwapSuccess } from '../proto/xudrpc_pb';
+import { testConfig } from '../test-utils';
+import {
+  accumulateOrderFillsForBaseAssetReceived,
+  accumulateOrderFillsForQuoteAssetReceived,
+} from './accumulate-fills';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -42,6 +44,27 @@ const assertAccumulateFillsForBaseAssetReceived = ({
       input$
     );
     expectObservable(accumulateOrderFillsForBaseAssetReceived$).toBe(
+      expected,
+      expectedValues
+    );
+  });
+};
+
+const assertAccumulateFillsForQuoteAssetReceived = ({
+  config,
+  expected,
+  inputEvents,
+  inputValues,
+  expectedValues,
+}: AssertAccumulateFillsScanParams) => {
+  testScheduler.run(helpers => {
+    const { cold, expectObservable } = helpers;
+    const input$ = cold(inputEvents, inputValues);
+    const accumulateOrderFillsForQuoteAssetReceived$ = accumulateOrderFillsForQuoteAssetReceived(
+      config,
+      input$
+    );
+    expectObservable(accumulateOrderFillsForQuoteAssetReceived$).toBe(
       expected,
       expectedValues
     );
@@ -144,94 +167,102 @@ describe('accumulateOrderFillsForBaseAssetReceived', () => {
   });
 });
 
-/*
-describe('accumulateOrderFillsForAssetReceived$', () => {
+describe('accumulateOrderFillsForQuoteAssetReceived', () => {
   beforeEach(testSchedulerSetup);
 
-  describe('received ETH (base asset)', () => {
-    it('accumulates ETH (base asset) received', () => {
-      expect.assertions(1);
-      const inputEvents = '1s a 999ms b 999ms c';
-      const swapSuccessA = {
-        getAmountReceived: () => 200000000,
-        getCurrencyReceived: () => 'ETH',
-        getCurrencySent: () => 'BTC',
-        getAmountSent: () => 500000,
-      } as SwapSuccess;
-      const swapSuccessB = {
-        getAmountReceived: () => 300000000,
-        getCurrencyReceived: () => 'BTC',
-        getCurrencySent: () => 'ETH',
-        getAmountSent: () => 12000000000,
-      } as SwapSuccess;
-      const swapSuccessC = {
-        getAmountReceived: () => 300000000,
-        getCurrencyReceived: () => 'ETH',
-        getCurrencySent: () => 'BTC',
-        getAmountSent: () => 750000,
-      } as SwapSuccess;
-      const inputValues = {
-        a: swapSuccessA,
-        b: swapSuccessB,
-        c: swapSuccessC,
-      };
-      const expected = '1s a 999ms b 999ms c';
-      const expectedValues = {
-        a: new BigNumber('2'),
-        b: new BigNumber('2'),
-        c: new BigNumber('5'),
-      };
-      assertAccumulateFills({
-        asset: 'ETH',
-        inputEvents,
-        inputValues,
-        expected,
-        expectedValues,
+  describe('BTCDAI', () => {
+    describe('received DAI (quote asset)', () => {
+      it('accumulates DAI (quote asset) received', () => {
+        expect.assertions(1);
+        const inputEvents = '1s a 999ms b 999ms c';
+        const swapSuccessA = {
+          getAmountReceived: () => 1000000000000,
+          getCurrencyReceived: () => 'DAI',
+          getCurrencySent: () => 'BTC',
+          getAmountSent: () => 100000000,
+        } as SwapSuccess;
+        const swapSuccessB = {
+          getAmountReceived: () => 2000000000000,
+          getCurrencyReceived: () => 'DAI',
+          getCurrencySent: () => 'BTC',
+          getAmountSent: () => 200000000,
+        } as SwapSuccess;
+        const swapSuccessC = {
+          getAmountReceived: () => 3000000000000,
+          getCurrencyReceived: () => 'DAI',
+          getCurrencySent: () => 'BTC',
+          getAmountSent: () => 300000000,
+        } as SwapSuccess;
+        const inputValues = {
+          a: swapSuccessA,
+          b: swapSuccessB,
+          c: swapSuccessC,
+        };
+        const expected = '1s a 999ms b 999ms c';
+        const expectedValues = {
+          a: new BigNumber('10000'),
+          b: new BigNumber('30000'),
+          c: new BigNumber('60000'),
+        };
+        const config: Config = {
+          ...testConfig(),
+          BASEASSET: 'BTC',
+          QUOTEASSET: 'DAI',
+        };
+        assertAccumulateFillsForQuoteAssetReceived({
+          config,
+          inputEvents,
+          inputValues,
+          expected,
+          expectedValues,
+        });
       });
     });
   });
 
-  describe('received BTC (quote asset)', () => {
-    it('accumulates ETH (base asset) sent', () => {
-      expect.assertions(1);
-      const inputEvents = '1s a 999ms b 999ms c';
-      const swapSuccessA = {
-        getAmountReceived: () => 300000000,
-        getCurrencyReceived: () => 'BTC',
-        getCurrencySent: () => 'ETH',
-        getAmountSent: () => 12000000000,
-      } as SwapSuccess;
-      const swapSuccessB = {
-        getAmountReceived: () => 200000000,
-        getCurrencyReceived: () => 'ETH',
-        getCurrencySent: () => 'BTC',
-        getAmountSent: () => 500000,
-      } as SwapSuccess;
-      const swapSuccessC = {
-        getAmountReceived: () => 750000,
-        getCurrencyReceived: () => 'BTC',
-        getCurrencySent: () => 'ETH',
-        getAmountSent: () => 300000000,
-      } as SwapSuccess;
-      const inputValues = {
-        a: swapSuccessA,
-        b: swapSuccessB,
-        c: swapSuccessC,
-      };
-      const expected = '1s a 999ms b 999ms c';
-      const expectedValues = {
-        a: new BigNumber('120'),
-        b: new BigNumber('120'),
-        c: new BigNumber('123'),
-      };
-      assertAccumulateFills({
-        asset: 'BTC',
-        inputEvents,
-        inputValues,
-        expected,
-        expectedValues,
+  describe('ETHBTC', () => {
+    describe('received BTC (quote asset)', () => {
+      it('accumulates ETH (base asset) sent', () => {
+        expect.assertions(1);
+        const inputEvents = '1s a 999ms b 999ms c';
+        const swapSuccessA = {
+          getAmountReceived: () => 300000000,
+          getCurrencyReceived: () => 'BTC',
+          getCurrencySent: () => 'ETH',
+          getAmountSent: () => 12000000000,
+        } as SwapSuccess;
+        const swapSuccessB = {
+          getAmountReceived: () => 300000000,
+          getCurrencyReceived: () => 'BTC',
+          getCurrencySent: () => 'ETH',
+          getAmountSent: () => 12000000000,
+        } as SwapSuccess;
+        const swapSuccessC = {
+          getAmountReceived: () => 750000,
+          getCurrencyReceived: () => 'BTC',
+          getCurrencySent: () => 'ETH',
+          getAmountSent: () => 300000000,
+        } as SwapSuccess;
+        const inputValues = {
+          a: swapSuccessA,
+          b: swapSuccessB,
+          c: swapSuccessC,
+        };
+        const expected = '1s a 999ms b 999ms c';
+        const expectedValues = {
+          a: new BigNumber('120'),
+          b: new BigNumber('240'),
+          c: new BigNumber('243'),
+        };
+        const config = testConfig();
+        assertAccumulateFillsForQuoteAssetReceived({
+          config,
+          inputEvents,
+          inputValues,
+          expected,
+          expectedValues,
+        });
       });
     });
   });
 });
-*/
