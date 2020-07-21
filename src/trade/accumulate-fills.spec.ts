@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { TestScheduler } from 'rxjs/testing';
 import { Asset } from '../constants';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import { accumulateOrderFillsForAsset } from './accumulate-fills';
+import { accumulateOrderFillsForAssetReceived } from './accumulate-fills';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -35,17 +35,17 @@ const assertAccumulateFills = ({
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const input$ = cold(inputEvents, inputValues);
-    const accumulateOrderFillsForAsset$ = accumulateOrderFillsForAsset(asset)(
-      input$
-    );
-    expectObservable(accumulateOrderFillsForAsset$).toBe(
+    const accumulateOrderFillsForAssetReceived$ = accumulateOrderFillsForAssetReceived(
+      asset
+    )(input$);
+    expectObservable(accumulateOrderFillsForAssetReceived$).toBe(
       expected,
       expectedValues
     );
   });
 };
 
-describe('accumulateOrderFillsForAsset$', () => {
+describe('accumulateOrderFillsForAssetReceived$', () => {
   beforeEach(testSchedulerSetup);
 
   describe('received ETH (base asset)', () => {

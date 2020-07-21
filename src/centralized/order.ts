@@ -9,7 +9,7 @@ import {
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { getOpenDEXswapSuccess$ } from '../opendex/swap-success';
-import { accumulateOrderFillsForAsset } from '../trade/accumulate-fills';
+import { accumulateOrderFillsForAssetReceived } from '../trade/accumulate-fills';
 import { ExecuteCEXorderParams } from './execute-order';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
 import { shouldCreateCEXorder } from './order-filter';
@@ -28,7 +28,7 @@ type GetCentralizedExchangeOrderParams = {
   getOrderBuilder$: ({
     config,
     getOpenDEXswapSuccess$,
-    accumulateOrderFillsForAsset,
+    accumulateOrderFillsForAssetReceived,
     shouldCreateCEXorder,
   }: GetOrderBuilderParams) => Observable<CEXorder>;
   centralizedExchangePrice$: Observable<BigNumber>;
@@ -47,7 +47,7 @@ const getCentralizedExchangeOrder$ = ({
     config,
     logger,
     getOpenDEXswapSuccess$,
-    accumulateOrderFillsForAsset,
+    accumulateOrderFillsForAssetReceived,
     shouldCreateCEXorder,
   }).pipe(
     withLatestFrom(

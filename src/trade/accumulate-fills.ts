@@ -5,7 +5,7 @@ import { SwapSuccess } from '../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../utils';
 import { Asset } from '../constants';
 
-const accumulateOrderFillsForAsset = (asset: Asset) => {
+const accumulateOrderFillsForAssetReceived = (asset: Asset) => {
   const SEED_VALUE = new BigNumber('0');
   const ETHaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
     if (curr.getCurrencyReceived() === asset) {
@@ -40,4 +40,4 @@ const accumulateOrderFillsForAsset = (asset: Asset) => {
   };
 };
 
-export { accumulateOrderFillsForAsset };
+export { accumulateOrderFillsForAssetReceived };

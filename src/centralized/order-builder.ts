@@ -20,7 +20,7 @@ type GetOrderBuilderParams = {
     getXudClient$,
     subscribeXudSwaps$,
   }: GetOpenDEXswapSuccessParams) => OpenDEXswapSuccess;
-  accumulateOrderFillsForAsset: (
+  accumulateOrderFillsForAssetReceived: (
     asset: Asset
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (
@@ -37,7 +37,7 @@ const getOrderBuilder$ = ({
   config,
   logger,
   getOpenDEXswapSuccess$,
-  accumulateOrderFillsForAsset,
+  accumulateOrderFillsForAssetReceived,
   shouldCreateCEXorder,
 }: GetOrderBuilderParams): Observable<CEXorder> => {
   const {
@@ -51,7 +51,7 @@ const getOrderBuilder$ = ({
   const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
-    accumulateOrderFillsForAsset(config.QUOTEASSET),
+    accumulateOrderFillsForAssetReceived(config.QUOTEASSET),
     tap((quantity: BigNumber) => {
       logger.trace(
         `Swap success. Accumulated ${
@@ -72,7 +72,7 @@ const getOrderBuilder$ = ({
   const sellQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
-    accumulateOrderFillsForAsset(config.BASEASSET),
+    accumulateOrderFillsForAssetReceived(config.BASEASSET),
     tap((quantity: BigNumber) => {
       logger.trace(
         `Swap success. Accumulated ${
