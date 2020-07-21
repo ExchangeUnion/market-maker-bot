@@ -92,7 +92,7 @@ describe('accumulateOrderFillsForAsset$', () => {
   });
 
   describe('received BTC (quote asset)', () => {
-    it('accumulates BTC (quote asset) received', () => {
+    it('accumulates ETH (base asset) sent', () => {
       expect.assertions(1);
       const inputEvents = '1s a 999ms b 999ms c';
       const swapSuccessA = {
