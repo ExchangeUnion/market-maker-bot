@@ -40,9 +40,8 @@ const assertAccumulateFillsForBaseAssetReceived = ({
     const { cold, expectObservable } = helpers;
     const input$ = cold(inputEvents, inputValues);
     const accumulateOrderFillsForBaseAssetReceived$ = accumulateOrderFillsForBaseAssetReceived(
-      config,
-      input$
-    );
+      config
+    )(input$);
     expectObservable(accumulateOrderFillsForBaseAssetReceived$).toBe(
       expected,
       expectedValues
@@ -61,9 +60,8 @@ const assertAccumulateFillsForQuoteAssetReceived = ({
     const { cold, expectObservable } = helpers;
     const input$ = cold(inputEvents, inputValues);
     const accumulateOrderFillsForQuoteAssetReceived$ = accumulateOrderFillsForQuoteAssetReceived(
-      config,
-      input$
-    );
+      config
+    )(input$);
     expectObservable(accumulateOrderFillsForQuoteAssetReceived$).toBe(
       expected,
       expectedValues
