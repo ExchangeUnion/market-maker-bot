@@ -31,7 +31,7 @@ const catchOpenDEXerror = (
       retryWhen(attempts => {
         return attempts.pipe(
           mergeMap((e, i) => {
-            if (i + 1 > MAX_RETRY_ATTEMPS) {
+            if (e.code === status.UNAVAILABLE && i + 1 > MAX_RETRY_ATTEMPS) {
               return throwError(e);
             }
             const retry = () => {

@@ -207,7 +207,6 @@ describe('catchOpenDEXerror', () => {
 
   it('retries recoverable gRPC errors', () => {
     const recoverableGRPCerrors = [
-      status.UNAVAILABLE,
       status.UNKNOWN,
       status.NOT_FOUND,
       status.ALREADY_EXISTS,
@@ -219,6 +218,32 @@ describe('catchOpenDEXerror', () => {
       status.INTERNAL,
     ];
     expect.assertions(recoverableGRPCerrors.length * ASSERTIONS_PER_TEST);
+    const inputEvents = '1s #';
+    const expected = '';
+    const expectedSubscriptions = {
+      input$: ['^ 999ms !', '6s ^ 999ms !', '12s ^ 999ms !'],
+      cleanup$: [],
+    };
+    const unsubscribe = '15s !';
+    recoverableGRPCerrors.forEach(grpcError => {
+      const inputError = {
+        code: grpcError,
+        message: 'gRPC error',
+      };
+      testSchedulerSetup();
+      assertCatchOpenDEXerror({
+        inputEvents,
+        inputError,
+        expected,
+        expectedError: inputError,
+        unsubscribe,
+        expectedSubscriptions,
+      });
+    });
+  });
+
+  it('retries UNAVAILABLE gRPC error for up to 10 times', () => {
+    expect.assertions(ASSERTIONS_PER_TEST);
     const inputEvents = '1s #';
     const expected = '61s #';
     const expectedSubscriptions = {
@@ -238,20 +263,18 @@ describe('catchOpenDEXerror', () => {
       cleanup$: [],
     };
     const unsubscribe = '65s !';
-    recoverableGRPCerrors.forEach(grpcError => {
-      const inputError = {
-        code: grpcError,
-        message: 'gRPC error',
-      };
-      testSchedulerSetup();
-      assertCatchOpenDEXerror({
-        inputEvents,
-        inputError,
-        expected,
-        expectedError: inputError,
-        unsubscribe,
-        expectedSubscriptions,
-      });
+    const inputError = {
+      code: status.UNAVAILABLE,
+      message: 'gRPC error',
+    };
+    testSchedulerSetup();
+    assertCatchOpenDEXerror({
+      inputEvents,
+      inputError,
+      expected,
+      expectedError: inputError,
+      unsubscribe,
+      expectedSubscriptions,
     });
   });
 });
