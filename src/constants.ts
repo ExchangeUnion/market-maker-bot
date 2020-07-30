@@ -1,5 +1,7 @@
 // Time in milliseconds between retry attempts from recoverable errors
 const RETRY_INTERVAL = 5000;
+const MAX_RETRY_ATTEMPS = 10;
+const CLEANUP_RETRY_INTERVAL = 1000;
 
 type Asset = 'BTC' | 'ETH';
 
@@ -8,4 +10,10 @@ enum OrderSide {
   SELL = 'sell',
 }
 
-export { RETRY_INTERVAL, Asset, OrderSide };
+export {
+  CLEANUP_RETRY_INTERVAL,
+  MAX_RETRY_ATTEMPS,
+  RETRY_INTERVAL,
+  Asset,
+  OrderSide,
+};

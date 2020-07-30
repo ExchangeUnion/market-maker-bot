@@ -107,7 +107,7 @@ export const startArby = ({
             })
           ).pipe(
             catchError(() => {
-              loggers.global.info('Unrecoverable error. Cleaning up');
+              loggers.global.info('Unrecoverable error. Cleaning up.');
               return cleanup$({
                 config,
                 loggers,

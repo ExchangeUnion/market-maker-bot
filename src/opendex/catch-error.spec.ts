@@ -220,7 +220,7 @@ describe('catchOpenDEXerror', () => {
     ];
     expect.assertions(recoverableGRPCerrors.length * ASSERTIONS_PER_TEST);
     const inputEvents = '1s #';
-    const expected = '55s #';
+    const expected = '61s #';
     const expectedSubscriptions = {
       input$: [
         '^ 999ms !',
@@ -233,10 +233,11 @@ describe('catchOpenDEXerror', () => {
         '42s ^ 999ms !',
         '48s ^ 999ms !',
         '54s ^ 999ms !',
+        '60s ^ 999ms !',
       ],
       cleanup$: [],
     };
-    const unsubscribe = '61s !';
+    const unsubscribe = '65s !';
     recoverableGRPCerrors.forEach(grpcError => {
       const inputError = {
         code: grpcError,

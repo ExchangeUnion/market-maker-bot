@@ -9,7 +9,7 @@ import {
 } from 'rxjs/operators';
 import { removeCEXorders$ } from '../centralized/remove-orders';
 import { Config } from '../config';
-import { RETRY_INTERVAL } from '../constants';
+import { RETRY_INTERVAL, MAX_RETRY_ATTEMPS } from '../constants';
 import { Logger, Loggers } from '../logger';
 import { errorCodes, errors } from '../opendex/errors';
 import { GetCleanupParams } from '../trade/cleanup';
@@ -31,8 +31,7 @@ const catchOpenDEXerror = (
       retryWhen(attempts => {
         return attempts.pipe(
           mergeMap((e, i) => {
-            const MAX_RETRY_INDEX = 9;
-            if (i >= MAX_RETRY_INDEX) {
+            if (i + 1 > MAX_RETRY_ATTEMPS) {
               return throwError(e);
             }
             const retry = () => {
