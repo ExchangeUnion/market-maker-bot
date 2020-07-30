@@ -5,7 +5,7 @@
   "main": "dist/arby.js",
   "scripts": {
     "start:arby": "npm run compile && node dist/arby.js",
-    "dev:arby": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch\"",
+    "dev": "npm run compile && concurrently --kill-others \"npm run compile:watch\" \"npm run nodemon:watch\"",
     "compile": "npm run lint && tsc && cross-os postcompile",
     "lint": "eslint . --ext .js,.ts",
     "compile:watch": "tsc -w",
