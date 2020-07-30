@@ -1,16 +1,21 @@
 import { Exchange, Order } from 'ccxt';
 import { curry } from 'ramda';
-import { combineLatest, Observable, timer } from 'rxjs';
+import { combineLatest, Observable, of, throwError, timer } from 'rxjs';
 import {
-  catchError,
   ignoreElements,
+  mergeMap,
   mergeMapTo,
+  retryWhen,
   take,
   tap,
 } from 'rxjs/operators';
 import { cancelOrder$ } from '../centralized/ccxt/cancel-order';
 import { fetchOpenOrders$ } from '../centralized/ccxt/fetch-open-orders';
 import { Config } from '../config';
+import {
+  CLEANUP_RETRY_INTERVAL,
+  MAX_RETRY_ATTEMPS_CLEANUP,
+} from '../constants';
 import { Logger, Loggers } from '../logger';
 import { processListorders } from '../opendex/process-listorders';
 import { RemoveOpenDEXordersParams } from '../opendex/remove-orders';
@@ -54,10 +59,17 @@ const getCleanup$ = ({
 }: GetCleanupParams): Observable<unknown> => {
   const retryOnError = (logger: Logger, source: Observable<any>) => {
     return source.pipe(
-      catchError((e, caught) => {
-        const msg = e.message || e;
-        logger.warn(`Failed to remove orders: ${msg} - retrying in 1000ms`);
-        return timer(1000).pipe(mergeMapTo(caught));
+      retryWhen(attempts => {
+        return attempts.pipe(
+          mergeMap((e, index) => {
+            if (index + 1 > MAX_RETRY_ATTEMPS_CLEANUP) {
+              return throwError(e);
+            }
+            const msg = e.message || e;
+            logger.warn(`Failed to remove orders: ${msg} - retrying in 1000ms`);
+            return timer(CLEANUP_RETRY_INTERVAL).pipe(mergeMapTo(of(e)));
+          })
+        );
       })
     );
   };

@@ -107,7 +107,7 @@ export const startArby = ({
             })
           ).pipe(
             catchError(() => {
-              loggers.global.info('Unrecoverable error. Cleaning up');
+              loggers.global.info('Unrecoverable error. Cleaning up.');
               return cleanup$({
                 config,
                 loggers,
@@ -142,6 +142,7 @@ if (!module.parent) {
       } else {
         console.log(error);
       }
+      process.exit(1);
     },
     complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
   });

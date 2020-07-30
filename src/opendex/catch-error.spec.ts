@@ -207,7 +207,6 @@ describe('catchOpenDEXerror', () => {
 
   it('retries recoverable gRPC errors', () => {
     const recoverableGRPCerrors = [
-      status.UNAVAILABLE,
       status.UNKNOWN,
       status.NOT_FOUND,
       status.ALREADY_EXISTS,
@@ -222,10 +221,10 @@ describe('catchOpenDEXerror', () => {
     const inputEvents = '1s #';
     const expected = '';
     const expectedSubscriptions = {
-      input$: ['^ 999ms !', '6s ^ 999ms !'],
+      input$: ['^ 999ms !', '6s ^ 999ms !', '12s ^ 999ms !'],
       cleanup$: [],
     };
-    const unsubscribe = '10s !';
+    const unsubscribe = '15s !';
     recoverableGRPCerrors.forEach(grpcError => {
       const inputError = {
         code: grpcError,
@@ -236,9 +235,46 @@ describe('catchOpenDEXerror', () => {
         inputEvents,
         inputError,
         expected,
+        expectedError: inputError,
         unsubscribe,
         expectedSubscriptions,
       });
+    });
+  });
+
+  it('retries UNAVAILABLE gRPC error for up to 10 times', () => {
+    expect.assertions(ASSERTIONS_PER_TEST);
+    const inputEvents = '1s #';
+    const expected = '61s #';
+    const expectedSubscriptions = {
+      input$: [
+        '^ 999ms !',
+        '6s ^ 999ms !',
+        '12s ^ 999ms !',
+        '18s ^ 999ms !',
+        '24s ^ 999ms !',
+        '30s ^ 999ms !',
+        '36s ^ 999ms !',
+        '42s ^ 999ms !',
+        '48s ^ 999ms !',
+        '54s ^ 999ms !',
+        '60s ^ 999ms !',
+      ],
+      cleanup$: [],
+    };
+    const unsubscribe = '65s !';
+    const inputError = {
+      code: status.UNAVAILABLE,
+      message: 'gRPC error',
+    };
+    testSchedulerSetup();
+    assertCatchOpenDEXerror({
+      inputEvents,
+      inputError,
+      expected,
+      expectedError: inputError,
+      unsubscribe,
+      expectedSubscriptions,
     });
   });
 });
