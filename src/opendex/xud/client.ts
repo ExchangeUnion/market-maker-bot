@@ -14,6 +14,15 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
       'grpc.ssl_target_name_override': 'localhost',
       'grpc.default_authority': 'localhost',
     };
+    fs.stat(config.OPENDEX_CERT_PATH, function (err) {
+      if (err == null) {
+        console.log('CERT EXISTS');
+      } else if (err.code === 'ENOENT') {
+        console.log('CERT DOES NOT EXIST');
+      } else {
+        console.log('Some other error: ', err.code);
+      }
+    });
     const client = new XudClient(
       `${config.OPENDEX_RPC_HOST}:${config.OPENDEX_RPC_PORT}`,
       sslCredentials,
