@@ -30,7 +30,11 @@ const catchOpenDEXerror = (
     return source.pipe(
       retryWhen(attempts => {
         return attempts.pipe(
-          mergeMap(e => {
+          mergeMap((e, i) => {
+            const MAX_RETRY_INDEX = 9;
+            if (i >= MAX_RETRY_INDEX) {
+              return throwError(e);
+            }
             const retry = () => {
               // retry after interval
               return timer(RETRY_INTERVAL).pipe(mergeMapTo(of(e)));
