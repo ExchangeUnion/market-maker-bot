@@ -12,7 +12,7 @@ import {
 import { cancelOrder$ } from '../centralized/ccxt/cancel-order';
 import { fetchOpenOrders$ } from '../centralized/ccxt/fetch-open-orders';
 import { Config } from '../config';
-import { CLEANUP_RETRY_INTERVAL, MAX_RETRY_ATTEMPS } from '../constants';
+import { CLEANUP_RETRY_INTERVAL, MAX_RETRY_ATTEMPS_CLEANUP } from '../constants';
 import { Logger, Loggers } from '../logger';
 import { processListorders } from '../opendex/process-listorders';
 import { RemoveOpenDEXordersParams } from '../opendex/remove-orders';
@@ -59,7 +59,7 @@ const getCleanup$ = ({
       retryWhen(attempts => {
         return attempts.pipe(
           mergeMap((e, index) => {
-            if (index + 1 > MAX_RETRY_ATTEMPS) {
+            if (index + 1 > MAX_RETRY_ATTEMPS_CLEANUP) {
               return throwError(e);
             }
             const msg = e.message || e;

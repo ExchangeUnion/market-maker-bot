@@ -76,16 +76,16 @@ describe('getCleanup$$', () => {
     });
   });
 
-  it('retries when OpenDEX fails up to 10 times', () => {
+  it('retries when OpenDEX fails up to 5 times', () => {
     expect.assertions(3);
     const inputEvents = {
       removeOpenDEXorders$: '1s #',
       removeCEXorders$: '2s a',
-      unsubscribe: '60s !',
+      unsubscribe: '15s !',
     };
-    const expected = '21s #';
+    const expected = '11s #';
     const expectedSubscriptions = {
-      removeCEXorders$: '^ 20999ms !',
+      removeCEXorders$: '^ 10999ms !',
       removeOpenDEXorders$: [
         '^ 999ms !',
         '2s ^ 999ms !',
@@ -93,11 +93,6 @@ describe('getCleanup$$', () => {
         '6s ^ 999ms !',
         '8s ^ 999ms !',
         '10s ^ 999ms !',
-        '12s ^ 999ms !',
-        '14s ^ 999ms !',
-        '16s ^ 999ms !',
-        '18s ^ 999ms !',
-        '20s ^ 999ms !',
       ],
     };
     assertGetTrade({
@@ -107,14 +102,14 @@ describe('getCleanup$$', () => {
     });
   });
 
-  it('retries when CEX fails up to 10 times', () => {
+  it('retries when CEX fails up to 5 times', () => {
     expect.assertions(3);
     const inputEvents = {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s #',
-      unsubscribe: '60s !',
+      unsubscribe: '20s !',
     };
-    const expected = '32s #';
+    const expected = '17s #';
     const expectedSubscriptions = {
       removeCEXorders$: [
         '^ 1999ms !',
@@ -123,13 +118,8 @@ describe('getCleanup$$', () => {
         '9s ^ 1999ms !',
         '12s ^ 1999ms !',
         '15s ^ 1999ms !',
-        '18s ^ 1999ms !',
-        '21s ^ 1999ms !',
-        '24s ^ 1999ms !',
-        '27s ^ 1999ms !',
-        '30s ^ 1999ms !',
       ],
-      removeOpenDEXorders$: '^ 31999ms !',
+      removeOpenDEXorders$: '^ 16999ms !',
     };
     assertGetTrade({
       inputEvents,
