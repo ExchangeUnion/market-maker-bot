@@ -142,6 +142,7 @@ if (!module.parent) {
       } else {
         console.log(error);
       }
+      process.exit(1);
     },
     complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
   });
