@@ -1,43 +1,60 @@
 import BigNumber from 'bignumber.js';
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
+import { Config } from '../config';
+import { Asset } from '../constants';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../utils';
-import { Asset } from '../constants';
 
-const accumulateOrderFillsForAsset = (asset: Asset) => {
-  const SEED_VALUE = new BigNumber('0');
-  const ETHaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
-    if (curr.getCurrencyReceived() === asset) {
-      const quantityReceived = new BigNumber(
-        satsToCoinsStr(curr.getAmountReceived())
-      );
-      return acc.plus(quantityReceived);
-    } else {
-      return acc;
-    }
-  };
-  const BTCaccumulator = (acc: BigNumber, curr: SwapSuccess) => {
-    if (curr.getCurrencyReceived() === asset) {
-      const quantitySent = new BigNumber(satsToCoinsStr(curr.getAmountSent()));
-      return acc.plus(quantitySent);
-    } else {
-      return acc;
-    }
-  };
-  const getAccumulator = (asset: Asset) => {
-    switch (asset) {
-      case 'ETH':
-        return ETHaccumulator;
-      case 'BTC':
-        return BTCaccumulator;
-      default:
-        throw new Error('Unrecognized asset to accumulate');
-    }
-  };
+const accumulateOrderFillsForBaseAssetReceived = (config: Config) => {
   return (source: Observable<SwapSuccess>) => {
-    return source.pipe(scan(getAccumulator(asset), SEED_VALUE));
+    const SEED_VALUE = new BigNumber('0');
+    return source.pipe(
+      scan((acc: BigNumber, curr: SwapSuccess) => {
+        const PROFIT_ASSET: Asset = 'BTC';
+        if (config.BASEASSET === PROFIT_ASSET) {
+          // accumulate quote asset sent when profit asset is the base asset
+          const quantitySent = new BigNumber(
+            satsToCoinsStr(curr.getAmountSent())
+          );
+          return acc.plus(quantitySent);
+        } else {
+          // accumulate base asset received when profit asset is not the base asset
+          const quantityReceived = new BigNumber(
+            satsToCoinsStr(curr.getAmountReceived())
+          );
+          return acc.plus(quantityReceived);
+        }
+      }, SEED_VALUE)
+    );
   };
 };
 
-export { accumulateOrderFillsForAsset };
+const accumulateOrderFillsForQuoteAssetReceived = (config: Config) => {
+  return (source: Observable<SwapSuccess>) => {
+    const SEED_VALUE = new BigNumber('0');
+    return source.pipe(
+      scan((acc: BigNumber, curr: SwapSuccess) => {
+        const PROFIT_ASSET: Asset = 'BTC';
+        if (config.BASEASSET === PROFIT_ASSET) {
+          // accumulate quote asset received when profit asset is the base asset
+          const quantityReceived = new BigNumber(
+            satsToCoinsStr(curr.getAmountReceived())
+          );
+          return acc.plus(quantityReceived);
+        } else {
+          // accumulate base asset sent when profit asset is not base asset
+          const quantitySent = new BigNumber(
+            satsToCoinsStr(curr.getAmountSent())
+          );
+          return acc.plus(quantitySent);
+        }
+      }, SEED_VALUE)
+    );
+  };
+};
+
+export {
+  accumulateOrderFillsForBaseAssetReceived,
+  accumulateOrderFillsForQuoteAssetReceived,
+};

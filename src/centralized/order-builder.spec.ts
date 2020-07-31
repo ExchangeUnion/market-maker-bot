@@ -42,9 +42,11 @@ const assertOrderBuilder = (
         ) as unknown) as Observable<SwapSuccess>,
       };
     };
-    const accumulateOrderFillsForAsset = jest.fn().mockImplementation(() => {
-      return (v: any) => v;
-    });
+    const accumulateOrderFillsForAssetReceived = jest
+      .fn()
+      .mockImplementation(() => {
+        return (v: any) => v;
+      });
     const shouldCreateCEXorder = jest.fn().mockImplementation(() => {
       return () => true;
     });
@@ -52,21 +54,20 @@ const assertOrderBuilder = (
       config,
       logger: getLoggers().centralized,
       getOpenDEXswapSuccess$,
-      accumulateOrderFillsForAsset,
+      accumulateOrderFillsForBaseAssetReceived: accumulateOrderFillsForAssetReceived,
+      accumulateOrderFillsForQuoteAssetReceived: accumulateOrderFillsForAssetReceived,
       shouldCreateCEXorder,
     });
     expectObservable(orderBuilder$, inputEvents.unsubscribe).toBe(
       expected,
       expectedValues
     );
-    expect(accumulateOrderFillsForAsset).toHaveBeenCalledTimes(2);
-    expect(accumulateOrderFillsForAsset).toHaveBeenCalledWith(
-      config.QUOTEASSET
+    expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledTimes(2);
+    expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledWith(
+      expect.objectContaining(config)
     );
-    expect(accumulateOrderFillsForAsset).toHaveBeenCalledWith(config.BASEASSET);
     expect(shouldCreateCEXorder).toHaveBeenCalledTimes(2);
-    expect(shouldCreateCEXorder).toHaveBeenCalledWith(config.BASEASSET);
-    expect(shouldCreateCEXorder).not.toHaveBeenCalledWith(config.QUOTEASSET);
+    expect(shouldCreateCEXorder).toHaveBeenCalledWith(config);
   });
 };
 

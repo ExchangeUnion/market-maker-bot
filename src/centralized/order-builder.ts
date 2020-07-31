@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js';
-import { Observable, merge } from 'rxjs';
-import { filter, repeat, take, map, tap } from 'rxjs/operators';
+import { merge, Observable } from 'rxjs';
+import { filter, map, repeat, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
-import { Asset, OrderSide } from '../constants';
+import { OrderSide } from '../constants';
+import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
   OpenDEXswapSuccess,
@@ -10,7 +11,6 @@ import {
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import { Logger } from '../logger';
 
 type GetOrderBuilderParams = {
   config: Config;
@@ -20,11 +20,14 @@ type GetOrderBuilderParams = {
     getXudClient$,
     subscribeXudSwaps$,
   }: GetOpenDEXswapSuccessParams) => OpenDEXswapSuccess;
-  accumulateOrderFillsForAsset: (
-    asset: Asset
+  accumulateOrderFillsForBaseAssetReceived: (
+    config: Config
+  ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
+  accumulateOrderFillsForQuoteAssetReceived: (
+    config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (
-    asset: Asset
+    config: Config
   ) => (filledQuantity: BigNumber) => boolean;
 };
 
@@ -37,7 +40,8 @@ const getOrderBuilder$ = ({
   config,
   logger,
   getOpenDEXswapSuccess$,
-  accumulateOrderFillsForAsset,
+  accumulateOrderFillsForBaseAssetReceived,
+  accumulateOrderFillsForQuoteAssetReceived,
   shouldCreateCEXorder,
 }: GetOrderBuilderParams): Observable<CEXorder> => {
   const {
@@ -51,7 +55,7 @@ const getOrderBuilder$ = ({
   const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
-    accumulateOrderFillsForAsset(config.QUOTEASSET),
+    accumulateOrderFillsForQuoteAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.trace(
         `Swap success. Accumulated ${
@@ -60,7 +64,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.BASEASSET)),
+    filter(shouldCreateCEXorder(config)),
     map(quantity => {
       return { quantity, side: OrderSide.BUY };
     }),
@@ -72,7 +76,7 @@ const getOrderBuilder$ = ({
   const sellQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
-    accumulateOrderFillsForAsset(config.BASEASSET),
+    accumulateOrderFillsForBaseAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.trace(
         `Swap success. Accumulated ${
@@ -81,7 +85,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.BASEASSET)),
+    filter(shouldCreateCEXorder(config)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),
