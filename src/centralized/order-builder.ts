@@ -27,7 +27,7 @@ type GetOrderBuilderParams = {
     config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (
-    asset: Asset
+    config: Config
   ) => (filledQuantity: BigNumber) => boolean;
 };
 
@@ -64,7 +64,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.BASEASSET)),
+    filter(shouldCreateCEXorder(config)),
     map(quantity => {
       return { quantity, side: OrderSide.BUY };
     }),
@@ -85,7 +85,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config.BASEASSET)),
+    filter(shouldCreateCEXorder(config)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),

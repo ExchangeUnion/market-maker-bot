@@ -67,8 +67,7 @@ const assertOrderBuilder = (
       expect.objectContaining(config)
     );
     expect(shouldCreateCEXorder).toHaveBeenCalledTimes(2);
-    expect(shouldCreateCEXorder).toHaveBeenCalledWith(config.BASEASSET);
-    expect(shouldCreateCEXorder).not.toHaveBeenCalledWith(config.QUOTEASSET);
+    expect(shouldCreateCEXorder).toHaveBeenCalledWith(config);
   });
 };
 

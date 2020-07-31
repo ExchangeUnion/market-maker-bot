@@ -4,7 +4,7 @@ const MAX_RETRY_ATTEMPS = 10;
 const MAX_RETRY_ATTEMPS_CLEANUP = 5;
 const CLEANUP_RETRY_INTERVAL = 1000;
 
-type Asset = 'BTC' | 'ETH' | 'DAI';
+type Asset = 'BTC' | 'ETH' | 'DAI' | 'USDT';
 
 enum OrderSide {
   BUY = 'buy',
