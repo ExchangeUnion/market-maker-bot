@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js';
-import { Observable, merge } from 'rxjs';
-import { filter, repeat, take, map, tap } from 'rxjs/operators';
+import { merge, Observable } from 'rxjs';
+import { filter, map, repeat, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
-import { Asset, OrderSide } from '../constants';
+import { OrderSide } from '../constants';
+import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
   OpenDEXswapSuccess,
@@ -10,7 +11,6 @@ import {
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import { Logger } from '../logger';
 
 type GetOrderBuilderParams = {
   config: Config;
