@@ -26,6 +26,7 @@ const getLoggers = (): Loggers => {
     verbose: () => {},
     debug: () => {},
     trace: () => {},
+    error: () => {},
   };
   return ({
     global: mockLogger,
