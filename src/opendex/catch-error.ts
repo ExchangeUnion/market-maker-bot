@@ -1,15 +1,10 @@
 import { status } from '@grpc/grpc-js';
 import { AuthenticationError, Exchange } from 'ccxt';
-import { concat, Observable, of, throwError, timer } from 'rxjs';
-import {
-  ignoreElements,
-  mergeMap,
-  mergeMapTo,
-  retryWhen,
-} from 'rxjs/operators';
+import { concat, Observable, throwError, timer } from 'rxjs';
+import { ignoreElements, mergeMap, retryWhen } from 'rxjs/operators';
 import { removeCEXorders$ } from '../centralized/remove-orders';
 import { Config } from '../config';
-import { RETRY_INTERVAL, MAX_RETRY_ATTEMPS } from '../constants';
+import { MAX_RETRY_ATTEMPS, RETRY_INTERVAL } from '../constants';
 import { Logger, Loggers } from '../logger';
 import { errorCodes, errors } from '../opendex/errors';
 import { GetCleanupParams } from '../trade/cleanup';
@@ -29,15 +24,18 @@ const catchOpenDEXerror = (
   return (source: Observable<any>) => {
     return source.pipe(
       retryWhen(attempts => {
+        let UNAVAILABLE_ERROR_COUNT = 0;
         return attempts.pipe(
-          mergeMap((e, i) => {
-            if (e.code === status.UNAVAILABLE && i + 1 > MAX_RETRY_ATTEMPS) {
-              return throwError(e);
+          mergeMap(e => {
+            if (e.code === status.UNAVAILABLE) {
+              if (UNAVAILABLE_ERROR_COUNT >= MAX_RETRY_ATTEMPS) {
+                loggers.global.error(
+                  `UNAVAILABLE error count ${UNAVAILABLE_ERROR_COUNT} has reached threshold.`
+                );
+                return throwError(e);
+              }
+              UNAVAILABLE_ERROR_COUNT++;
             }
-            const retry = () => {
-              // retry after interval
-              return timer(RETRY_INTERVAL).pipe(mergeMapTo(of(e)));
-            };
             const logMessage = (logger: Logger) => {
               logger.warn(`${e.message}. Retrying in ${RETRY_INTERVAL}ms.`);
             };
@@ -60,7 +58,7 @@ const catchOpenDEXerror = (
               e.code === status.INTERNAL
             ) {
               logMessage(loggers.opendex);
-              return retry();
+              return timer(RETRY_INTERVAL);
             } else if (
               e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
             ) {
@@ -73,8 +71,7 @@ const catchOpenDEXerror = (
                   removeCEXorders$,
                   CEX,
                 }).pipe(ignoreElements()),
-                timer(RETRY_INTERVAL).pipe(ignoreElements()),
-                of(e)
+                timer(RETRY_INTERVAL)
               );
             }
             // unexpected or unrecoverable error should stop
