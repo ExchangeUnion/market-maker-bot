@@ -75,18 +75,7 @@ describe('getCentralizedExchangeOrder$', () => {
       executeCEXorder$: '5s a',
       unsubscribe: '10s !',
     };
-    const expected = '6s a';
-    assertCentralizedExchangeOrder(inputEvents, expected);
-  });
-
-  it('proceeds without knowing CEX price', () => {
-    const inputEvents = {
-      orderBuilder$: '1s a',
-      centralizedExchangePrice$: '2s a',
-      executeCEXorder$: '5s a',
-      unsubscribe: '10s !',
-    };
-    const expected = '6s a';
+    const expected = '';
     assertCentralizedExchangeOrder(inputEvents, expected);
   });
 });
