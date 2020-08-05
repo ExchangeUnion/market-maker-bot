@@ -34,6 +34,7 @@ const assertCentralizedExchangeOrder = (
       inputEvents.centralizedExchangePrice$
     ) as unknown) as Observable<BigNumber>;
     const CEX = (null as unknown) as Exchange;
+    const deriveCEXorderQuantity = (order: any) => order;
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       CEX,
       logger: getLoggers().centralized,
@@ -41,6 +42,7 @@ const assertCentralizedExchangeOrder = (
       getOrderBuilder$,
       executeCEXorder$,
       centralizedExchangePrice$,
+      deriveCEXorderQuantity,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

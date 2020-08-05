@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
 import { merge, Observable } from 'rxjs';
 import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
+import { deriveCEXorderQuantity } from '../centralized/derive-order-quantity';
 import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
 import { executeCEXorder$ } from '../centralized/execute-order';
 import { GetCentralizedExchangeOrderParams } from '../centralized/order';
@@ -78,6 +79,7 @@ const getNewTrade$ = ({
       getOrderBuilder$,
       executeCEXorder$,
       centralizedExchangePrice$,
+      deriveCEXorderQuantity,
     })
   ).pipe(
     tap(() => {
