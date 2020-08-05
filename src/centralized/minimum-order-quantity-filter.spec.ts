@@ -1,4 +1,7 @@
-import { quantityAboveMinimum, MINIMUM_ORDER_SIZE } from './order-filter';
+import {
+  quantityAboveMinimum,
+  MINIMUM_ORDER_SIZE,
+} from './minimum-order-quantity-filter';
 import BigNumber from 'bignumber.js';
 
 describe('quantityAboveMinimum', () => {

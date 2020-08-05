@@ -15,7 +15,7 @@ import {
 } from '../trade/accumulate-fills';
 import { ExecuteCEXorderParams } from './execute-order';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
-import { quantityAboveMinimum } from './order-filter';
+import { quantityAboveMinimum } from './minimum-order-quantity-filter';
 import { createOrder$ } from './ccxt/create-order';
 import { Exchange } from 'ccxt';
 
