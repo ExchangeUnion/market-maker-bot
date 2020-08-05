@@ -55,14 +55,14 @@ const tradeInfoToOpenDEXorders = ({
     centralizedExchangeQuoteAssetBalance.dividedBy(price)
   );
   const buyOrder = {
-    quantity: coinsToSats(buyQuantity.toNumber()),
+    quantity: coinsToSats(new BigNumber(buyQuantity.toFixed(8, 1)).toNumber()),
     orderSide: OrderSide.BUY,
     pairId,
     price: buyPrice.toNumber(),
     orderId: uuidv4(),
   };
   const sellOrder = {
-    quantity: coinsToSats(sellQuantity.toNumber()),
+    quantity: coinsToSats(new BigNumber(sellQuantity.toFixed(8, 1)).toNumber()),
     orderSide: OrderSide.SELL,
     pairId,
     price: sellPrice.toNumber(),

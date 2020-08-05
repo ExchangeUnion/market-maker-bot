@@ -105,7 +105,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('265.957446809'),
+          buyQuantity: new BigNumber('265.95744680'),
         },
       });
     });
