@@ -15,10 +15,10 @@ const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
   USDT: new BigNumber('10'),
 };
 
-const shouldCreateCEXorder = (asset: Asset) => {
+const quantityAboveMinimum = (asset: Asset) => {
   return (quantity: BigNumber): boolean => {
     return quantity.isGreaterThanOrEqualTo(MINIMUM_ORDER_SIZE[asset]);
   };
 };
 
-export { shouldCreateCEXorder, MINIMUM_ORDER_SIZE };
+export { quantityAboveMinimum, MINIMUM_ORDER_SIZE };

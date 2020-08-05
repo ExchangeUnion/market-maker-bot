@@ -15,7 +15,7 @@ import {
 } from '../trade/accumulate-fills';
 import { ExecuteCEXorderParams } from './execute-order';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
-import { shouldCreateCEXorder } from './order-filter';
+import { quantityAboveMinimum } from './order-filter';
 import { createOrder$ } from './ccxt/create-order';
 import { Exchange } from 'ccxt';
 
@@ -33,7 +33,7 @@ type GetCentralizedExchangeOrderParams = {
     getOpenDEXswapSuccess$,
     accumulateOrderFillsForBaseAssetReceived,
     accumulateOrderFillsForQuoteAssetReceived,
-    shouldCreateCEXorder,
+    quantityAboveMinimum,
   }: GetOrderBuilderParams) => Observable<CEXorder>;
   centralizedExchangePrice$: Observable<BigNumber>;
 };
@@ -53,7 +53,7 @@ const getCentralizedExchangeOrder$ = ({
     getOpenDEXswapSuccess$,
     accumulateOrderFillsForBaseAssetReceived,
     accumulateOrderFillsForQuoteAssetReceived,
-    shouldCreateCEXorder,
+    quantityAboveMinimum,
   }).pipe(
     withLatestFrom(
       centralizedExchangePrice$.pipe(

@@ -26,7 +26,7 @@ type GetOrderBuilderParams = {
   accumulateOrderFillsForQuoteAssetReceived: (
     config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
-  shouldCreateCEXorder: (
+  quantityAboveMinimum: (
     asset: Asset
   ) => (filledQuantity: BigNumber) => boolean;
 };
@@ -42,7 +42,7 @@ const getOrderBuilder$ = ({
   getOpenDEXswapSuccess$,
   accumulateOrderFillsForBaseAssetReceived,
   accumulateOrderFillsForQuoteAssetReceived,
-  shouldCreateCEXorder,
+  quantityAboveMinimum,
 }: GetOrderBuilderParams): Observable<CEXorder> => {
   const {
     receivedBaseAssetSwapSuccess$,
@@ -66,7 +66,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(assetToTradeOnCEX)),
+    filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.BUY };
     }),
@@ -87,7 +87,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(assetToTradeOnCEX)),
+    filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),

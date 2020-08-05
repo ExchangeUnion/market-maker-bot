@@ -47,7 +47,7 @@ const assertOrderBuilder = (
       .mockImplementation(() => {
         return (v: any) => v;
       });
-    const shouldCreateCEXorder = jest.fn().mockImplementation(() => {
+    const quantityAboveMinimum = jest.fn().mockImplementation(() => {
       return () => true;
     });
     const orderBuilder$ = getOrderBuilder$({
@@ -56,7 +56,7 @@ const assertOrderBuilder = (
       getOpenDEXswapSuccess$,
       accumulateOrderFillsForBaseAssetReceived: accumulateOrderFillsForAssetReceived,
       accumulateOrderFillsForQuoteAssetReceived: accumulateOrderFillsForAssetReceived,
-      shouldCreateCEXorder,
+      quantityAboveMinimum,
     });
     expectObservable(orderBuilder$, inputEvents.unsubscribe).toBe(
       expected,
@@ -66,8 +66,8 @@ const assertOrderBuilder = (
     expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledWith(
       expect.objectContaining(config)
     );
-    expect(shouldCreateCEXorder).toHaveBeenCalledTimes(2);
-    expect(shouldCreateCEXorder).toHaveBeenCalledWith(config.BASEASSET);
+    expect(quantityAboveMinimum).toHaveBeenCalledTimes(2);
+    expect(quantityAboveMinimum).toHaveBeenCalledWith(config.BASEASSET);
   });
 };
 
