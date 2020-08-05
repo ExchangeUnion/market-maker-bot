@@ -54,49 +54,49 @@ const getOrderBuilder$ = ({
   });
   const assetToTradeOnCEX: Asset =
     config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
-  const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
+  const receivedQuoteAssetOrderSide =
+    config.QUOTEASSET === 'BTC' ? OrderSide.BUY : OrderSide.SELL;
+  const receivedBaseAssetOrderSide =
+    config.QUOTEASSET === 'BTC' ? OrderSide.SELL : OrderSide.BUY;
+  const receivedQuoteAssetOrder$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForQuoteAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.trace(
-        `Swap success. Accumulated ${
-          config.BASEASSET
-        } quantity to BUY: ${quantity.toFixed()}`
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedQuoteAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
-      return { quantity, side: OrderSide.BUY };
+      return { quantity, side: receivedQuoteAssetOrderSide };
     }),
     // reset the filled quantity and start from
     // the beginning
     take(1),
     repeat()
   );
-  const sellQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
+  const receivedBaseAssetOrder$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForBaseAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.trace(
-        `Swap success. Accumulated ${
-          config.BASEASSET
-        } quantity to SELL: ${quantity.toFixed()}`
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedBaseAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
-      return { quantity, side: OrderSide.SELL };
+      return { quantity, side: receivedBaseAssetOrderSide };
     }),
     // reset the filled quantity and start from
     // the beginning
     take(1),
     repeat()
   );
-  return merge(buyQuoteAsset$, sellQuoteAsset$);
+  return merge(receivedQuoteAssetOrder$, receivedBaseAssetOrder$);
 };
 
 export { getOrderBuilder$, GetOrderBuilderParams, CEXorder };
