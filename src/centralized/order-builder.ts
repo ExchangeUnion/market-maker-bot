@@ -63,7 +63,7 @@ const getOrderBuilder$ = ({
     // quote asset
     accumulateOrderFillsForQuoteAssetReceived(config),
     tap((quantity: BigNumber) => {
-      logger.trace(
+      logger.info(
         `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedQuoteAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
       );
     }),
@@ -82,7 +82,7 @@ const getOrderBuilder$ = ({
     // quote asset
     accumulateOrderFillsForBaseAssetReceived(config),
     tap((quantity: BigNumber) => {
-      logger.trace(
+      logger.info(
         `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedBaseAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
       );
     }),
