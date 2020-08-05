@@ -54,23 +54,19 @@ const getOrderBuilder$ = ({
   });
   const assetToTradeOnCEX: Asset =
     config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
-  const receivedQuoteAssetOrderSide =
-    config.QUOTEASSET === 'BTC' ? OrderSide.BUY : OrderSide.SELL;
-  const receivedBaseAssetOrderSide =
-    config.QUOTEASSET === 'BTC' ? OrderSide.SELL : OrderSide.BUY;
   const receivedQuoteAssetOrder$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForQuoteAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.info(
-        `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedQuoteAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
-      return { quantity, side: receivedQuoteAssetOrderSide };
+      return { quantity, side: OrderSide.BUY };
     }),
     // reset the filled quantity and start from
     // the beginning
@@ -83,13 +79,13 @@ const getOrderBuilder$ = ({
     accumulateOrderFillsForBaseAssetReceived(config),
     tap((quantity: BigNumber) => {
       logger.info(
-        `Swap success. Accumulated ${assetToTradeOnCEX} quantity to ${receivedBaseAssetOrderSide.toUpperCase()}: ${quantity.toFixed()}`
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
-      return { quantity, side: receivedBaseAssetOrderSide };
+      return { quantity, side: OrderSide.SELL };
     }),
     // reset the filled quantity and start from
     // the beginning

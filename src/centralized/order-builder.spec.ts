@@ -147,11 +147,11 @@ describe('getCentralizedExchangeOrder$', () => {
     const expectedValues = {
       a: ({
         quantity: receivedBaseAssetQuantity,
-        side: OrderSide.BUY,
+        side: OrderSide.SELL,
       } as unknown) as CEXorder,
       b: ({
         quantity: receivedQuoteAssetQuantity,
-        side: OrderSide.SELL,
+        side: OrderSide.BUY,
       } as unknown) as CEXorder,
     };
     const BASEASSET: Asset = 'BTC';
