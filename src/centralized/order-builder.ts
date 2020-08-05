@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { merge, Observable } from 'rxjs';
 import { filter, map, repeat, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
-import { OrderSide } from '../constants';
+import { OrderSide, Asset } from '../constants';
 import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
@@ -26,8 +26,8 @@ type GetOrderBuilderParams = {
   accumulateOrderFillsForQuoteAssetReceived: (
     config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
-  shouldCreateCEXorder: (
-    config: Config
+  quantityAboveMinimum: (
+    asset: Asset
   ) => (filledQuantity: BigNumber) => boolean;
 };
 
@@ -42,7 +42,7 @@ const getOrderBuilder$ = ({
   getOpenDEXswapSuccess$,
   accumulateOrderFillsForBaseAssetReceived,
   accumulateOrderFillsForQuoteAssetReceived,
-  shouldCreateCEXorder,
+  quantityAboveMinimum,
 }: GetOrderBuilderParams): Observable<CEXorder> => {
   const {
     receivedBaseAssetSwapSuccess$,
@@ -52,19 +52,19 @@ const getOrderBuilder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   });
-  const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
+  const assetToTradeOnCEX: Asset =
+    config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
+  const receivedQuoteAssetOrder$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForQuoteAssetReceived(config),
     tap((quantity: BigNumber) => {
-      logger.trace(
-        `Swap success. Accumulated ${
-          config.BASEASSET
-        } quantity to BUY: ${quantity.toFixed()}`
+      logger.info(
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config)),
+    filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.BUY };
     }),
@@ -73,19 +73,17 @@ const getOrderBuilder$ = ({
     take(1),
     repeat()
   );
-  const sellQuoteAsset$ = receivedBaseAssetSwapSuccess$.pipe(
+  const receivedBaseAssetOrder$ = receivedBaseAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForBaseAssetReceived(config),
     tap((quantity: BigNumber) => {
-      logger.trace(
-        `Swap success. Accumulated ${
-          config.BASEASSET
-        } quantity to SELL: ${quantity.toFixed()}`
+      logger.info(
+        `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config)),
+    filter(quantityAboveMinimum(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),
@@ -94,7 +92,7 @@ const getOrderBuilder$ = ({
     take(1),
     repeat()
   );
-  return merge(buyQuoteAsset$, sellQuoteAsset$);
+  return merge(receivedQuoteAssetOrder$, receivedBaseAssetOrder$);
 };
 
 export { getOrderBuilder$, GetOrderBuilderParams, CEXorder };

@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js';
-import { Observable, of } from 'rxjs';
+import { Exchange } from 'ccxt';
+import { Observable, timer } from 'rxjs';
 import {
-  mergeMap,
-  startWith,
-  withLatestFrom,
   catchError,
+  mergeMap,
+  mergeMapTo,
+  withLatestFrom,
 } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
@@ -13,11 +14,10 @@ import {
   accumulateOrderFillsForBaseAssetReceived,
   accumulateOrderFillsForQuoteAssetReceived,
 } from '../trade/accumulate-fills';
-import { ExecuteCEXorderParams } from './execute-order';
-import { CEXorder, GetOrderBuilderParams } from './order-builder';
-import { shouldCreateCEXorder } from './order-filter';
 import { createOrder$ } from './ccxt/create-order';
-import { Exchange } from 'ccxt';
+import { ExecuteCEXorderParams } from './execute-order';
+import { quantityAboveMinimum } from './minimum-order-quantity-filter';
+import { CEXorder, GetOrderBuilderParams } from './order-builder';
 
 type GetCentralizedExchangeOrderParams = {
   CEX: Exchange;
@@ -33,9 +33,14 @@ type GetCentralizedExchangeOrderParams = {
     getOpenDEXswapSuccess$,
     accumulateOrderFillsForBaseAssetReceived,
     accumulateOrderFillsForQuoteAssetReceived,
-    shouldCreateCEXorder,
+    quantityAboveMinimum,
   }: GetOrderBuilderParams) => Observable<CEXorder>;
   centralizedExchangePrice$: Observable<BigNumber>;
+  deriveCEXorderQuantity: (
+    order: CEXorder,
+    price: BigNumber,
+    config: Config
+  ) => CEXorder;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -45,20 +50,21 @@ const getCentralizedExchangeOrder$ = ({
   executeCEXorder$,
   getOrderBuilder$,
   centralizedExchangePrice$,
+  deriveCEXorderQuantity,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
-  const ZERO_PRICE = new BigNumber('0');
   return getOrderBuilder$({
     config,
     logger,
     getOpenDEXswapSuccess$,
     accumulateOrderFillsForBaseAssetReceived,
     accumulateOrderFillsForQuoteAssetReceived,
-    shouldCreateCEXorder,
+    quantityAboveMinimum,
   }).pipe(
     withLatestFrom(
       centralizedExchangePrice$.pipe(
-        startWith(ZERO_PRICE),
-        catchError(() => of(ZERO_PRICE))
+        catchError((_e, caught) => {
+          return timer(1000).pipe(mergeMapTo(caught));
+        })
       )
     ),
     mergeMap(([order, price]) => {
@@ -68,7 +74,7 @@ const getCentralizedExchangeOrder$ = ({
         config,
         logger,
         price,
-        order,
+        order: deriveCEXorderQuantity(order, price, config),
       });
     })
   );
