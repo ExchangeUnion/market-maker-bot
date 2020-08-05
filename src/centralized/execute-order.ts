@@ -62,7 +62,9 @@ const executeCEXorder$ = ({
     return of(price).pipe(
       mergeMap(price => {
         logger.info(
-          `Starting centralized exchange ${config.BASEASSET}/${config.QUOTEASSET} market ${order.side} order (quantity: ${
+          `Starting centralized exchange ${config.BASEASSET}/${
+            config.QUOTEASSET
+          } market ${order.side} order (quantity: ${
             order.quantity
           }, price: ${price.toFixed()})`
         );

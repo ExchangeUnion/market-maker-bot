@@ -36,7 +36,11 @@ type GetCentralizedExchangeOrderParams = {
     quantityAboveMinimum,
   }: GetOrderBuilderParams) => Observable<CEXorder>;
   centralizedExchangePrice$: Observable<BigNumber>;
-  deriveCEXorderQuantity: (order: CEXorder, price: BigNumber, config: Config) => CEXorder;
+  deriveCEXorderQuantity: (
+    order: CEXorder,
+    price: BigNumber,
+    config: Config
+  ) => CEXorder;
 };
 
 const getCentralizedExchangeOrder$ = ({

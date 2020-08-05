@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { OrderSide, Asset } from '../constants';
 import { deriveCEXorderQuantity } from './derive-order-quantity';
 import { CEXorder } from './order-builder';
-import {testConfig} from '../test-utils';
+import { testConfig } from '../test-utils';
 
 describe('deriveCEXorderQuantity', () => {
   it('derives quantity when base asset is profit asset (BTC)', () => {
