@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { Config } from '../config';
 import { Asset } from '../constants';
 
 type MinimumCEXquantities = {
@@ -16,13 +15,9 @@ const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
   USDT: new BigNumber('10'),
 };
 
-const shouldCreateCEXorder = (config: Config) => {
-  const assetToTradeOnCEX: Asset =
-    config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
+const shouldCreateCEXorder = (asset: Asset) => {
   return (quantity: BigNumber): boolean => {
-    return quantity.isGreaterThanOrEqualTo(
-      MINIMUM_ORDER_SIZE[assetToTradeOnCEX]
-    );
+    return quantity.isGreaterThanOrEqualTo(MINIMUM_ORDER_SIZE[asset]);
   };
 };
 

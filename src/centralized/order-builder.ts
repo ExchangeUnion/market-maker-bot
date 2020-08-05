@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { merge, Observable } from 'rxjs';
 import { filter, map, repeat, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
-import { OrderSide } from '../constants';
+import { OrderSide, Asset } from '../constants';
 import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
@@ -27,7 +27,7 @@ type GetOrderBuilderParams = {
     config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   shouldCreateCEXorder: (
-    config: Config
+    asset: Asset
   ) => (filledQuantity: BigNumber) => boolean;
 };
 
@@ -52,6 +52,8 @@ const getOrderBuilder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   });
+  const assetToTradeOnCEX: Asset =
+    config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
   const buyQuoteAsset$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset
@@ -64,7 +66,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config)),
+    filter(shouldCreateCEXorder(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.BUY };
     }),
@@ -85,7 +87,7 @@ const getOrderBuilder$ = ({
       );
     }),
     // filter based on minimum CEX order quantity
-    filter(shouldCreateCEXorder(config)),
+    filter(shouldCreateCEXorder(assetToTradeOnCEX)),
     map(quantity => {
       return { quantity, side: OrderSide.SELL };
     }),
