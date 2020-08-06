@@ -73,6 +73,8 @@ const getMissingOptions = (config: DotenvParseOutput): string => {
   ).join(', ');
 };
 
+const ALLOWED_TRADING_PAIRS: string[] = ['ETH/BTC', 'BTC/USDT'];
+
 const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const config = {
     ...dotEnvConfig,
@@ -84,6 +86,14 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
     );
   }
+  const tradingPair = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  if (!ALLOWED_TRADING_PAIRS.includes(tradingPair)) {
+    throw new Error(
+      `Invalid trading pair ${tradingPair}. Supported trading pairs are: ${ALLOWED_TRADING_PAIRS.join(
+        ', '
+      )}`
+    );
+  }
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
@@ -92,9 +102,11 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   return verifiedConfig as Config;
 };
 
-export const getConfig$ = (): Observable<Config> => {
+const getConfig$ = (): Observable<Config> => {
   return of(require('dotenv').config()).pipe(
     pluck('parsed'),
     map(checkConfigOptions)
   );
 };
+
+export { getConfig$, checkConfigOptions };
