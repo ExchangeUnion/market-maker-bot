@@ -1,3 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`checkConfigOptions does not allow LTC/LTC trading pair 1`] = `"Invalid trading pair LTC/LTC. Supported trading pairs are: ETH/BTC, BTC/USDT"`;
+exports[`checkConfigOptions does not allow LTC/LTC trading pair 1`] = `"Invalid trading pair LTC/LTC. Supported trading pairs are: ETH/BTC, BTC/USDT, LTC/BTC, LTC/USDT"`;
