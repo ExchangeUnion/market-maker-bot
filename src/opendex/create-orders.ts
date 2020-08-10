@@ -6,11 +6,7 @@ import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { PlaceOrderResponse } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
 import { OpenDEXorders, TradeInfoToOpenDEXordersParams } from './orders';
-import { processListorders } from './process-listorders';
-import { RemoveOpenDEXordersParams } from './remove-orders';
 import { CreateXudOrderParams } from './xud/create-order';
-import { listXudOrders$ } from './xud/list-orders';
-import { removeXudOrder$ } from './xud/remove-order';
 
 type CreateOpenDEXordersParams = {
   config: Config;
@@ -21,13 +17,6 @@ type CreateOpenDEXordersParams = {
     config,
   }: TradeInfoToOpenDEXordersParams) => OpenDEXorders;
   getXudClient$: (config: Config) => Observable<XudClient>;
-  removeOpenDEXorders$: ({
-    config,
-    getXudClient$,
-    listXudOrders$,
-    removeXudOrder$,
-    processListorders,
-  }: RemoveOpenDEXordersParams) => Observable<null>;
   createXudOrder$: ({
     client,
     logger,
@@ -45,28 +34,10 @@ const createOpenDEXorders$ = ({
   getTradeInfo,
   tradeInfoToOpenDEXorders,
   getXudClient$,
-  removeOpenDEXorders$,
   createXudOrder$,
 }: CreateOpenDEXordersParams): Observable<boolean> => {
   return getXudClient$(config).pipe(
     tap(() => logger.trace('Starting to update OpenDEX orders')),
-    // remove all existing orders
-    mergeMap(client => {
-      return removeOpenDEXorders$({
-        config,
-        getXudClient$,
-        listXudOrders$,
-        removeXudOrder$,
-        processListorders,
-      }).pipe(
-        tap(() =>
-          logger.trace(
-            `Removed all open orders for ${config.BASEASSET}/${config.QUOTEASSET}`
-          )
-        ),
-        mapTo(client)
-      );
-    }),
     // create new buy and sell orders
     mergeMap(client => {
       const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({

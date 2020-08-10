@@ -1,6 +1,8 @@
 import { BigNumber } from 'bignumber.js';
+import { Exchange } from 'ccxt';
 import { Observable } from 'rxjs';
 import { exhaustMap } from 'rxjs/operators';
+import { getCentralizedExchangeAssets$ } from '../centralized/assets';
 import { Config } from '../config';
 import { Loggers } from '../logger';
 import {
@@ -12,13 +14,10 @@ import { getOpenDEXassets$ } from './assets';
 import { logAssetBalance, parseOpenDEXassets } from './assets-utils';
 import { CreateOpenDEXordersParams } from './create-orders';
 import { tradeInfoToOpenDEXorders } from './orders';
-import { removeOpenDEXorders$ } from './remove-orders';
 import { getXudBalance$ } from './xud/balance';
 import { getXudClient$ } from './xud/client';
 import { createXudOrder$ } from './xud/create-order';
 import { getXudTradingLimits$ } from './xud/trading-limits';
-import { getCentralizedExchangeAssets$ } from '../centralized/assets';
-import { Exchange } from 'ccxt';
 
 type GetOpenDEXcompleteParams = {
   config: Config;
@@ -82,7 +81,6 @@ const getOpenDEXcomplete$ = ({
         getTradeInfo,
         getXudClient$,
         createXudOrder$,
-        removeOpenDEXorders$,
         tradeInfoToOpenDEXorders,
       });
     })

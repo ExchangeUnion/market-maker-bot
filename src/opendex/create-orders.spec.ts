@@ -16,7 +16,6 @@ const testSchedulerSetup = () => {
 type CreateOpenDEXordersInputEvents = {
   xudClient$: string;
   xudOrder$: string;
-  removeOpenDEXorders$: string;
 };
 
 const assertCreateOpenDEXorders = (
@@ -34,9 +33,6 @@ const assertCreateOpenDEXorders = (
     const getXudClient$ = () => {
       return cold(inputEvents.xudClient$) as Observable<XudClient>;
     };
-    const removeOpenDEXorders$ = () => {
-      return cold(inputEvents.removeOpenDEXorders$) as Observable<null>;
-    };
     const tradeInfoToOpenDEXorders = (v: any) => {
       return (v as unknown) as OpenDEXorders;
     };
@@ -45,7 +41,6 @@ const assertCreateOpenDEXorders = (
       getXudClient$,
       createXudOrder$,
       tradeInfoToOpenDEXorders,
-      removeOpenDEXorders$,
       logger: getLoggers().global,
       config: testConfig(),
     });
@@ -61,10 +56,9 @@ describe('createOpenDEXorders$', () => {
   it('creates buy and sell orders', () => {
     const inputEvents = {
       xudClient$: '1s a',
-      removeOpenDEXorders$: '4s a',
       xudOrder$: '1s (a|)',
     };
-    const expected = '6s (a|)';
+    const expected = '2s (a|)';
     assertCreateOpenDEXorders(inputEvents, expected);
   });
 });
