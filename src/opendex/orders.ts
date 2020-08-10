@@ -11,6 +11,7 @@ type OpenDEXorder = {
   pairId: string;
   price: number;
   orderId: string;
+  replaceOrderId?: string;
 };
 
 type OpenDEXorders = {

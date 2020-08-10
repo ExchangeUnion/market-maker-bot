@@ -27,10 +27,12 @@ const createXudOrder$ = ({
   pairId,
   price,
   orderId,
+  replaceOrderId,
 }: CreateXudOrderParams): Observable<PlaceOrderResponse> => {
   if (quantity > 0) {
+    const CREATING_OR_REPLACING = replaceOrderId ? 'Replacing' : 'Creating';
     logger.trace(
-      `Creating ${pairId} ${
+      `${CREATING_OR_REPLACING} ${pairId} ${
         orderSideMapping[orderSide]
       } order with id ${orderId}, quantity ${satsToCoinsStr(
         quantity
@@ -42,6 +44,9 @@ const createXudOrder$ = ({
     request.setPairId(pairId);
     request.setPrice(price);
     request.setOrderId(orderId);
+    if (replaceOrderId) {
+      request.setReplaceOrderId(replaceOrderId);
+    }
     const createXudOrder$ = new Observable(subscriber => {
       client.placeOrderSync(
         request,
