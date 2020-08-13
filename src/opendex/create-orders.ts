@@ -46,10 +46,12 @@ const createOpenDEXorders$ = ({
     tap(() => logger.trace('Starting to update OpenDEX orders')),
     // create new buy and sell orders
     mergeMap(client => {
+      // build orders based on all the available trade info
       const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
         config,
         tradeInfo: getTradeInfo(),
       });
+      // try replacing existing buy order
       const buyOrder$ = createXudOrder$({
         ...{ client, logger },
         ...buyOrder,
@@ -59,6 +61,7 @@ const createOpenDEXorders$ = ({
       }).pipe(
         catchError(e => {
           if (e.code === status.NOT_FOUND) {
+            // place order if existing one does not exist
             return createXudOrder$({
               ...{ client, logger },
               ...buyOrder,
@@ -67,6 +70,7 @@ const createOpenDEXorders$ = ({
           return throwError(e);
         })
       );
+      // try replacing existing sell order
       const sellOrder$ = createXudOrder$({
         ...{ client, logger },
         ...sellOrder,
@@ -76,6 +80,7 @@ const createOpenDEXorders$ = ({
       }).pipe(
         catchError(e => {
           if (e.code === status.NOT_FOUND) {
+            // place order if existing one does not exist
             return createXudOrder$({
               ...{ client, logger },
               ...sellOrder,
