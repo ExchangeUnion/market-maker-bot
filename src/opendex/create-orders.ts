@@ -1,12 +1,18 @@
-import { forkJoin, Observable } from 'rxjs';
-import { mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import { status } from '@grpc/grpc-js';
+import { forkJoin, Observable, throwError } from 'rxjs';
+import { catchError, mapTo, mergeMap, take, tap } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { PlaceOrderResponse } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
-import { OpenDEXorders, TradeInfoToOpenDEXordersParams } from './orders';
+import {
+  OpenDEXorders,
+  TradeInfoToOpenDEXordersParams,
+  createOrderID,
+} from './orders';
 import { CreateXudOrderParams } from './xud/create-order';
+import { OrderSide } from '../proto/xudrpc_pb';
 
 type CreateOpenDEXordersParams = {
   config: Config;
@@ -47,11 +53,37 @@ const createOpenDEXorders$ = ({
       const buyOrder$ = createXudOrder$({
         ...{ client, logger },
         ...buyOrder,
-      });
+        ...{
+          replaceOrderId: createOrderID(config, OrderSide.BUY),
+        },
+      }).pipe(
+        catchError(e => {
+          if (e.code === status.NOT_FOUND) {
+            return createXudOrder$({
+              ...{ client, logger },
+              ...buyOrder,
+            });
+          }
+          return throwError(e);
+        })
+      );
       const sellOrder$ = createXudOrder$({
         ...{ client, logger },
         ...sellOrder,
-      });
+        ...{
+          replaceOrderId: createOrderID(config, OrderSide.SELL),
+        },
+      }).pipe(
+        catchError(e => {
+          if (e.code === status.NOT_FOUND) {
+            return createXudOrder$({
+              ...{ client, logger },
+              ...sellOrder,
+            });
+          }
+          return throwError(e);
+        })
+      );
       const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));
       return ordersComplete$;
     }),

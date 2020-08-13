@@ -33,7 +33,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.BUY,
         pairId,
         price: expected.buyPrice.toNumber(),
-        orderId: expect.any(String),
+        orderId: 'arby-ETH/BTC-buy-order',
       })
     );
   }
@@ -46,7 +46,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.SELL,
         pairId,
         price: expected.sellPrice.toNumber(),
-        orderId: expect.any(String),
+        orderId: 'arby-ETH/BTC-sell-order',
       })
     );
   }
