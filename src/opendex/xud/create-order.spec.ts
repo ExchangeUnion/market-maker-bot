@@ -2,11 +2,12 @@ import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { OrderSide, PlaceOrderRequest } from '../../proto/xudrpc_pb';
 import { createXudOrder$ } from './create-order';
 import { getLoggers } from '../../test-utils';
+import { OpenDEXorder } from '../orders';
 
 jest.mock('../../proto/xudrpc_grpc_pb');
 jest.mock('../../proto/xudrpc_pb');
 
-const getTestXudOrderParams = () => {
+const getTestXudOrderParams = (): OpenDEXorder => {
   return {
     quantity: 123,
     orderSide: OrderSide.BUY,
@@ -22,10 +23,10 @@ describe('createXudOrder$', () => {
   });
 
   test('success', done => {
-    expect.assertions(7);
+    expect.assertions(8);
     const expectedResponse = 'expectedResponse';
     const client = ({
-      placeOrderSync: (req: any, cb: any) => {
+      placeOrderSync: (_req: any, cb: any) => {
         cb(null, expectedResponse);
       },
     } as unknown) as XudClient;
@@ -53,6 +54,52 @@ describe('createXudOrder$', () => {
         expect(PlaceOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
           order.orderId
         );
+        expect(
+          PlaceOrderRequest.prototype.setReplaceOrderId
+        ).not.toHaveBeenCalled();
+      },
+      complete: done,
+    });
+  });
+
+  test('success replace order', done => {
+    expect.assertions(8);
+    const expectedResponse = 'expectedResponse';
+    const client = ({
+      placeOrderSync: (_req: any, cb: any) => {
+        cb(null, expectedResponse);
+      },
+    } as unknown) as XudClient;
+    const order = {
+      ...getTestXudOrderParams(),
+      ...{ replaceOrderId: '123abc' },
+    };
+    const createOrder$ = createXudOrder$({
+      ...{ client, logger: getLoggers().opendex },
+      ...order,
+    });
+    createOrder$.subscribe({
+      next: actualResponse => {
+        expect(actualResponse).toEqual(expectedResponse);
+        expect(PlaceOrderRequest).toHaveBeenCalledTimes(1);
+        expect(PlaceOrderRequest.prototype.setQuantity).toHaveBeenCalledWith(
+          order.quantity
+        );
+        expect(PlaceOrderRequest.prototype.setSide).toHaveBeenCalledWith(
+          order.orderSide
+        );
+        expect(PlaceOrderRequest.prototype.setPairId).toHaveBeenCalledWith(
+          order.pairId
+        );
+        expect(PlaceOrderRequest.prototype.setPrice).toHaveBeenCalledWith(
+          order.price
+        );
+        expect(PlaceOrderRequest.prototype.setOrderId).toHaveBeenCalledWith(
+          order.orderId
+        );
+        expect(
+          PlaceOrderRequest.prototype.setReplaceOrderId
+        ).toHaveBeenCalledWith(order.replaceOrderId);
       },
       complete: done,
     });

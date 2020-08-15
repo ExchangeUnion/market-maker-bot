@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { v4 as uuidv4 } from 'uuid';
 import { Config } from '../config';
 import { OrderSide } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
@@ -11,6 +10,7 @@ type OpenDEXorder = {
   pairId: string;
   price: number;
   orderId: string;
+  replaceOrderId?: string;
 };
 
 type OpenDEXorders = {
@@ -21,6 +21,13 @@ type OpenDEXorders = {
 type TradeInfoToOpenDEXordersParams = {
   tradeInfo: TradeInfo;
   config: Config;
+};
+
+const createOrderID = (config: Config, orderSide: OrderSide): string => {
+  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  return orderSide === OrderSide.BUY
+    ? `arby-${pairId}-buy-order`
+    : `arby-${pairId}-sell-order`;
 };
 
 const tradeInfoToOpenDEXorders = ({
@@ -59,14 +66,14 @@ const tradeInfoToOpenDEXorders = ({
     orderSide: OrderSide.BUY,
     pairId,
     price: buyPrice.toNumber(),
-    orderId: uuidv4(),
+    orderId: createOrderID(config, OrderSide.BUY),
   };
   const sellOrder = {
     quantity: coinsToSats(new BigNumber(sellQuantity.toFixed(8, 1)).toNumber()),
     orderSide: OrderSide.SELL,
     pairId,
     price: sellPrice.toNumber(),
-    orderId: uuidv4(),
+    orderId: createOrderID(config, OrderSide.SELL),
   };
   return {
     buyOrder,
@@ -78,5 +85,6 @@ export {
   OpenDEXorders,
   OpenDEXorder,
   tradeInfoToOpenDEXorders,
+  createOrderID,
   TradeInfoToOpenDEXordersParams,
 };
