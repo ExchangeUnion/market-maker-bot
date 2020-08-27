@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { BehaviorSubject, empty, Observable, of } from 'rxjs';
+import { empty, Observable, of, BehaviorSubject } from 'rxjs';
 import { exhaustMap, mergeMap, take } from 'rxjs/operators';
 import { getCentralizedExchangeAssets$ } from '../centralized/assets';
 import { Config } from '../config';
@@ -39,6 +39,7 @@ type GetOpenDEXcompleteParams = {
     createXudOrder$,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
   centralizedExchangePrice$: Observable<BigNumber>;
+  lastPriceUpdateStore: BehaviorSubject<BigNumber>;
 };
 
 const getOpenDEXcomplete$ = ({
@@ -48,6 +49,7 @@ const getOpenDEXcomplete$ = ({
   tradeInfo$,
   createOpenDEXorders$,
   centralizedExchangePrice$,
+  lastPriceUpdateStore,
 }: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
@@ -60,7 +62,6 @@ const getOpenDEXcomplete$ = ({
       xudTradingLimits$: getXudTradingLimits$,
     });
   };
-  const lastPriceUpdateStore = new BehaviorSubject(new BigNumber('0'));
   return tradeInfo$({
     config,
     loggers,

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { merge, Observable } from 'rxjs';
+import { BehaviorSubject, merge, Observable } from 'rxjs';
 import { ignoreElements, mapTo, repeat, takeUntil, tap } from 'rxjs/operators';
 import { deriveCEXorderQuantity } from '../centralized/derive-order-quantity';
 import { CentralizedExchangePriceParams } from '../centralized/exchange-price';
@@ -60,6 +60,7 @@ const getNewTrade$ = ({
     config,
     logger: loggers.centralized,
   });
+  const lastPriceUpdateStore = new BehaviorSubject(new BigNumber('0'));
   return merge(
     getOpenDEXcomplete$({
       config,
@@ -68,6 +69,7 @@ const getNewTrade$ = ({
       loggers,
       tradeInfo$: getTradeInfo$,
       centralizedExchangePrice$,
+      lastPriceUpdateStore,
     }).pipe(
       catchOpenDEXerror(loggers, config, getCleanup$, CEX),
       ignoreElements()

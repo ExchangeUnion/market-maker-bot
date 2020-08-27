@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
@@ -39,6 +39,7 @@ const assertGetOpenDEXcomplete = (
       BigNumber
     >;
     const CEX = (null as unknown) as Exchange;
+    const lastPriceUpdateStore = new BehaviorSubject(new BigNumber('0'));
     const trade$ = getOpenDEXcomplete$({
       CEX,
       config: testConfig(),
@@ -46,6 +47,7 @@ const assertGetOpenDEXcomplete = (
       tradeInfo$: getTradeInfo$,
       createOpenDEXorders$,
       centralizedExchangePrice$,
+      lastPriceUpdateStore,
     });
     expectObservable(trade$).toBe(expected, { a: true });
   });
