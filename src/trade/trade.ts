@@ -11,6 +11,7 @@ import { Config } from '../config';
 import { Loggers } from '../logger';
 import { GetOpenDEXcompleteParams } from '../opendex/complete';
 import { createOpenDEXorders$ } from '../opendex/create-orders';
+import { ArbyStore } from '../store';
 import { getCleanup$, GetCleanupParams } from './cleanup';
 import { getTradeInfo$ } from './info';
 
@@ -37,13 +38,15 @@ type GetTradeParams = {
       removeOpenDEXorders$,
       removeCEXorders$,
     }: GetCleanupParams) => Observable<unknown>,
-    CEX: Exchange
+    CEX: Exchange,
+    store: ArbyStore
   ) => (source: Observable<any>) => Observable<any>;
   getCentralizedExchangePrice$: ({
     logger,
     config,
   }: CentralizedExchangePriceParams) => Observable<BigNumber>;
   CEX: Exchange;
+  store: ArbyStore;
 };
 
 const getNewTrade$ = ({
@@ -55,6 +58,7 @@ const getNewTrade$ = ({
   catchOpenDEXerror,
   getCentralizedExchangePrice$,
   CEX,
+  store,
 }: GetTradeParams): Observable<boolean> => {
   const centralizedExchangePrice$ = getCentralizedExchangePrice$({
     config,
@@ -68,8 +72,9 @@ const getNewTrade$ = ({
       loggers,
       tradeInfo$: getTradeInfo$,
       centralizedExchangePrice$,
+      store,
     }).pipe(
-      catchOpenDEXerror(loggers, config, getCleanup$, CEX),
+      catchOpenDEXerror(loggers, config, getCleanup$, CEX, store),
       ignoreElements()
     ),
     getCentralizedExchangeOrder$({
@@ -80,6 +85,7 @@ const getNewTrade$ = ({
       executeCEXorder$,
       centralizedExchangePrice$,
       deriveCEXorderQuantity,
+      store,
     })
   ).pipe(
     tap(() => {

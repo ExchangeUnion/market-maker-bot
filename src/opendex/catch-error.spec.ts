@@ -1,10 +1,10 @@
-import { TestScheduler } from 'rxjs/testing';
-import { errors } from '../opendex/errors';
-import { getLoggers, TestError, testConfig } from '../test-utils';
-import { catchOpenDEXerror } from './catch-error';
 import { status } from '@grpc/grpc-js';
 import { AuthenticationError, Exchange } from 'ccxt';
-
+import { TestScheduler } from 'rxjs/testing';
+import { errors } from '../opendex/errors';
+import { ArbyStore, getArbyStore } from '../store';
+import { getLoggers, testConfig, TestError } from '../test-utils';
+import { catchOpenDEXerror } from './catch-error';
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
   testScheduler = new TestScheduler((actual, expected) => {
@@ -22,6 +22,7 @@ type AssertCatchOpenDEXerrorParams = {
   };
   expectedError?: TestError;
   unsubscribe: string;
+  store?: ArbyStore;
 };
 
 const assertCatchOpenDEXerror = ({
@@ -31,6 +32,7 @@ const assertCatchOpenDEXerror = ({
   inputError,
   expectedError,
   unsubscribe,
+  store,
 }: AssertCatchOpenDEXerrorParams) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable, expectSubscriptions } = helpers;
@@ -43,7 +45,8 @@ const assertCatchOpenDEXerror = ({
       getLoggers(),
       config,
       getCleanup$,
-      CEX
+      CEX,
+      store ? store : getArbyStore()
     )(input$);
     expectObservable(output$, unsubscribe).toBe(
       expected,
@@ -186,14 +189,19 @@ describe('catchOpenDEXerror', () => {
     });
   });
 
-  it('cancels orders, retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR', () => {
-    expect.assertions(ASSERTIONS_PER_TEST);
+  it('cancels orders, updates store lastPriceUpdate, retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR', () => {
+    // 1 extra assertion after assertCatchOpenDEXerror
+    expect.assertions(ASSERTIONS_PER_TEST + 1);
     const inputEvents = '1s #';
     const inputError = errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR;
     const expected = '';
     const expectedSubscriptions = {
       input$: ['^ 999ms !', '7001ms ^ 999ms !'],
       cleanup$: ['1s ^ 1s !', '8001ms ^ 1s !'],
+    };
+    const store = {
+      ...getArbyStore(),
+      ...{ resetLastOrderUpdatePrice: jest.fn() },
     };
     const unsubscribe = '10s !';
     assertCatchOpenDEXerror({
@@ -202,7 +210,9 @@ describe('catchOpenDEXerror', () => {
       expected,
       unsubscribe,
       expectedSubscriptions,
+      store,
     });
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 
   it('retries recoverable gRPC errors', () => {

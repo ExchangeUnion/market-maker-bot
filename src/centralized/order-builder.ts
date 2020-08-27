@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
-import { merge, Observable } from 'rxjs';
-import { filter, map, repeat, take, tap } from 'rxjs/operators';
+import { merge, Observable, of } from 'rxjs';
+import { filter, map, repeat, take, tap, mergeMap } from 'rxjs/operators';
 import { Config } from '../config';
 import { OrderSide, Asset } from '../constants';
 import { Logger } from '../logger';
@@ -11,6 +11,7 @@ import {
 import { getXudClient$ } from '../opendex/xud/client';
 import { subscribeXudSwaps$ } from '../opendex/xud/subscribe-swaps';
 import { SwapSuccess } from '../proto/xudrpc_pb';
+import { ArbyStore } from '../store';
 
 type GetOrderBuilderParams = {
   config: Config;
@@ -29,6 +30,7 @@ type GetOrderBuilderParams = {
   quantityAboveMinimum: (
     asset: Asset
   ) => (filledQuantity: BigNumber) => boolean;
+  store: ArbyStore;
 };
 
 type CEXorder = {
@@ -43,6 +45,7 @@ const getOrderBuilder$ = ({
   accumulateOrderFillsForBaseAssetReceived,
   accumulateOrderFillsForQuoteAssetReceived,
   quantityAboveMinimum,
+  store,
 }: GetOrderBuilderParams): Observable<CEXorder> => {
   const {
     receivedBaseAssetSwapSuccess$,
@@ -58,10 +61,12 @@ const getOrderBuilder$ = ({
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForQuoteAssetReceived(config),
-    tap((quantity: BigNumber) => {
+    mergeMap((quantity: BigNumber) => {
       logger.info(
         `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
+      store.resetLastOrderUpdatePrice();
+      return of(quantity);
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),

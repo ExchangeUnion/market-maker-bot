@@ -5,6 +5,7 @@ import { getCentralizedExchangeOrder$ } from './order';
 import { CEXorder } from './order-builder';
 import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
+import { getArbyStore } from '../store';
 
 let testScheduler: TestScheduler;
 
@@ -35,6 +36,7 @@ const assertCentralizedExchangeOrder = (
     ) as unknown) as Observable<BigNumber>;
     const CEX = (null as unknown) as Exchange;
     const deriveCEXorderQuantity = (order: any) => order;
+    const store = getArbyStore();
     const centralizedExchangeOrder$ = getCentralizedExchangeOrder$({
       CEX,
       logger: getLoggers().centralized,
@@ -43,6 +45,7 @@ const assertCentralizedExchangeOrder = (
       executeCEXorder$,
       centralizedExchangePrice$,
       deriveCEXorderQuantity,
+      store,
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

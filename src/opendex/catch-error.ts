@@ -2,6 +2,7 @@ import { status } from '@grpc/grpc-js';
 import { AuthenticationError, Exchange } from 'ccxt';
 import { concat, Observable, throwError, timer } from 'rxjs';
 import { ignoreElements, mergeMap, retryWhen } from 'rxjs/operators';
+import { ArbyStore } from 'src/store';
 import { removeCEXorders$ } from '../centralized/remove-orders';
 import { Config } from '../config';
 import { MAX_RETRY_ATTEMPS, RETRY_INTERVAL } from '../constants';
@@ -19,7 +20,8 @@ const catchOpenDEXerror = (
     removeOpenDEXorders$,
     removeCEXorders$,
   }: GetCleanupParams) => Observable<unknown>,
-  CEX: Exchange
+  CEX: Exchange,
+  store: ArbyStore
 ) => {
   return (source: Observable<any>) => {
     return source.pipe(
@@ -63,6 +65,7 @@ const catchOpenDEXerror = (
               e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
             ) {
               logMessage(loggers.centralized);
+              store.resetLastOrderUpdatePrice();
               return concat(
                 getCleanup$({
                   config,
