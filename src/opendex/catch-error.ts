@@ -66,6 +66,7 @@ const catchOpenDEXerror = (
               e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
             ) {
               logMessage(loggers.centralized);
+              store.updateLastPrice(new BigNumber('0'));
               return concat(
                 getCleanup$({
                   config,
@@ -73,13 +74,7 @@ const catchOpenDEXerror = (
                   removeOpenDEXorders$,
                   removeCEXorders$,
                   CEX,
-                }).pipe(
-                  mergeMap(() => {
-                    store.updateLastPrice(new BigNumber('0'));
-                    return of(null);
-                  }),
-                  ignoreElements()
-                ),
+                }).pipe(ignoreElements()),
                 timer(RETRY_INTERVAL)
               );
             }
