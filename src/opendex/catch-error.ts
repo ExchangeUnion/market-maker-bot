@@ -1,7 +1,9 @@
 import { status } from '@grpc/grpc-js';
+import BigNumber from 'bignumber.js';
 import { AuthenticationError, Exchange } from 'ccxt';
-import { concat, Observable, throwError, timer } from 'rxjs';
+import { concat, Observable, of, throwError, timer } from 'rxjs';
 import { ignoreElements, mergeMap, retryWhen } from 'rxjs/operators';
+import { ArbyStore } from 'src/store';
 import { removeCEXorders$ } from '../centralized/remove-orders';
 import { Config } from '../config';
 import { MAX_RETRY_ATTEMPS, RETRY_INTERVAL } from '../constants';
@@ -19,7 +21,8 @@ const catchOpenDEXerror = (
     removeOpenDEXorders$,
     removeCEXorders$,
   }: GetCleanupParams) => Observable<unknown>,
-  CEX: Exchange
+  CEX: Exchange,
+  store: ArbyStore
 ) => {
   return (source: Observable<any>) => {
     return source.pipe(
@@ -70,7 +73,13 @@ const catchOpenDEXerror = (
                   removeOpenDEXorders$,
                   removeCEXorders$,
                   CEX,
-                }).pipe(ignoreElements()),
+                }).pipe(
+                  mergeMap(() => {
+                    store.updateLastPrice(new BigNumber('0'));
+                    return of(null);
+                  }),
+                  ignoreElements()
+                ),
                 timer(RETRY_INTERVAL)
               );
             }

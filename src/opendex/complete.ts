@@ -1,10 +1,11 @@
 import { BigNumber } from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { empty, Observable, of, BehaviorSubject } from 'rxjs';
+import { empty, Observable, of } from 'rxjs';
 import { exhaustMap, mergeMap, take } from 'rxjs/operators';
 import { getCentralizedExchangeAssets$ } from '../centralized/assets';
 import { Config } from '../config';
 import { Loggers } from '../logger';
+import { ArbyStore } from '../store';
 import {
   GetTradeInfoParams,
   TradeInfo,
@@ -39,7 +40,7 @@ type GetOpenDEXcompleteParams = {
     createXudOrder$,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
   centralizedExchangePrice$: Observable<BigNumber>;
-  lastPriceUpdateStore: BehaviorSubject<BigNumber>;
+  store: ArbyStore;
 };
 
 const getOpenDEXcomplete$ = ({
@@ -49,7 +50,7 @@ const getOpenDEXcomplete$ = ({
   tradeInfo$,
   createOpenDEXorders$,
   centralizedExchangePrice$,
-  lastPriceUpdateStore,
+  store,
 }: GetOpenDEXcompleteParams): Observable<boolean> => {
   const openDEXassetsWithConfig = (config: Config) => {
     return getOpenDEXassets$({
@@ -75,7 +76,7 @@ const getOpenDEXcomplete$ = ({
     // is already in progress
     exhaustMap((tradeInfo: TradeInfo) => {
       const getTradeInfo = () => tradeInfo;
-      return lastPriceUpdateStore.pipe(
+      return store.selectState('lastPriceUpdate').pipe(
         take(1),
         mergeMap((lastPriceUpdate: BigNumber) => {
           if (shouldCreateOpenDEXorders(tradeInfo.price, lastPriceUpdate)) {
@@ -90,7 +91,7 @@ const getOpenDEXcomplete$ = ({
             }).pipe(
               mergeMap(() => {
                 // store the last price update
-                lastPriceUpdateStore.next(tradeInfo.price);
+                store.updateLastPrice(tradeInfo.price);
                 return of(true);
               })
             );

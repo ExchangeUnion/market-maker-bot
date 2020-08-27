@@ -15,6 +15,7 @@ import { removeOpenDEXorders$ } from './opendex/remove-orders';
 import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
+import { getArbyStore } from './store';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -74,6 +75,7 @@ export const startArby = ({
   cleanup$,
   initBinance$,
 }: StartArbyParams): Observable<any> => {
+  const store = getArbyStore();
   return config$.pipe(
     mergeMap(config => {
       const CEX$ = initBinance$({
@@ -95,6 +97,7 @@ export const startArby = ({
             catchOpenDEXerror,
             getCentralizedExchangePrice$,
             CEX,
+            store,
           }).pipe(takeUntil(shutdown$));
           return concat(
             tradeComplete$,

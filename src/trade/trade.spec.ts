@@ -1,10 +1,11 @@
+import BigNumber from 'bignumber.js';
+import { Exchange } from 'ccxt';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
+import { getArbyStore } from '../store';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
-import BigNumber from 'bignumber.js';
-import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -73,6 +74,7 @@ const assertGetTrade = ({
       return (cold('') as unknown) as Observable<BigNumber>;
     };
     const CEX = (null as unknown) as Exchange;
+    const store = getArbyStore();
     const trade$ = getNewTrade$({
       CEX,
       shutdown$,
@@ -82,6 +84,7 @@ const assertGetTrade = ({
       getCentralizedExchangeOrder$,
       catchOpenDEXerror,
       getCentralizedExchangePrice$,
+      store,
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });

@@ -3,8 +3,8 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { scan, pluck, distinctUntilKeyChanged } from 'rxjs/operators';
 
 type ArbyStore = {
-  updateLastPrice: (price: BigNumber) => void
-  selectState: (stateKey: ArbyStoreDataKeys) => Observable<BigNumber>
+  updateLastPrice: (price: BigNumber) => void;
+  selectState: (stateKey: ArbyStoreDataKeys) => Observable<BigNumber>;
 };
 
 type ArbyStoreData = {
@@ -40,4 +40,4 @@ const getArbyStore = (): ArbyStore => {
   };
 };
 
-export { getArbyStore };
+export { getArbyStore, ArbyStore };

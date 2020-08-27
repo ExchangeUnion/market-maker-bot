@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
+import { getArbyStore } from '../store';
 import { getLoggers, testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { getOpenDEXcomplete$ } from './complete';
@@ -39,7 +40,7 @@ const assertGetOpenDEXcomplete = (
       BigNumber
     >;
     const CEX = (null as unknown) as Exchange;
-    const lastPriceUpdateStore = new BehaviorSubject(new BigNumber('0'));
+    const store = getArbyStore();
     const trade$ = getOpenDEXcomplete$({
       CEX,
       config: testConfig(),
@@ -47,7 +48,7 @@ const assertGetOpenDEXcomplete = (
       tradeInfo$: getTradeInfo$,
       createOpenDEXorders$,
       centralizedExchangePrice$,
-      lastPriceUpdateStore,
+      store,
     });
     expectObservable(trade$).toBe(expected, { a: true });
   });
