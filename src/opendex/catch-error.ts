@@ -1,7 +1,6 @@
 import { status } from '@grpc/grpc-js';
-import BigNumber from 'bignumber.js';
 import { AuthenticationError, Exchange } from 'ccxt';
-import { concat, Observable, of, throwError, timer } from 'rxjs';
+import { concat, Observable, throwError, timer } from 'rxjs';
 import { ignoreElements, mergeMap, retryWhen } from 'rxjs/operators';
 import { ArbyStore } from 'src/store';
 import { removeCEXorders$ } from '../centralized/remove-orders';

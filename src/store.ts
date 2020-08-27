@@ -9,14 +9,14 @@ type ArbyStore = {
 };
 
 type ArbyStoreData = {
-  lastPriceUpdate: BigNumber;
+  lastOrderUpdatePrice: BigNumber;
 };
 
 type ArbyStoreDataKeys = keyof ArbyStoreData;
 
 const getArbyStore = (): ArbyStore => {
   const initialState: ArbyStoreData = {
-    lastPriceUpdate: new BigNumber('0'),
+    lastOrderUpdatePrice: new BigNumber('0'),
   };
   const store = new BehaviorSubject(initialState);
   const stateUpdates = new Subject() as Subject<Partial<ArbyStoreData>>;
@@ -29,13 +29,13 @@ const getArbyStore = (): ArbyStore => {
     .subscribe(store);
   const updateLastOrderUpdatePrice = (price: BigNumber) => {
     stateUpdates.next({
-      lastPriceUpdate: price,
+      lastOrderUpdatePrice: price,
     });
   };
 
   const resetLastOrderUpdatePrice = () => {
     stateUpdates.next({
-      lastPriceUpdate: new BigNumber('0'),
+      lastOrderUpdatePrice: new BigNumber('0'),
     });
   };
   const selectState = (stateKey: ArbyStoreDataKeys) => {

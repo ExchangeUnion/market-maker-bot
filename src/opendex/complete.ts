@@ -76,7 +76,7 @@ const getOpenDEXcomplete$ = ({
     // is already in progress
     exhaustMap((tradeInfo: TradeInfo) => {
       const getTradeInfo = () => tradeInfo;
-      return store.selectState('lastPriceUpdate').pipe(
+      return store.selectState('lastOrderUpdatePrice').pipe(
         take(1),
         mergeMap((lastPriceUpdate: BigNumber) => {
           if (shouldCreateOpenDEXorders(tradeInfo.price, lastPriceUpdate)) {

@@ -2,11 +2,9 @@ import { status } from '@grpc/grpc-js';
 import { AuthenticationError, Exchange } from 'ccxt';
 import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
-import { getArbyStore, ArbyStore } from '../store';
+import { ArbyStore, getArbyStore } from '../store';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { catchOpenDEXerror } from './catch-error';
-import BigNumber from 'bignumber.js';
-
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
   testScheduler = new TestScheduler((actual, expected) => {
