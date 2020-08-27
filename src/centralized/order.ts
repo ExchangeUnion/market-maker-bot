@@ -18,6 +18,7 @@ import { createOrder$ } from './ccxt/create-order';
 import { ExecuteCEXorderParams } from './execute-order';
 import { quantityAboveMinimum } from './minimum-order-quantity-filter';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
+import { ArbyStore } from 'src/store';
 
 type GetCentralizedExchangeOrderParams = {
   CEX: Exchange;
@@ -41,6 +42,7 @@ type GetCentralizedExchangeOrderParams = {
     price: BigNumber,
     config: Config
   ) => CEXorder;
+  store: ArbyStore;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -51,6 +53,7 @@ const getCentralizedExchangeOrder$ = ({
   getOrderBuilder$,
   centralizedExchangePrice$,
   deriveCEXorderQuantity,
+  store,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   return getOrderBuilder$({
     config,
@@ -59,6 +62,7 @@ const getCentralizedExchangeOrder$ = ({
     accumulateOrderFillsForBaseAssetReceived,
     accumulateOrderFillsForQuoteAssetReceived,
     quantityAboveMinimum,
+    store,
   }).pipe(
     withLatestFrom(
       centralizedExchangePrice$.pipe(

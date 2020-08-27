@@ -85,6 +85,7 @@ const getNewTrade$ = ({
       executeCEXorder$,
       centralizedExchangePrice$,
       deriveCEXorderQuantity,
+      store,
     })
   ).pipe(
     tap(() => {
