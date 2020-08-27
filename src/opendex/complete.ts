@@ -91,7 +91,7 @@ const getOpenDEXcomplete$ = ({
             }).pipe(
               mergeMap(() => {
                 // store the last price update
-                store.updateLastPrice(tradeInfo.price);
+                store.updateLastOrderUpdatePrice(tradeInfo.price);
                 return of(true);
               })
             );

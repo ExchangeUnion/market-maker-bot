@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { scan, pluck, distinctUntilKeyChanged } from 'rxjs/operators';
 
 type ArbyStore = {
-  updateLastPrice: (price: BigNumber) => void;
+  updateLastOrderUpdatePrice: (price: BigNumber) => void;
   resetLastOrderUpdatePrice: () => void;
   selectState: (stateKey: ArbyStoreDataKeys) => Observable<BigNumber>;
 };
@@ -27,7 +27,7 @@ const getArbyStore = (): ArbyStore => {
       }, initialState)
     )
     .subscribe(store);
-  const updateLastPrice = (price: BigNumber) => {
+  const updateLastOrderUpdatePrice = (price: BigNumber) => {
     stateUpdates.next({
       lastPriceUpdate: price,
     });
@@ -42,7 +42,7 @@ const getArbyStore = (): ArbyStore => {
     return store.pipe(distinctUntilKeyChanged(stateKey), pluck(stateKey));
   };
   return {
-    updateLastPrice,
+    updateLastOrderUpdatePrice,
     selectState,
     resetLastOrderUpdatePrice,
   };

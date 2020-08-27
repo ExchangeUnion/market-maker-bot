@@ -11,9 +11,9 @@ describe('ArbyStore', () => {
   });
 
   it('selectState returns updated last price', done => {
-    const { selectState, updateLastPrice } = getArbyStore();
+    const { selectState, updateLastOrderUpdatePrice } = getArbyStore();
     const updatedPrice = new BigNumber('123');
-    updateLastPrice(updatedPrice);
+    updateLastOrderUpdatePrice(updatedPrice);
     selectState('lastPriceUpdate').subscribe(price => {
       expect(price).toEqual(updatedPrice);
       done();
@@ -21,9 +21,9 @@ describe('ArbyStore', () => {
   });
 
   it('reset lastOrderUpdatePrice', done => {
-    const { selectState, updateLastPrice, resetLastOrderUpdatePrice } = getArbyStore();
+    const { selectState, updateLastOrderUpdatePrice, resetLastOrderUpdatePrice } = getArbyStore();
     const updatedPrice = new BigNumber('123');
-    updateLastPrice(updatedPrice);
+    updateLastOrderUpdatePrice(updatedPrice);
     resetLastOrderUpdatePrice();
     selectState('lastPriceUpdate').subscribe(price => {
       expect(price).toEqual(new BigNumber('0'));
