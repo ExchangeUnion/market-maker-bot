@@ -123,7 +123,7 @@ describe('getCentralizedExchangeOrder$', () => {
     const expectedAssetToTradeOnCEX = BASEASSET;
     const store = {
       ...getArbyStore(),
-      ...{ updateLastPrice: jest.fn() },
+      ...{ resetLastOrderUpdatePrice: jest.fn() },
     };
     assertOrderBuilder(
       inputEvents,
@@ -134,7 +134,7 @@ describe('getCentralizedExchangeOrder$', () => {
       expectedAssetToTradeOnCEX,
       store
     );
-    expect(store.updateLastPrice).toHaveBeenCalledTimes(2);
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 
   it('accumulates buy and sell orders for BTCUSDT', () => {
@@ -175,7 +175,7 @@ describe('getCentralizedExchangeOrder$', () => {
     const expectedAssetToTradeOnCEX = QUOTEASSET;
     const store = {
       ...getArbyStore(),
-      ...{ updateLastPrice: jest.fn() },
+      ...{ resetLastOrderUpdatePrice: jest.fn() },
     };
     assertOrderBuilder(
       inputEvents,
@@ -186,6 +186,6 @@ describe('getCentralizedExchangeOrder$', () => {
       expectedAssetToTradeOnCEX,
       store
     );
-    expect(store.updateLastPrice).toHaveBeenCalledTimes(2);
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 });

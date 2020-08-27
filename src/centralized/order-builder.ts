@@ -65,7 +65,7 @@ const getOrderBuilder$ = ({
       logger.info(
         `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
-      store.updateLastPrice(new BigNumber('0'));
+      store.resetLastOrderUpdatePrice();
       return of(quantity);
     }),
     // filter based on minimum CEX order quantity

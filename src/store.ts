@@ -4,6 +4,7 @@ import { scan, pluck, distinctUntilKeyChanged } from 'rxjs/operators';
 
 type ArbyStore = {
   updateLastPrice: (price: BigNumber) => void;
+  resetLastOrderUpdatePrice: () => void;
   selectState: (stateKey: ArbyStoreDataKeys) => Observable<BigNumber>;
 };
 
@@ -31,12 +32,19 @@ const getArbyStore = (): ArbyStore => {
       lastPriceUpdate: price,
     });
   };
+
+  const resetLastOrderUpdatePrice = () => {
+    stateUpdates.next({
+      lastPriceUpdate: new BigNumber('0'),
+    });
+  };
   const selectState = (stateKey: ArbyStoreDataKeys) => {
     return store.pipe(distinctUntilKeyChanged(stateKey), pluck(stateKey));
   };
   return {
     updateLastPrice,
     selectState,
+    resetLastOrderUpdatePrice,
   };
 };
 

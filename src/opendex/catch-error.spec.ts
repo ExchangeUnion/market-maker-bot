@@ -192,8 +192,8 @@ describe('catchOpenDEXerror', () => {
   });
 
   it('cancels orders, updates store lastPriceUpdate, retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR', () => {
-    // 2 extra assertions after assertCatchOpenDEXerror
-    expect.assertions(ASSERTIONS_PER_TEST + 2);
+    // 1 extra assertion after assertCatchOpenDEXerror
+    expect.assertions(ASSERTIONS_PER_TEST + 1);
     const inputEvents = '1s #';
     const inputError = errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR;
     const expected = '';
@@ -203,7 +203,7 @@ describe('catchOpenDEXerror', () => {
     };
     const store = {
       ...getArbyStore(),
-      ...{ updateLastPrice: jest.fn() },
+      ...{ resetLastOrderUpdatePrice: jest.fn() },
     };
     const unsubscribe = '10s !';
     assertCatchOpenDEXerror({
@@ -214,8 +214,7 @@ describe('catchOpenDEXerror', () => {
       expectedSubscriptions,
       store,
     });
-    expect(store.updateLastPrice).toHaveBeenCalledTimes(2);
-    expect(store.updateLastPrice).toHaveBeenCalledWith(new BigNumber('0'));
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 
   it('retries recoverable gRPC errors', () => {
