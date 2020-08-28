@@ -3,20 +3,24 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { scan, pluck, distinctUntilKeyChanged } from 'rxjs/operators';
 
 type ArbyStore = {
-  updateLastOrderUpdatePrice: (price: BigNumber) => void;
+  updateLastSellOrderUpdatePrice: (price: BigNumber) => void;
+  updateLastBuyOrderUpdatePrice: (price: BigNumber) => void;
   resetLastOrderUpdatePrice: () => void;
   selectState: (stateKey: ArbyStoreDataKeys) => Observable<BigNumber>;
+  stateChanges: () => Observable<ArbyStoreData>;
 };
 
 type ArbyStoreData = {
-  lastOrderUpdatePrice: BigNumber;
+  lastSellOrderUpdatePrice: BigNumber;
+  lastBuyOrderUpdatePrice: BigNumber;
 };
 
 type ArbyStoreDataKeys = keyof ArbyStoreData;
 
 const getArbyStore = (): ArbyStore => {
   const initialState: ArbyStoreData = {
-    lastOrderUpdatePrice: new BigNumber('0'),
+    lastSellOrderUpdatePrice: new BigNumber('0'),
+    lastBuyOrderUpdatePrice: new BigNumber('0'),
   };
   const store = new BehaviorSubject(initialState);
   const stateUpdates = new Subject() as Subject<Partial<ArbyStoreData>>;
@@ -27,24 +31,34 @@ const getArbyStore = (): ArbyStore => {
       }, initialState)
     )
     .subscribe(store);
-  const updateLastOrderUpdatePrice = (price: BigNumber) => {
+  const updateLastSellOrderUpdatePrice = (price: BigNumber) => {
     stateUpdates.next({
-      lastOrderUpdatePrice: price,
+      lastSellOrderUpdatePrice: price,
     });
   };
-
+  const updateLastBuyOrderUpdatePrice = (price: BigNumber) => {
+    stateUpdates.next({
+      lastBuyOrderUpdatePrice: price,
+    });
+  };
   const resetLastOrderUpdatePrice = () => {
     stateUpdates.next({
-      lastOrderUpdatePrice: new BigNumber('0'),
+      lastSellOrderUpdatePrice: new BigNumber('0'),
+      lastBuyOrderUpdatePrice: new BigNumber('0'),
     });
   };
   const selectState = (stateKey: ArbyStoreDataKeys) => {
     return store.pipe(distinctUntilKeyChanged(stateKey), pluck(stateKey));
   };
+  const stateChanges = () => {
+    return store.asObservable();
+  };
   return {
-    updateLastOrderUpdatePrice,
+    updateLastSellOrderUpdatePrice,
+    updateLastBuyOrderUpdatePrice,
     selectState,
     resetLastOrderUpdatePrice,
+    stateChanges,
   };
 };
 

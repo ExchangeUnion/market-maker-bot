@@ -55,26 +55,28 @@ const createOpenDEXorders$ = ({
     // create new buy and sell orders
     mergeMap(client => {
       const tradeInfo = getTradeInfo();
-      return store.selectState('lastOrderUpdatePrice').pipe(
+      return store.stateChanges().pipe(
         take(1),
-        mergeMap(lastOrderUpdatePrice => {
-          /*
-          console.log(
-            'tradeinfo price and last price',
-            tradeInfo.price.toFixed(),
-            lastOrderUpdatePrice.toFixed()
-          );
-          */
+        mergeMap(storeState => {
+          // build orders based on all the available trade info
+          const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
+            config,
+            tradeInfo,
+          });
+          let buyOrder$ = (of(null) as unknown) as Observable<
+            PlaceOrderResponse
+          >;
+          let sellOrder$ = (of(null) as unknown) as Observable<
+            PlaceOrderResponse
+          >;
           if (
-            shouldCreateOpenDEXorders(tradeInfo.price, lastOrderUpdatePrice)
+            shouldCreateOpenDEXorders(
+              tradeInfo.price,
+              storeState.lastBuyOrderUpdatePrice
+            )
           ) {
-            // build orders based on all the available trade info
-            const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
-              config,
-              tradeInfo,
-            });
             // try replacing existing buy order
-            const buyOrder$ = createXudOrder$({
+            buyOrder$ = createXudOrder$({
               ...{ client, logger },
               ...buyOrder,
               ...{
@@ -93,12 +95,19 @@ const createOpenDEXorders$ = ({
               }),
               mergeMap(orderResponse => {
                 orderResponse &&
-                  store.updateLastOrderUpdatePrice(tradeInfo.price);
+                  store.updateLastBuyOrderUpdatePrice(tradeInfo.price);
                 return of(orderResponse);
               })
             );
+          }
+          if (
+            shouldCreateOpenDEXorders(
+              tradeInfo.price,
+              storeState.lastSellOrderUpdatePrice
+            )
+          ) {
             // try replacing existing sell order
-            const sellOrder$ = createXudOrder$({
+            sellOrder$ = createXudOrder$({
               ...{ client, logger },
               ...sellOrder,
               ...{
@@ -117,17 +126,15 @@ const createOpenDEXorders$ = ({
               }),
               mergeMap(orderResponse => {
                 orderResponse &&
-                  store.updateLastOrderUpdatePrice(tradeInfo.price);
+                  store.updateLastSellOrderUpdatePrice(tradeInfo.price);
                 return of(orderResponse);
               })
             );
-            const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(
-              mapTo(true)
-            );
-            return ordersComplete$;
-          } else {
-            return of(true);
           }
+          const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(
+            mapTo(true)
+          );
+          return ordersComplete$;
         })
       );
     }),

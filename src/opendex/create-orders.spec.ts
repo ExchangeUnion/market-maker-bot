@@ -7,6 +7,7 @@ import { getArbyStore, ArbyStore } from '../store';
 import { getLoggers, testConfig, TestError } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
+import BigNumber from 'bignumber.js';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -93,10 +94,12 @@ describe('createOpenDEXorders$', () => {
     const expected = '2s (a|)';
     const store = {
       ...getArbyStore(),
-      ...{ updateLastOrderUpdatePrice: jest.fn() },
+      ...{ updateLastSellOrderUpdatePrice: jest.fn() },
+      ...{ updateLastBuyOrderUpdatePrice: jest.fn() },
     };
     assertCreateOpenDEXorders({ inputEvents, expected, store });
-    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
+    expect(store.updateLastSellOrderUpdatePrice).toHaveBeenCalledTimes(1);
+    expect(store.updateLastBuyOrderUpdatePrice).toHaveBeenCalledTimes(1);
   });
 
   it('filters by shouldCreateOpenDEXorders', () => {
@@ -107,20 +110,36 @@ describe('createOpenDEXorders$', () => {
     };
     // it returns true immediately without attempting to create orders
     const expected = '1s (a|)';
+    const arbyStore = getArbyStore();
+    const lastBuyOrderUpdatePrice = new BigNumber('123');
+    const lastSellOrderUpdatePrice = new BigNumber('321');
+    arbyStore.updateLastBuyOrderUpdatePrice(lastBuyOrderUpdatePrice);
+    arbyStore.updateLastSellOrderUpdatePrice(lastSellOrderUpdatePrice);
     const store = {
-      ...getArbyStore(),
-      ...{ updateLastOrderUpdatePrice: jest.fn() },
+      ...arbyStore,
+      ...{ updateLastSellOrderUpdatePrice: jest.fn() },
+      ...{ updateLastBuyOrderUpdatePrice: jest.fn() },
     };
-    const selectStateSpy = jest.spyOn(store, 'selectState');
-    const shouldCreateOpenDEXorders = () => false;
+    const stateChangesSpy = jest.spyOn(store, 'stateChanges');
+    const shouldCreateOpenDEXorders = jest.fn(() => false);
     assertCreateOpenDEXorders({
       inputEvents,
       expected,
       store,
       shouldCreateOpenDEXorders,
     });
-    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(0);
-    expect(selectStateSpy).toHaveBeenCalledTimes(1);
+    expect(store.updateLastSellOrderUpdatePrice).toHaveBeenCalledTimes(0);
+    expect(store.updateLastBuyOrderUpdatePrice).toHaveBeenCalledTimes(0);
+    expect(stateChangesSpy).toHaveBeenCalledTimes(1);
+    expect(shouldCreateOpenDEXorders).toHaveBeenCalledTimes(2);
+    expect(shouldCreateOpenDEXorders).toHaveBeenCalledWith(
+      undefined,
+      new BigNumber(lastBuyOrderUpdatePrice)
+    );
+    expect(shouldCreateOpenDEXorders).toHaveBeenCalledWith(
+      undefined,
+      new BigNumber(lastSellOrderUpdatePrice)
+    );
   });
 
   it('will not update lastOrderUpdatePrice when orders not created', () => {
@@ -132,10 +151,12 @@ describe('createOpenDEXorders$', () => {
     const expected = '2s (a|)';
     const store = {
       ...getArbyStore(),
-      ...{ updateLastOrderUpdatePrice: jest.fn() },
+      ...{ updateLastSellOrderUpdatePrice: jest.fn() },
+      ...{ updateLastBuyOrderUpdatePrice: jest.fn() },
     };
     assertCreateOpenDEXorders({ inputEvents, expected, store });
-    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(0);
+    expect(store.updateLastSellOrderUpdatePrice).toHaveBeenCalledTimes(0);
+    expect(store.updateLastBuyOrderUpdatePrice).toHaveBeenCalledTimes(0);
   });
 
   it('throws if unknown error for replace order', () => {
@@ -168,9 +189,11 @@ describe('createOpenDEXorders$', () => {
     const expected = '3s (a|)';
     const store = {
       ...getArbyStore(),
-      ...{ updateLastOrderUpdatePrice: jest.fn() },
+      ...{ updateLastSellOrderUpdatePrice: jest.fn() },
+      ...{ updateLastBuyOrderUpdatePrice: jest.fn() },
     };
     assertCreateOpenDEXorders({ inputEvents, expected, inputErrors, store });
-    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
+    expect(store.updateLastSellOrderUpdatePrice).toHaveBeenCalledTimes(1);
+    expect(store.updateLastBuyOrderUpdatePrice).toHaveBeenCalledTimes(1);
   });
 });
