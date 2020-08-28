@@ -1,7 +1,7 @@
 import { status } from '@grpc/grpc-js';
 import BigNumber from 'bignumber.js';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { catchError, mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import { catchError, mapTo, mergeMap, take } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
@@ -51,7 +51,6 @@ const createOpenDEXorders$ = ({
   shouldCreateOpenDEXorders,
 }: CreateOpenDEXordersParams): Observable<boolean> => {
   return getXudClient$(config).pipe(
-    tap(() => logger.trace('Starting to update OpenDEX orders')),
     // create new buy and sell orders
     mergeMap(client => {
       const tradeInfo = getTradeInfo();
@@ -138,7 +137,6 @@ const createOpenDEXorders$ = ({
         })
       );
     }),
-    tap(() => logger.trace('OpenDEX orders updated')),
     take(1)
   );
 };
