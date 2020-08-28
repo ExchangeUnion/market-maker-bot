@@ -3,10 +3,10 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { PlaceOrderResponse } from '../proto/xudrpc_pb';
-import { getLoggers, testConfig } from '../test-utils';
+import { getArbyStore, ArbyStore } from '../store';
+import { getLoggers, testConfig, TestError } from '../test-utils';
 import { TradeInfo } from '../trade/info';
 import { createOpenDEXorders$, OpenDEXorders } from './create-orders';
-import { TestError } from '../test-utils';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -21,14 +21,22 @@ type CreateOpenDEXordersInputEvents = {
   replaceXudOrder$: string;
 };
 
-const assertCreateOpenDEXorders = (
-  inputEvents: CreateOpenDEXordersInputEvents,
-  expected: string,
+const assertCreateOpenDEXorders = ({
+  expected,
+  inputEvents,
+  inputErrors,
+  store,
+  shouldCreateOpenDEXorders,
+}: {
+  inputEvents: CreateOpenDEXordersInputEvents;
+  expected: string;
   inputErrors?: {
     xudOrder$?: TestError;
     replaceXudOrder$?: TestError;
-  }
-) => {
+  };
+  store?: ArbyStore;
+  shouldCreateOpenDEXorders?: () => boolean;
+}) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const getTradeInfo = (): TradeInfo => {
@@ -36,17 +44,17 @@ const assertCreateOpenDEXorders = (
     };
     const createXudOrder$ = (createOrderParams: any) => {
       if (createOrderParams.replaceOrderId) {
-        return cold(
+        return (cold(
           inputEvents.replaceXudOrder$,
-          {},
+          { a: 'order-response' },
           inputErrors?.replaceXudOrder$
-        ) as Observable<PlaceOrderResponse>;
+        ) as unknown) as Observable<PlaceOrderResponse>;
       } else {
-        return cold(
+        return (cold(
           inputEvents.xudOrder$,
-          {},
+          { a: 'order-response' },
           inputErrors?.xudOrder$
-        ) as Observable<PlaceOrderResponse>;
+        ) as unknown) as Observable<PlaceOrderResponse>;
       }
     };
     const getXudClient$ = () => {
@@ -62,6 +70,10 @@ const assertCreateOpenDEXorders = (
       tradeInfoToOpenDEXorders,
       logger: getLoggers().global,
       config: testConfig(),
+      store: store ? store : getArbyStore(),
+      shouldCreateOpenDEXorders: shouldCreateOpenDEXorders
+        ? shouldCreateOpenDEXorders
+        : () => true,
     });
     expectObservable(createOrders$).toBe(expected, {
       a: true,
@@ -79,17 +91,66 @@ describe('createOpenDEXorders$', () => {
       xudOrder$: '',
     };
     const expected = '2s (a|)';
-    assertCreateOpenDEXorders(inputEvents, expected);
+    const store = {
+      ...getArbyStore(),
+      ...{ updateLastOrderUpdatePrice: jest.fn() },
+    };
+    assertCreateOpenDEXorders({ inputEvents, expected, store });
+    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 
-  it('throws if unknown error for repace order', () => {
+  it('filters by shouldCreateOpenDEXorders', () => {
+    const inputEvents = {
+      xudClient$: '1s a',
+      replaceXudOrder$: '1s (a|)',
+      xudOrder$: '',
+    };
+    // it returns true immediately without attempting to create orders
+    const expected = '1s (a|)';
+    const store = {
+      ...getArbyStore(),
+      ...{ updateLastOrderUpdatePrice: jest.fn() },
+    };
+    const selectStateSpy = jest.spyOn(store, 'selectState');
+    const shouldCreateOpenDEXorders = () => false;
+    assertCreateOpenDEXorders({
+      inputEvents,
+      expected,
+      store,
+      shouldCreateOpenDEXorders,
+    });
+    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(0);
+    expect(selectStateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('will not update lastOrderUpdatePrice when orders not created', () => {
+    const inputEvents = {
+      xudClient$: '1s a',
+      replaceXudOrder$: '1s (b|)',
+      xudOrder$: '',
+    };
+    const expected = '2s (a|)';
+    const store = {
+      ...getArbyStore(),
+      ...{ updateLastOrderUpdatePrice: jest.fn() },
+    };
+    assertCreateOpenDEXorders({ inputEvents, expected, store });
+    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(0);
+  });
+
+  it('throws if unknown error for replace order', () => {
     const inputEvents = {
       xudClient$: '1s a',
       replaceXudOrder$: '1s #',
       xudOrder$: '',
     };
     const expected = '2s #';
-    assertCreateOpenDEXorders(inputEvents, expected);
+    const store = {
+      ...getArbyStore(),
+      ...{ updateLastOrderUpdatePrice: jest.fn() },
+    };
+    assertCreateOpenDEXorders({ inputEvents, expected, store });
+    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(0);
   });
 
   it('retries without replaceOrderId if grpc.NOT_FOUND error', () => {
@@ -105,6 +166,11 @@ describe('createOpenDEXorders$', () => {
       },
     };
     const expected = '3s (a|)';
-    assertCreateOpenDEXorders(inputEvents, expected, inputErrors);
+    const store = {
+      ...getArbyStore(),
+      ...{ updateLastOrderUpdatePrice: jest.fn() },
+    };
+    assertCreateOpenDEXorders({ inputEvents, expected, inputErrors, store });
+    expect(store.updateLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
   });
 });

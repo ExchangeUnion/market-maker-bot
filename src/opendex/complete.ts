@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import { Exchange } from 'ccxt';
-import { empty, Observable, of } from 'rxjs';
-import { exhaustMap, mergeMap, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { exhaustMap } from 'rxjs/operators';
 import { getCentralizedExchangeAssets$ } from '../centralized/assets';
 import { Config } from '../config';
 import { Loggers } from '../logger';
@@ -38,6 +38,7 @@ type GetOpenDEXcompleteParams = {
     tradeInfoToOpenDEXorders,
     getXudClient$,
     createXudOrder$,
+    store,
   }: CreateOpenDEXordersParams) => Observable<boolean>;
   centralizedExchangePrice$: Observable<BigNumber>;
   store: ArbyStore;
@@ -76,30 +77,16 @@ const getOpenDEXcomplete$ = ({
     // is already in progress
     exhaustMap((tradeInfo: TradeInfo) => {
       const getTradeInfo = () => tradeInfo;
-      return store.selectState('lastOrderUpdatePrice').pipe(
-        take(1),
-        mergeMap((lastPriceUpdate: BigNumber) => {
-          if (shouldCreateOpenDEXorders(tradeInfo.price, lastPriceUpdate)) {
-            // create orders based on latest trade info
-            return createOpenDEXorders$({
-              config,
-              logger: loggers.opendex,
-              getTradeInfo,
-              getXudClient$,
-              createXudOrder$,
-              tradeInfoToOpenDEXorders,
-            }).pipe(
-              mergeMap(() => {
-                // store the last price update
-                store.updateLastOrderUpdatePrice(tradeInfo.price);
-                return of(true);
-              })
-            );
-          }
-          // do nothing in case orders do not need updating
-          return empty();
-        })
-      );
+      return createOpenDEXorders$({
+        config,
+        logger: loggers.opendex,
+        getTradeInfo,
+        getXudClient$,
+        createXudOrder$,
+        tradeInfoToOpenDEXorders,
+        store,
+        shouldCreateOpenDEXorders,
+      });
     })
   );
 };
