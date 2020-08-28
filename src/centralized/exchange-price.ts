@@ -1,6 +1,11 @@
 import BigNumber from 'bignumber.js';
 import { Observable, throwError } from 'rxjs';
-import { catchError, timeout, share } from 'rxjs/operators';
+import {
+  catchError,
+  timeout,
+  share,
+  distinctUntilChanged,
+} from 'rxjs/operators';
 import WebSocket from 'ws';
 import { Config } from '../config';
 import { Logger } from '../logger';
@@ -55,6 +60,7 @@ const getCentralizedExchangePrice$ = ({
     catchError(() => {
       return throwError(errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR);
     }),
+    distinctUntilChanged((a, b) => a.isEqualTo(b)),
     share()
   );
 };
