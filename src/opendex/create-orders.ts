@@ -1,18 +1,19 @@
 import { status } from '@grpc/grpc-js';
-import { forkJoin, Observable, throwError } from 'rxjs';
-import { catchError, mapTo, mergeMap, take, tap } from 'rxjs/operators';
+import BigNumber from 'bignumber.js';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { catchError, mapTo, mergeMap, take } from 'rxjs/operators';
 import { Config } from '../config';
 import { Logger } from '../logger';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
-import { PlaceOrderResponse } from '../proto/xudrpc_pb';
+import { OrderSide, PlaceOrderResponse } from '../proto/xudrpc_pb';
+import { ArbyStore } from '../store';
 import { TradeInfo } from '../trade/info';
 import {
+  createOrderID,
   OpenDEXorders,
   TradeInfoToOpenDEXordersParams,
-  createOrderID,
 } from './orders';
 import { CreateXudOrderParams } from './xud/create-order';
-import { OrderSide } from '../proto/xudrpc_pb';
 
 type CreateOpenDEXordersParams = {
   config: Config;
@@ -32,6 +33,11 @@ type CreateOpenDEXordersParams = {
     price,
     orderId,
   }: CreateXudOrderParams) => Observable<PlaceOrderResponse>;
+  store: ArbyStore;
+  shouldCreateOpenDEXorders: (
+    newPrice: BigNumber,
+    lastPriceUpdate: BigNumber
+  ) => boolean;
 };
 
 const createOpenDEXorders$ = ({
@@ -41,58 +47,96 @@ const createOpenDEXorders$ = ({
   tradeInfoToOpenDEXorders,
   getXudClient$,
   createXudOrder$,
+  store,
+  shouldCreateOpenDEXorders,
 }: CreateOpenDEXordersParams): Observable<boolean> => {
   return getXudClient$(config).pipe(
-    tap(() => logger.trace('Starting to update OpenDEX orders')),
     // create new buy and sell orders
     mergeMap(client => {
-      // build orders based on all the available trade info
-      const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
-        config,
-        tradeInfo: getTradeInfo(),
-      });
-      // try replacing existing buy order
-      const buyOrder$ = createXudOrder$({
-        ...{ client, logger },
-        ...buyOrder,
-        ...{
-          replaceOrderId: createOrderID(config, OrderSide.BUY),
-        },
-      }).pipe(
-        catchError(e => {
-          if (e.code === status.NOT_FOUND) {
-            // place order if existing one does not exist
-            return createXudOrder$({
+      const tradeInfo = getTradeInfo();
+      return store.stateChanges().pipe(
+        take(1),
+        mergeMap(storeState => {
+          // build orders based on all the available trade info
+          const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
+            config,
+            tradeInfo,
+          });
+          let buyOrder$ = (of(null) as unknown) as Observable<
+            PlaceOrderResponse
+          >;
+          let sellOrder$ = (of(null) as unknown) as Observable<
+            PlaceOrderResponse
+          >;
+          if (
+            shouldCreateOpenDEXorders(
+              tradeInfo.price,
+              storeState.lastBuyOrderUpdatePrice
+            )
+          ) {
+            // try replacing existing buy order
+            buyOrder$ = createXudOrder$({
               ...{ client, logger },
               ...buyOrder,
-            });
+              ...{
+                replaceOrderId: createOrderID(config, OrderSide.BUY),
+              },
+            }).pipe(
+              catchError(e => {
+                if (e.code === status.NOT_FOUND) {
+                  // place order if existing one does not exist
+                  return createXudOrder$({
+                    ...{ client, logger },
+                    ...buyOrder,
+                  });
+                }
+                return throwError(e);
+              }),
+              mergeMap(orderResponse => {
+                orderResponse &&
+                  store.updateLastBuyOrderUpdatePrice(tradeInfo.price);
+                return of(orderResponse);
+              })
+            );
           }
-          return throwError(e);
-        })
-      );
-      // try replacing existing sell order
-      const sellOrder$ = createXudOrder$({
-        ...{ client, logger },
-        ...sellOrder,
-        ...{
-          replaceOrderId: createOrderID(config, OrderSide.SELL),
-        },
-      }).pipe(
-        catchError(e => {
-          if (e.code === status.NOT_FOUND) {
-            // place order if existing one does not exist
-            return createXudOrder$({
+          if (
+            shouldCreateOpenDEXorders(
+              tradeInfo.price,
+              storeState.lastSellOrderUpdatePrice
+            )
+          ) {
+            // try replacing existing sell order
+            sellOrder$ = createXudOrder$({
               ...{ client, logger },
               ...sellOrder,
-            });
+              ...{
+                replaceOrderId: createOrderID(config, OrderSide.SELL),
+              },
+            }).pipe(
+              catchError(e => {
+                if (e.code === status.NOT_FOUND) {
+                  // place order if existing one does not exist
+                  return createXudOrder$({
+                    ...{ client, logger },
+                    ...sellOrder,
+                  });
+                }
+                return throwError(e);
+              }),
+              mergeMap(orderResponse => {
+                orderResponse &&
+                  store.updateLastSellOrderUpdatePrice(tradeInfo.price);
+                return of(orderResponse);
+              })
+            );
           }
-          return throwError(e);
+          const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(
+            mapTo(true)
+          );
+          return ordersComplete$;
         })
       );
-      const ordersComplete$ = forkJoin(sellOrder$, buyOrder$).pipe(mapTo(true));
-      return ordersComplete$;
     }),
-    tap(() => logger.trace('OpenDEX orders updated')),
     take(1)
   );
 };

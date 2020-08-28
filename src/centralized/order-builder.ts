@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { merge, Observable, of } from 'rxjs';
-import { filter, map, repeat, take, tap, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap, repeat, take } from 'rxjs/operators';
 import { Config } from '../config';
-import { OrderSide, Asset } from '../constants';
+import { Asset, OrderSide } from '../constants';
 import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
@@ -82,10 +82,12 @@ const getOrderBuilder$ = ({
     // accumulate OpenDEX order fills when receiving
     // quote asset
     accumulateOrderFillsForBaseAssetReceived(config),
-    tap((quantity: BigNumber) => {
+    mergeMap((quantity: BigNumber) => {
       logger.info(
         `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
       );
+      store.resetLastOrderUpdatePrice();
+      return of(quantity);
     }),
     // filter based on minimum CEX order quantity
     filter(quantityAboveMinimum(assetToTradeOnCEX)),

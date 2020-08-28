@@ -75,23 +75,4 @@ describe('getOpenDEXcomplete$', () => {
     };
     assertGetOpenDEXcomplete(inputEvents, expected, inputValues);
   });
-
-  test('filters by shouldCreateOpenDEXorders', () => {
-    const inputEvents = {
-      tradeInfo$: 'a ^ 1000ms a 1500ms a 500ms b',
-      getOpenDEXorders$: '1s a|',
-    };
-    const inputValues = {
-      tradeInfo$: {
-        a: {
-          price: new BigNumber('10000'),
-        },
-        b: {
-          price: new BigNumber('10010.1'),
-        },
-      },
-    };
-    const expected = '2s a 2001ms a';
-    assertGetOpenDEXcomplete(inputEvents, expected, inputValues);
-  });
 });

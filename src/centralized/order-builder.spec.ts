@@ -134,7 +134,7 @@ describe('getCentralizedExchangeOrder$', () => {
       expectedAssetToTradeOnCEX,
       store
     );
-    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(4);
   });
 
   it('accumulates buy and sell orders for BTCUSDT', () => {
@@ -186,6 +186,6 @@ describe('getCentralizedExchangeOrder$', () => {
       expectedAssetToTradeOnCEX,
       store
     );
-    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(4);
   });
 });
