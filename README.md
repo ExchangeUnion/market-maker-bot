@@ -1,7 +1,7 @@
 # Market Maker Tools
 
 ## Arby
-Arby is a market maker bot that allows its users to easily arbitrage between [OpenDEX](http://opendex.network/) and centralized exchanges. Users with spare capital are able to "earn interest" on their assets by providing liquidity to the OpenDEX network.
+Arby is a market maker bot that allows to easily arbitrage between [OpenDEX](http://opendex.network/) and centralized exchanges like [Binance](https://www.binance.com). In other words, anyone with capital to spare is able to "earn interest" on their assets by running arby and providing liquidity to the OpenDEX network.
 
 The purpose of Arby is to pull liquidity from centralized exchanges into OpenDEX while incentivizing liquidity providers (market makers) financially.
 
