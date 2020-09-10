@@ -77,7 +77,7 @@ Arby will automatically accumulate the traded quantity on OpenDEX and only execu
 #### Is it possible to configure Arby to take profits in non-BTC assets?
 Support for taking profits in other assets (ETH, DAI, USDT etc.) is under discussion.
 
-#### What about rebalancing?
+#### What about rebalancing between centralized exchange and OpenDEX balances?
 Support for automatic rebalancing of the assets is planned in the upcoming releases.
 
 ### Setup instructions
