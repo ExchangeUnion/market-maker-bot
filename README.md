@@ -8,7 +8,7 @@ The purpose of Arby is to pull liquidity from centralized exchanges into OpenDEX
 ### How it works
 Arby looks for arbitrage opportunities on the OpenDEX network. It will issue orders with the configured margin to the orderbook and update them as soon as the price changes.
 
-Trades on OpenDEX are settled in seconds. This creates a potential arbitrage opportunity between centralized exchanges and OpenDEX.
+Trades on OpenDEX are settled in seconds. This allows arby to execute the counter trade on the connected centralized exchange right after an order is settled on OpenDEX. Since the order on OpenDEX was issued with an additional margin, the trade on the centralized exchange can almost always be settled for a significantly better price. The price difference between the two trades is the profit (the "interest") arby generates.
 
 Example with real numbers:
 
