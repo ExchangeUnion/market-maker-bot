@@ -86,7 +86,7 @@ Recommended way of running Arby is by following the [market maker guide](https:/
 #### Development Setup
 The setup guide below is **only** for development purposes. Please refer to the guide above for production use.
 
-The development mode assumes a working [xud](https://github.com/ExchangeUnion/xud) setup with functioning swap clients for all the currencies Arby is configured to use.
+The development mode assumes a working [xud](https://github.com/ExchangeUnion/xud) setup with functioning swap clients for all currencies Arby is configured to use.
 
 ##### Requirements
 - Node v12.18.0+
