@@ -81,7 +81,7 @@ Support for taking profits in other assets (ETH, DAI, USDT etc.) is under discus
 Support for automatic rebalancing of the assets is planned in the upcoming releases.
 
 ### Setup instructions
-Recommended way of running Arby is by following the [market maker guide](https://docs.exchangeunion.com/start-earning/market-maker-guide). Arby is included out of the box in the [xud-docker](https://github.com/ExchangeUnion/xud-docker) setup that the above guide uses.
+Recommended way of running Arby is by following the [market maker guide](https://docs.exchangeunion.com/start-earning/market-maker-guide).
 
 #### Development Setup
 The setup guide below is **only** for development purposes. Please refer to the guide above for production use.
