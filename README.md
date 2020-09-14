@@ -32,7 +32,7 @@ Example with real numbers:
 - Whenever the latest price on Binance changes, Arby updates the orders on OpenDEX accordingly.
 
 ##### Scenario A
-- OpenDEX buy order is filled for 1 BTC ($9700).
+- OpenDEX buy order is filled and settled for 1 BTC ($9700).
 - Arby issues a sell order on Binance for 0.97 BTC ($9700), locking in 0.03 BTC ($300) profit.
 - Balances after scenario A
 
@@ -47,7 +47,7 @@ Example with real numbers:
 ---
 
 ##### Scenario B
-- OpenDEX sell order is filled for 1 BTC ($10300)
+- OpenDEX sell order is filled and settled for 1 BTC ($10300)
 - Arby issues a buy order on Binance for 1.03 ($10300), locking in 0.03 BTC ($300) profit.
 
 | Currency | OpenDEX | Binance |
