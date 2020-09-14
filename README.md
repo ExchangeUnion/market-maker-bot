@@ -77,7 +77,7 @@ Arby will not execute trades on OpenDEX that it cannot counter-trade on Binance.
 Arby will automatically accumulate the traded quantity on OpenDEX and only execute an order on Binance when it is greater than or equal to the minimum amount on Binance.
 
 #### Is it possible to configure Arby to take profits in non-BTC assets?
-Support for taking profits in other assets (ETH, DAI, USDT etc.) is under discussion.
+Support for taking profits in other assets (ETH, DAI, USDT etc.) is technically supported, but currently not enabled.
 
 #### What about rebalancing between centralized exchange and OpenDEX balances?
 Support for automatic rebalancing of the assets is planned in the upcoming releases.
