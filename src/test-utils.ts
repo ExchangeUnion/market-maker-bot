@@ -4,8 +4,9 @@ import { Level, Loggers } from './logger';
 const testConfig = (): Config => {
   return {
     LOG_LEVEL: Level.Trace,
-    BINANCE_API_KEY: '123',
-    BINANCE_API_SECRET: 'abc',
+    CEX: 'Binance',
+    CEX_API_KEY: '123',
+    CEX_API_SECRET: 'abc',
     DATA_DIR: '',
     OPENDEX_CERT_PATH: `${__dirname}/../mock-data/tls.cert`,
     OPENDEX_RPC_HOST: 'localhost',
