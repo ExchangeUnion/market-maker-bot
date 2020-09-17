@@ -36,7 +36,7 @@ const errors = {
     code: errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR,
   },
   CEX_INVALID_CREDENTIALS: {
-    message: 'Invalid BINANCE_API_KEY or BINANCE_API_SECRET',
+    message: 'Invalid CEX_API_KEY or CEX_API_SECRET',
     code: errorCodes.CEX_INVALID_CREDENTIALS,
   },
 };

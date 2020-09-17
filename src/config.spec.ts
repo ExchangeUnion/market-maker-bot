@@ -4,8 +4,9 @@ describe('checkConfigOptions', () => {
   it('allows BTC/USDT trading pair', () => {
     const dotEnvConfig = {
       LOG_LEVEL: 'trace',
-      BINANCE_API_KEY: '123',
-      BINANCE_API_SECRET: 'abc',
+      CEX: 'Binance',
+      CEX_API_KEY: '123',
+      CEX_API_SECRET: 'abc',
       DATA_DIR: '/some/data/path',
       OPENDEX_CERT_PATH: '/some/cert/path',
       OPENDEX_RPC_HOST: 'localhost',
@@ -27,8 +28,9 @@ describe('checkConfigOptions', () => {
   it('allows ETH/BTC trading pair', () => {
     const dotEnvConfig = {
       LOG_LEVEL: 'trace',
-      BINANCE_API_KEY: '123',
-      BINANCE_API_SECRET: 'abc',
+      CEX: 'Binance',
+      CEX_API_KEY: '123',
+      CEX_API_SECRET: 'abc',
       DATA_DIR: '/some/data/path',
       OPENDEX_CERT_PATH: '/some/cert/path',
       OPENDEX_RPC_HOST: 'localhost',
@@ -50,8 +52,9 @@ describe('checkConfigOptions', () => {
   it('does not allow LTC/LTC trading pair', () => {
     const dotEnvConfig = {
       LOG_LEVEL: 'trace',
-      BINANCE_API_KEY: '123',
-      BINANCE_API_SECRET: 'abc',
+      CEX: 'Binance',
+      CEX_API_KEY: '123',
+      CEX_API_SECRET: 'abc',
       DATA_DIR: '/some/data/path',
       OPENDEX_CERT_PATH: '/some/cert/path',
       OPENDEX_RPC_HOST: 'localhost',

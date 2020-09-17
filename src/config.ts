@@ -6,8 +6,9 @@ import { Asset } from './constants';
 
 export type Config = {
   LOG_LEVEL: Level;
-  BINANCE_API_KEY: string;
-  BINANCE_API_SECRET: string;
+  CEX: string;
+  CEX_API_KEY: string;
+  CEX_API_SECRET: string;
   DATA_DIR: string;
   OPENDEX_CERT_PATH: string;
   OPENDEX_RPC_HOST: string;
@@ -22,8 +23,9 @@ export type Config = {
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
   'LOG_LEVEL',
-  'BINANCE_API_KEY',
-  'BINANCE_API_SECRET',
+  'CEX',
+  'CEX_API_KEY',
+  'CEX_API_SECRET',
   'DATA_DIR',
   'OPENDEX_CERT_PATH',
   'OPENDEX_RPC_HOST',

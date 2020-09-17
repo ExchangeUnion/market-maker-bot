@@ -22,4 +22,13 @@ describe('convertBalances', () => {
       quoteAssetBalance: new BigNumber('2'),
     });
   });
+
+  it('returns 0 when CCXT balance does not exist', () => {
+    const config = testConfig();
+    const balances = ({} as unknown) as Balances;
+    expect(convertBalances(config, balances)).toEqual({
+      baseAssetBalance: new BigNumber('0'),
+      quoteAssetBalance: new BigNumber('0'),
+    });
+  });
 });
