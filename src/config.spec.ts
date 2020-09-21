@@ -1,12 +1,10 @@
 import { checkConfigOptions } from './config';
 
 describe('checkConfigOptions', () => {
-  it('allows BTC/USDT trading pair', () => {
-    const dotEnvConfig = {
+  describe('LIVE_CEX disabled', () => {
+    const validLiveCEXdisabledConf = {
       LOG_LEVEL: 'trace',
       CEX: 'Binance',
-      CEX_API_KEY: '123',
-      CEX_API_SECRET: 'abc',
       DATA_DIR: '/some/data/path',
       OPENDEX_CERT_PATH: '/some/cert/path',
       OPENDEX_RPC_HOST: 'localhost',
@@ -18,15 +16,62 @@ describe('checkConfigOptions', () => {
       TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
       LIVE_CEX: 'false',
     };
-    const verifiedConfig = checkConfigOptions(dotEnvConfig);
-    expect(verifiedConfig).toEqual({
-      ...dotEnvConfig,
-      LIVE_CEX: false,
+
+    it('allows BTC/USDT', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions(validLiveCEXdisabledConf);
+      expect(config).toEqual({
+        ...config,
+        LIVE_CEX: false,
+      });
+    });
+
+    it('allows ETH/BTC trading pair', () => {
+      const config = checkConfigOptions({
+        ...validLiveCEXdisabledConf,
+        ...{ BASEASSET: 'ETH', QUOTEASSET: 'BTC' },
+      });
+      expect(config).toEqual({
+        ...config,
+        LIVE_CEX: false,
+      });
+    });
+
+    it('does not allow LTC/LTC trading pair', () => {
+      const config = {
+        ...validLiveCEXdisabledConf,
+        ...{ BASEASSET: 'LTC', QUOTEASSET: 'LTC' },
+      };
+      expect(() => {
+        checkConfigOptions(config);
+      }).toThrowErrorMatchingSnapshot();
+    });
+
+    it('requires TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE', () => {
+      expect.assertions(1);
+      const config = {
+        ...validLiveCEXdisabledConf,
+      };
+      delete config.TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE;
+      expect(() => {
+        checkConfigOptions(config);
+      }).toThrowErrorMatchingSnapshot();
+    });
+
+    it('requires TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE', () => {
+      expect.assertions(1);
+      const config = {
+        ...validLiveCEXdisabledConf,
+      };
+      delete config.TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE;
+      expect(() => {
+        checkConfigOptions(config);
+      }).toThrowErrorMatchingSnapshot();
     });
   });
 
-  it('allows ETH/BTC trading pair', () => {
-    const dotEnvConfig = {
+  describe('LIVE_CEX enabled', () => {
+    const validLiveCEXenabledConf = {
       LOG_LEVEL: 'trace',
       CEX: 'Binance',
       CEX_API_KEY: '123',
@@ -36,38 +81,51 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      BASEASSET: 'ETH',
-      QUOTEASSET: 'BTC',
-      TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
-      TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
-      LIVE_CEX: 'false',
+      BASEASSET: 'BTC',
+      QUOTEASSET: 'USDT',
+      LIVE_CEX: 'true',
     };
-    const verifiedConfig = checkConfigOptions(dotEnvConfig);
-    expect(verifiedConfig).toEqual({
-      ...dotEnvConfig,
-      LIVE_CEX: false,
-    });
-  });
 
-  it('does not allow LTC/LTC trading pair', () => {
-    const dotEnvConfig = {
-      LOG_LEVEL: 'trace',
-      CEX: 'Binance',
-      CEX_API_KEY: '123',
-      CEX_API_SECRET: 'abc',
-      DATA_DIR: '/some/data/path',
-      OPENDEX_CERT_PATH: '/some/cert/path',
-      OPENDEX_RPC_HOST: 'localhost',
-      OPENDEX_RPC_PORT: '1234',
-      MARGIN: '0.06',
-      BASEASSET: 'LTC',
-      QUOTEASSET: 'LTC',
-      TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
-      TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
-      LIVE_CEX: 'false',
-    };
-    expect(() => {
-      checkConfigOptions(dotEnvConfig);
-    }).toThrowErrorMatchingSnapshot();
+    it('allows BTC/USDT', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions(validLiveCEXenabledConf);
+      expect(config).toEqual({
+        ...config,
+        LIVE_CEX: true,
+      });
+    });
+
+    it('allows ETH/BTC trading pair', () => {
+      const config = checkConfigOptions({
+        ...validLiveCEXenabledConf,
+        ...{ BASEASSET: 'ETH', QUOTEASSET: 'BTC' },
+      });
+      expect(config).toEqual({
+        ...config,
+        LIVE_CEX: true,
+      });
+    });
+
+    it('requires CEX_API_KEY', () => {
+      expect.assertions(1);
+      const config = {
+        ...validLiveCEXenabledConf,
+      };
+      delete config.CEX_API_KEY;
+      expect(() => {
+        checkConfigOptions(config);
+      }).toThrowErrorMatchingSnapshot();
+    });
+
+    it('requires CEX_API_SECRET', () => {
+      expect.assertions(1);
+      const config = {
+        ...validLiveCEXenabledConf,
+      };
+      delete config.CEX_API_SECRET;
+      expect(() => {
+        checkConfigOptions(config);
+      }).toThrowErrorMatchingSnapshot();
+    });
   });
 });
