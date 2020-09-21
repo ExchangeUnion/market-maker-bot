@@ -54,18 +54,18 @@ const setLogLevel = (logLevel: string): Level => {
 };
 
 const getEnvironmentConfig = (): DotenvParseOutput => {
-  const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.reduce(
-    (envConfig: DotenvParseOutput, configOption) => {
-      if (process.env[configOption]) {
-        return {
-          ...envConfig,
-          [configOption]: process.env[configOption]!,
-        };
-      }
-      return envConfig;
-    },
-    {}
-  );
+  const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.concat(
+    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED,
+    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED
+  ).reduce((envConfig: DotenvParseOutput, configOption) => {
+    if (process.env[configOption]) {
+      return {
+        ...envConfig,
+        [configOption]: process.env[configOption]!,
+      };
+    }
+    return envConfig;
+  }, {});
   return environmentConfig;
 };
 
