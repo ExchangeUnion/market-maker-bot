@@ -24,8 +24,6 @@ export type Config = {
 const REQUIRED_CONFIGURATION_OPTIONS = [
   'LOG_LEVEL',
   'CEX',
-  'CEX_API_KEY',
-  'CEX_API_SECRET',
   'DATA_DIR',
   'OPENDEX_CERT_PATH',
   'OPENDEX_RPC_HOST',
@@ -33,9 +31,17 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'MARGIN',
   'BASEASSET',
   'QUOTEASSET',
+  'LIVE_CEX',
+];
+
+const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED = [
+  'CEX_API_KEY',
+  'CEX_API_SECRET',
+];
+
+const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED = [
   'TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE',
   'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
-  'LIVE_CEX',
 ];
 
 const setLogLevel = (logLevel: string): Level => {
@@ -48,31 +54,34 @@ const setLogLevel = (logLevel: string): Level => {
 };
 
 const getEnvironmentConfig = (): DotenvParseOutput => {
-  const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.reduce(
-    (envConfig: DotenvParseOutput, configOption) => {
-      if (process.env[configOption]) {
-        return {
-          ...envConfig,
-          [configOption]: process.env[configOption]!,
-        };
-      }
-      return envConfig;
-    },
-    {}
-  );
+  const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.concat(
+    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED,
+    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED
+  ).reduce((envConfig: DotenvParseOutput, configOption) => {
+    if (process.env[configOption]) {
+      return {
+        ...envConfig,
+        [configOption]: process.env[configOption]!,
+      };
+    }
+    return envConfig;
+  }, {});
   return environmentConfig;
 };
 
 const getMissingOptions = (config: DotenvParseOutput): string => {
-  return REQUIRED_CONFIGURATION_OPTIONS.reduce(
-    (missingOptions: string[], configOption) => {
+  const ADDITIONAL_CONF_OPTIONS =
+    config['LIVE_CEX'] === 'true'
+      ? REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED
+      : REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED;
+  return REQUIRED_CONFIGURATION_OPTIONS.concat(ADDITIONAL_CONF_OPTIONS)
+    .reduce((missingOptions: string[], configOption) => {
       if (!config[configOption]) {
         return missingOptions.concat(configOption);
       }
       return missingOptions;
-    },
-    []
-  ).join(', ');
+    }, [])
+    .join(', ');
 };
 
 const ALLOWED_TRADING_PAIRS: string[] = [
