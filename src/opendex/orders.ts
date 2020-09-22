@@ -56,20 +56,31 @@ const tradeInfoToOpenDEXorders = ({
     openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
     centralizedExchangeBaseAssetBalance
   );
+  const BUFFER = new BigNumber('0.01');
+  const buyQuantityWithBuffer = buyQuantity.minus(
+    buyQuantity.multipliedBy(BUFFER)
+  );
   const sellQuantity = BigNumber.minimum(
     openDEXbaseAssetMaxOutbound,
     openDEXquoteAssetMaxInbound.dividedBy(sellPrice),
     centralizedExchangeQuoteAssetBalance.dividedBy(price)
   );
+  const sellQuantityWithBuffer = sellQuantity.minus(
+    sellQuantity.multipliedBy(BUFFER)
+  );
   const buyOrder = {
-    quantity: coinsToSats(new BigNumber(buyQuantity.toFixed(8, 1)).toNumber()),
+    quantity: coinsToSats(
+      new BigNumber(buyQuantityWithBuffer.toFixed(8, 1)).toNumber()
+    ),
     orderSide: OrderSide.BUY,
     pairId,
     price: buyPrice.toNumber(),
     orderId: createOrderID(config, OrderSide.BUY),
   };
   const sellOrder = {
-    quantity: coinsToSats(new BigNumber(sellQuantity.toFixed(8, 1)).toNumber()),
+    quantity: coinsToSats(
+      new BigNumber(sellQuantityWithBuffer.toFixed(8, 1)).toNumber()
+    ),
     orderSide: OrderSide.SELL,
     pairId,
     price: sellPrice.toNumber(),
