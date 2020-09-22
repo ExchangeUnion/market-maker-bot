@@ -17,15 +17,20 @@ const createOrder$ = ({
   side,
   quantity,
 }: CreateOrderParams): Observable<Order> => {
-  return defer(() =>
-    from(
+  return defer(() => {
+    const price = undefined;
+    const params =
+      config.CEX === 'Kraken' ? { trading_agreement: 'agree' } : undefined;
+    return from(
       exchange.createMarketOrder(
         `${config.BASEASSET}/${config.QUOTEASSET}`,
         side,
-        quantity.toNumber()
+        quantity.toNumber(),
+        price,
+        params
       )
-    )
-  );
+    );
+  });
 };
 
 export { createOrder$, CreateOrderParams };
