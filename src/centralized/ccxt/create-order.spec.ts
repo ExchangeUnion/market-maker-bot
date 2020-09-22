@@ -6,7 +6,10 @@ import { testConfig } from '../../test-utils';
 import { createOrder$ } from './create-order';
 
 describe('CCXT', () => {
-  const orderQuantity = new BigNumber('0.01');
+  let orderQuantity: BigNumber;
+  beforeEach(() => {
+    orderQuantity = new BigNumber('0.01');
+  });
 
   it('Binance ETHBTC sell order', done => {
     expect.assertions(3);
@@ -63,6 +66,7 @@ describe('CCXT', () => {
         CEX: 'Binance',
       },
     };
+    orderQuantity = new BigNumber('0.12345678');
     const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
     const buyOrder$ = createOrder$({
       config,
@@ -79,7 +83,7 @@ describe('CCXT', () => {
         expect(createMarketOrder).toHaveBeenCalledWith(
           expectedSymbol,
           OrderSide.BUY,
-          orderQuantity.toNumber(),
+          0.1234,
           undefined,
           undefined
         );

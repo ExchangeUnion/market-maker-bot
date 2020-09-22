@@ -25,7 +25,7 @@ const createOrder$ = ({
       exchange.createMarketOrder(
         `${config.BASEASSET}/${config.QUOTEASSET}`,
         side,
-        quantity.toNumber(),
+        parseFloat(quantity.toFixed(4, BigNumber.ROUND_DOWN)),
         price,
         params
       )
