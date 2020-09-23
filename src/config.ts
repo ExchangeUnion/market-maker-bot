@@ -103,7 +103,7 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
     );
   }
-  const tradingPair = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const tradingPair = `${config.BASEASSET}/${config.QUOTEASSET}`.toUpperCase();
   if (!ALLOWED_TRADING_PAIRS.includes(tradingPair)) {
     throw new Error(
       `Invalid trading pair ${tradingPair}. Supported trading pairs are: ${ALLOWED_TRADING_PAIRS.join(
@@ -115,6 +115,9 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
     LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
+    CEX: config.CEX.toUpperCase(),
+    BASEASSET: config.BASEASSET.toUpperCase(),
+    QUOTEASSET: config.QUOTEASSET.toUpperCase(),
   };
   return verifiedConfig as Config;
 };

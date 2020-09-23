@@ -3,12 +3,12 @@ import { Config } from '../../config';
 
 const getExchange = (config: Config): Exchange => {
   switch (config.CEX) {
-    case 'Binance':
+    case 'BINANCE':
       return new ccxt.binance({
         apiKey: config.CEX_API_KEY,
         secret: config.CEX_API_SECRET,
       });
-    case 'Kraken':
+    case 'KRAKEN':
       return new ccxt.kraken({
         apiKey: config.CEX_API_KEY,
         secret: config.CEX_API_SECRET,

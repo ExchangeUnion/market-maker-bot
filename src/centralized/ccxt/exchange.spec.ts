@@ -12,7 +12,7 @@ describe('getExchange', () => {
   it('initializes Binance with API key and secret', () => {
     const config = {
       ...testConfig(),
-      ...{ CEX: 'Binance' },
+      ...{ CEX: 'BINANCE' },
     };
     getExchange(config);
     expect(ccxt.binance).toHaveBeenCalledTimes(1);
@@ -27,7 +27,7 @@ describe('getExchange', () => {
   it('initializes Kraken with API key and secret', () => {
     const config = {
       ...testConfig(),
-      ...{ CEX: 'Kraken' },
+      ...{ CEX: 'KRAKEN' },
     };
     getExchange(config);
     expect(ccxt.kraken).toHaveBeenCalledTimes(1);
