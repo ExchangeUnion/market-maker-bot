@@ -52,9 +52,11 @@ const logConfig = (config: Config, logger: Logger) => {
     TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
     TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
     LIVE_CEX,
+    CEX,
   } = config;
   logger.info(`Running with config:
 LIVE_CEX: ${LIVE_CEX}
+CEX: ${CEX}
 LOG_LEVEL: ${LOG_LEVEL}
 DATA_DIR: ${DATA_DIR}
 OPENDEX_CERT_PATH: ${OPENDEX_CERT_PATH}

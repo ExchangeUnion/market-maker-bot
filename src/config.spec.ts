@@ -4,14 +4,14 @@ describe('checkConfigOptions', () => {
   describe('LIVE_CEX disabled', () => {
     const validLiveCEXdisabledConf = {
       LOG_LEVEL: 'trace',
-      CEX: 'Binance',
+      CEX: 'binance',
       DATA_DIR: '/some/data/path',
       OPENDEX_CERT_PATH: '/some/cert/path',
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      BASEASSET: 'BTC',
-      QUOTEASSET: 'USDT',
+      BASEASSET: 'btc',
+      QUOTEASSET: 'usdt',
       TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
       TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
       LIVE_CEX: 'false',
@@ -22,18 +22,24 @@ describe('checkConfigOptions', () => {
       const config = checkConfigOptions(validLiveCEXdisabledConf);
       expect(config).toEqual({
         ...config,
+        CEX: 'BINANCE',
         LIVE_CEX: false,
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'USDT',
       });
     });
 
     it('allows ETH/BTC trading pair', () => {
       const config = checkConfigOptions({
         ...validLiveCEXdisabledConf,
-        ...{ BASEASSET: 'ETH', QUOTEASSET: 'BTC' },
+        ...{ BASEASSET: 'eth', QUOTEASSET: 'btc' },
       });
       expect(config).toEqual({
         ...config,
+        CEX: 'BINANCE',
         LIVE_CEX: false,
+        BASEASSET: 'ETH',
+        QUOTEASSET: 'BTC',
       });
     });
 
@@ -73,7 +79,7 @@ describe('checkConfigOptions', () => {
   describe('LIVE_CEX enabled', () => {
     const validLiveCEXenabledConf = {
       LOG_LEVEL: 'trace',
-      CEX: 'Binance',
+      CEX: 'kraken',
       CEX_API_KEY: '123',
       CEX_API_SECRET: 'abc',
       DATA_DIR: '/some/data/path',
@@ -91,6 +97,7 @@ describe('checkConfigOptions', () => {
       const config = checkConfigOptions(validLiveCEXenabledConf);
       expect(config).toEqual({
         ...config,
+        CEX: 'KRAKEN',
         LIVE_CEX: true,
       });
     });
@@ -102,6 +109,7 @@ describe('checkConfigOptions', () => {
       });
       expect(config).toEqual({
         ...config,
+        CEX: 'KRAKEN',
         LIVE_CEX: true,
       });
     });
