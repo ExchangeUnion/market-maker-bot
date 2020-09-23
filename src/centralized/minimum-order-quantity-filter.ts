@@ -9,10 +9,10 @@ type MinimumCEXquantities = {
 };
 
 const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
-  BTC: new BigNumber('0.0001'),
-  ETH: new BigNumber('0.005'),
-  DAI: new BigNumber('10'),
-  USDT: new BigNumber('10'),
+  BTC: new BigNumber('0.001'),
+  ETH: new BigNumber('0.05'),
+  DAI: new BigNumber('15'),
+  USDT: new BigNumber('15'),
 };
 
 const quantityAboveMinimum = (asset: Asset) => {
