@@ -77,7 +77,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('500'),
+          buyQuantity: new BigNumber('495'),
         },
       });
     });
@@ -105,7 +105,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('265.95744680'),
+          buyQuantity: new BigNumber('263.29787234'),
         },
       });
     });
@@ -133,7 +133,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('250'),
+          buyQuantity: new BigNumber('247.5'),
         },
       });
     });
@@ -163,7 +163,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           sellPrice: new BigNumber('0.0212'),
-          sellQuantity: new BigNumber('40'),
+          sellQuantity: new BigNumber('39.6'),
         },
       });
     });
@@ -191,7 +191,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           sellPrice: new BigNumber('0.0212'),
-          sellQuantity: new BigNumber('11.79245283'),
+          sellQuantity: new BigNumber('11.67452830'),
         },
       });
     });
@@ -219,7 +219,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           sellPrice: new BigNumber('0.0212'),
-          sellQuantity: new BigNumber('5'),
+          sellQuantity: new BigNumber('4.95'),
         },
       });
     });
