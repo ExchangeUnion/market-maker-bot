@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`checkConfigOptions LIVE_CEX disabled does not allow LTC/LTC trading pair 1`] = `"Invalid trading pair LTC/LTC. Supported trading pairs are: ETH/BTC, BTC/USDT, LTC/BTC, LTC/USDT"`;
+exports[`checkConfigOptions LIVE_CEX disabled does not allow LTC/LTC trading pair 1`] = `"Invalid trading pair LTC/LTC. Supported trading pairs are: ETH/BTC, BTC/USDT, BTC/DAI, LTC/BTC, LTC/USDT"`;
 
 exports[`checkConfigOptions LIVE_CEX disabled requires TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE"`;
 

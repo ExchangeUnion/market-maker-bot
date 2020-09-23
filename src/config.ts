@@ -87,6 +87,7 @@ const getMissingOptions = (config: DotenvParseOutput): string => {
 const ALLOWED_TRADING_PAIRS: string[] = [
   'ETH/BTC',
   'BTC/USDT',
+  'BTC/DAI',
   'LTC/BTC',
   'LTC/USDT',
 ];
