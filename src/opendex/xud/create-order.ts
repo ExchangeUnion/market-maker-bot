@@ -6,7 +6,6 @@ import { PlaceOrderRequest, PlaceOrderResponse } from '../../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../../utils';
 import { OpenDEXorder } from '../orders';
 import { processResponse } from './process-response';
-import { parseGrpcError } from './parse-error';
 
 type CreateXudOrderParams = OpenDEXorder & {
   logger: Logger;
@@ -52,7 +51,6 @@ const createXudOrder$ = ({
         request,
         processResponse({
           subscriber,
-          parseGrpcError,
         })
       );
     }).pipe(

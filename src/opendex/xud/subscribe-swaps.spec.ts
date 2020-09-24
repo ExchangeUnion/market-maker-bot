@@ -44,11 +44,9 @@ describe('subscribeXudSwaps$', () => {
 
   test('success', done => {
     expect.assertions(8);
-    const parseGrpcError = () => null;
     const swapsSubscription$ = subscribeXudSwaps$({
       client,
       config,
-      parseGrpcError,
     });
     swapsSubscription$.subscribe({
       next: actualSuccessValue => {
@@ -73,49 +71,24 @@ describe('subscribeXudSwaps$', () => {
     };
     mockSwapSubscription.emit('data', swapSuccessOtherTradingPair);
     mockSwapSubscription.emit('end');
-    // cleanup function of subscribeXudSwaps$ uses
-    // setImmediate to work around NodeJS core crashing
-    // so we'll have to use setTimeout here
-    setTimeout(() => {
-      expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
-      expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
-      done();
-    }, 50);
+    expect(offSwapSubscriptionSpy).toHaveBeenCalledTimes(3);
+    expect(cancelSwapSubscriptionSpy).toHaveBeenCalledTimes(1);
+    done();
   });
 
-  test('parseError returns null will not emit error', () => {
-    expect.assertions(2);
-    const swapError = 'swapError';
-    const parseGrpcError = jest.fn().mockReturnValue(null);
+  test('will emit error', done => {
+    expect.assertions(1);
+    const swapError = 'swapError HELLO';
     const swapsSubscription$ = subscribeXudSwaps$({
       client,
       config,
-      parseGrpcError,
-    });
-    swapsSubscription$.subscribe(() => {});
-    mockSwapSubscription.emit('error', swapError);
-    expect(parseGrpcError).toHaveBeenCalledWith(swapError);
-    expect(parseGrpcError).toHaveBeenCalledTimes(1);
-  });
-
-  test('will parse error and emit', done => {
-    expect.assertions(3);
-    const swapError = 'swapError';
-    const parsedError = 'parsedError';
-    const parseGrpcError = jest.fn().mockReturnValue(parsedError);
-    const swapsSubscription$ = subscribeXudSwaps$({
-      client,
-      config,
-      parseGrpcError,
     });
     swapsSubscription$.subscribe({
       error: actualError => {
-        expect(actualError).toEqual(parsedError);
+        expect(actualError).toEqual(swapError);
         done();
       },
     });
     mockSwapSubscription.emit('error', swapError);
-    expect(parseGrpcError).toHaveBeenCalledWith(swapError);
-    expect(parseGrpcError).toHaveBeenCalledTimes(1);
   });
 });

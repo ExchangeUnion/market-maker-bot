@@ -9,11 +9,9 @@ describe('processResponse', () => {
   test('success', done => {
     expect.assertions(1);
     const nextValue = 'next';
-    const parseGrpcError = jest.fn().mockReturnValue('error');
     const source$ = new Observable(subscriber => {
       processResponse({
         subscriber,
-        parseGrpcError,
       })(null, nextValue);
     });
     source$.subscribe({
@@ -25,23 +23,18 @@ describe('processResponse', () => {
   });
 
   test('error', done => {
-    expect.assertions(3);
+    expect.assertions(1);
     const errorValue = ('errorValue' as unknown) as ServiceError;
-    const parsedError = 'parsedError';
-    const parseGrpcError = jest.fn().mockReturnValue(parsedError);
     const source$ = new Observable(subscriber => {
       processResponse({
-        parseGrpcError,
         subscriber,
       })(errorValue, null);
     });
     source$.subscribe({
       error: errorMsg => {
-        expect(errorMsg).toEqual(parsedError);
+        expect(errorMsg).toEqual(errorValue);
         done();
       },
     });
-    expect(parseGrpcError).toHaveBeenCalledWith(errorValue);
-    expect(parseGrpcError).toHaveBeenCalledTimes(1);
   });
 });
