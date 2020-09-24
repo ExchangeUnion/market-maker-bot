@@ -1,10 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Observable, throwError } from 'rxjs';
-import {
-  catchError,
-  share,
-  distinctUntilChanged,
-} from 'rxjs/operators';
+import { catchError, share, distinctUntilChanged } from 'rxjs/operators';
 import WebSocket from 'ws';
 import { Config } from '../config';
 import { Logger } from '../logger';

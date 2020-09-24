@@ -111,8 +111,10 @@ export const startArby = ({
               CEX,
             })
           ).pipe(
-            catchError(() => {
-              loggers.global.info('Unrecoverable error. Cleaning up.');
+            catchError(e => {
+              loggers.global.info(
+                `Unrecoverable error: ${JSON.stringify(e)} - cleaning up.`
+              );
               return cleanup$({
                 config,
                 loggers,
