@@ -1,5 +1,5 @@
 import { status } from '@grpc/grpc-js';
-import { AuthenticationError, Exchange } from 'ccxt';
+import { AuthenticationError, Exchange, NetworkError } from 'ccxt';
 import { TestScheduler } from 'rxjs/testing';
 import { errors } from '../opendex/errors';
 import { ArbyStore, getArbyStore } from '../store';
@@ -63,6 +63,34 @@ const assertCatchOpenDEXerror = ({
 };
 
 const ASSERTIONS_PER_TEST = 3;
+
+const assertCEXerror = (error: any) => {
+  return () => {
+    // 1 extra assertion after assertCatchOpenDEXerror
+    expect.assertions(ASSERTIONS_PER_TEST + 1);
+    const inputEvents = '1s #';
+    const inputError = error;
+    const expected = '';
+    const expectedSubscriptions = {
+      input$: ['^ 999ms !', '7001ms ^ 999ms !'],
+      cleanup$: ['1s ^ 1s !', '8001ms ^ 1s !'],
+    };
+    const store = {
+      ...getArbyStore(),
+      ...{ resetLastOrderUpdatePrice: jest.fn() },
+    };
+    const unsubscribe = '10s !';
+    assertCatchOpenDEXerror({
+      inputEvents,
+      inputError,
+      expected,
+      unsubscribe,
+      expectedSubscriptions,
+      store,
+    });
+    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
+  };
+};
 
 describe('catchOpenDEXerror', () => {
   beforeEach(testSchedulerSetup);
@@ -189,31 +217,15 @@ describe('catchOpenDEXerror', () => {
     });
   });
 
-  it('cancels orders, updates store lastPriceUpdate, retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR', () => {
-    // 1 extra assertion after assertCatchOpenDEXerror
-    expect.assertions(ASSERTIONS_PER_TEST + 1);
-    const inputEvents = '1s #';
-    const inputError = errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR;
-    const expected = '';
-    const expectedSubscriptions = {
-      input$: ['^ 999ms !', '7001ms ^ 999ms !'],
-      cleanup$: ['1s ^ 1s !', '8001ms ^ 1s !'],
-    };
-    const store = {
-      ...getArbyStore(),
-      ...{ resetLastOrderUpdatePrice: jest.fn() },
-    };
-    const unsubscribe = '10s !';
-    assertCatchOpenDEXerror({
-      inputEvents,
-      inputError,
-      expected,
-      unsubscribe,
-      expectedSubscriptions,
-      store,
-    });
-    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(2);
-  });
+  it(
+    'cancels orders, updates store lastPriceUpdate, retries CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR',
+    assertCEXerror(errors.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR)
+  );
+
+  it(
+    'cancels orders, updates store lastPriceUpdate, retries NetworkError',
+    assertCEXerror(new NetworkError('CEX connection lost'))
+  );
 
   it('retries recoverable gRPC errors', () => {
     const recoverableGRPCerrors = [
