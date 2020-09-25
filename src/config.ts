@@ -90,6 +90,7 @@ const ALLOWED_TRADING_PAIRS: string[] = [
   'BTC/DAI',
   'LTC/BTC',
   'LTC/USDT',
+  'USDT/DAI',
 ];
 
 const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {

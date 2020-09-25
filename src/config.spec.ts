@@ -102,6 +102,18 @@ describe('checkConfigOptions', () => {
       });
     });
 
+    it('allows USDT/DAI trading pair', () => {
+      const config = checkConfigOptions({
+        ...validLiveCEXenabledConf,
+        ...{ BASEASSET: 'USDT', QUOTEASSET: 'DAI' },
+      });
+      expect(config).toEqual({
+        ...config,
+        CEX: 'KRAKEN',
+        LIVE_CEX: true,
+      });
+    });
+
     it('allows ETH/BTC trading pair', () => {
       const config = checkConfigOptions({
         ...validLiveCEXenabledConf,

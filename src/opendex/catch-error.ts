@@ -1,5 +1,5 @@
 import { status } from '@grpc/grpc-js';
-import { AuthenticationError, Exchange } from 'ccxt';
+import { AuthenticationError, Exchange, NetworkError } from 'ccxt';
 import { concat, Observable, throwError, timer } from 'rxjs';
 import { ignoreElements, mergeMap, retryWhen } from 'rxjs/operators';
 import { ArbyStore } from 'src/store';
@@ -62,7 +62,8 @@ const catchOpenDEXerror = (
               logMessage(loggers.opendex);
               return timer(RETRY_INTERVAL);
             } else if (
-              e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR
+              e.code === errorCodes.CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR ||
+              e instanceof NetworkError
             ) {
               logMessage(loggers.centralized);
               store.resetLastOrderUpdatePrice();
