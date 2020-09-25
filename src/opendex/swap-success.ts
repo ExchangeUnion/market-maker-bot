@@ -4,7 +4,6 @@ import { Config } from '../config';
 import { RETRY_INTERVAL } from '../constants';
 import { XudClient } from '../proto/xudrpc_grpc_pb';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import { parseGrpcError } from './xud/parse-error';
 import { SubscribeSwapsParams } from './xud/subscribe-swaps';
 
 type GetOpenDEXswapSuccessParams = {
@@ -32,7 +31,7 @@ const getOpenDEXswapSuccess$ = ({
   ] = partition(
     getXudClient$(config).pipe(
       mergeMap(client => {
-        return subscribeXudSwaps$({ client, config, parseGrpcError });
+        return subscribeXudSwaps$({ client, config });
       }),
       share()
     ),

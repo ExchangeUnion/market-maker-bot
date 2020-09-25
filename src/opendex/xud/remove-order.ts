@@ -3,7 +3,6 @@ import { take } from 'rxjs/operators';
 import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { RemoveOrderRequest, RemoveOrderResponse } from '../../proto/xudrpc_pb';
 import { processResponse } from './process-response';
-import { parseGrpcError } from './parse-error';
 
 type RemoveXudOrderParams = {
   client: XudClient;
@@ -21,7 +20,6 @@ const removeXudOrder$ = ({
       request,
       processResponse({
         subscriber,
-        parseGrpcError,
       })
     );
   }).pipe(take(1));

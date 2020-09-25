@@ -3,7 +3,6 @@ import { XudClient } from '../../proto/xudrpc_grpc_pb';
 import { ListOrdersRequest, ListOrdersResponse } from '../../proto/xudrpc_pb';
 import { processResponse } from './process-response';
 import { map } from 'rxjs/operators';
-import { parseGrpcError } from './parse-error';
 
 type ListXudOrdersResponse = {
   client: XudClient;
@@ -19,7 +18,6 @@ const listXudOrders$ = (
       request,
       processResponse({
         subscriber,
-        parseGrpcError,
       })
     );
   });

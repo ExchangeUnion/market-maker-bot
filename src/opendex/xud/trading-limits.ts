@@ -5,7 +5,6 @@ import {
   TradingLimitsResponse,
 } from '../../proto/xudrpc_pb';
 import { processResponse } from './process-response';
-import { parseGrpcError } from './parse-error';
 
 const getXudTradingLimits$ = (
   client: XudClient
@@ -16,7 +15,6 @@ const getXudTradingLimits$ = (
       request,
       processResponse({
         subscriber,
-        parseGrpcError,
       })
     );
   });
