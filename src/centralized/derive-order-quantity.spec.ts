@@ -15,12 +15,12 @@ describe('deriveCEXorderQuantity', () => {
       quantity: new BigNumber('0.00104227'),
       side: OrderSide.BUY,
     };
-    const BASEASSET: Asset = 'BTC';
-    const QUOTEASSET: Asset = 'USDT';
+    const CEX_BASEASSET: Asset = 'BTC';
+    const CEX_QUOTEASSET: Asset = 'USDT';
     const config = {
       ...testConfig(),
-      BASEASSET,
-      QUOTEASSET,
+      CEX_BASEASSET,
+      CEX_QUOTEASSET,
     };
     const price = new BigNumber('10500');
     expect(deriveCEXorderQuantity(order, price, config)).toEqual(expectedOrder);
@@ -32,12 +32,12 @@ describe('deriveCEXorderQuantity', () => {
       quantity: new BigNumber('10.94381840'),
       side: OrderSide.BUY,
     };
-    const BASEASSET: Asset = 'ETH';
-    const QUOTEASSET: Asset = 'BTC';
+    const CEX_BASEASSET: Asset = 'ETH';
+    const CEX_QUOTEASSET: Asset = 'BTC';
     const config = {
       ...testConfig(),
-      BASEASSET,
-      QUOTEASSET,
+      CEX_BASEASSET,
+      CEX_QUOTEASSET,
     };
     const price = new BigNumber('0.03');
     expect(deriveCEXorderQuantity(order, price, config)).toEqual(order);

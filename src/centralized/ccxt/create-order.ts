@@ -23,7 +23,7 @@ const createOrder$ = ({
       config.CEX === 'Kraken' ? { trading_agreement: 'agree' } : undefined;
     return from(
       exchange.createMarketOrder(
-        `${config.BASEASSET}/${config.QUOTEASSET}`,
+        `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`,
         side,
         parseFloat(quantity.toFixed(4, BigNumber.ROUND_DOWN)),
         price,

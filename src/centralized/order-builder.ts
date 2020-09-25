@@ -56,7 +56,9 @@ const getOrderBuilder$ = ({
     subscribeXudSwaps$,
   });
   const assetToTradeOnCEX: Asset =
-    config.QUOTEASSET === 'BTC' ? config.BASEASSET : config.QUOTEASSET;
+    config.CEX_QUOTEASSET === 'BTC'
+      ? config.CEX_BASEASSET
+      : config.CEX_QUOTEASSET;
   const receivedQuoteAssetOrder$ = receivedQuoteAssetSwapSuccess$.pipe(
     // accumulate OpenDEX order fills when receiving
     // quote asset

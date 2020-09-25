@@ -9,7 +9,10 @@ const cancelOrder$ = (
 ): Observable<Order> => {
   return defer(() =>
     from(
-      exchange.cancelOrder(orderId, `${config.BASEASSET}/${config.QUOTEASSET}`)
+      exchange.cancelOrder(
+        orderId,
+        `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`
+      )
     )
   );
 };

@@ -25,7 +25,7 @@ type TradeInfoToOpenDEXordersParams = {
 };
 
 const createOrderID = (config: Config, orderSide: OrderSide): string => {
-  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
   return orderSide === OrderSide.BUY
     ? `arby-${pairId}-buy-order`
     : `arby-${pairId}-sell-order`;
@@ -47,7 +47,7 @@ const tradeInfoToOpenDEXorders = ({
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
-  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
   const marginPercentage = new BigNumber(config.MARGIN);
   const margin = price.multipliedBy(marginPercentage);
   const buyPrice = price.minus(margin);

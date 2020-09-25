@@ -10,8 +10,10 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      BASEASSET: 'btc',
-      QUOTEASSET: 'usdt',
+      CEX_BASEASSET: 'btc',
+      CEX_QUOTEASSET: 'usdt',
+      OPENDEX_BASEASSET: 'btc',
+      OPENDEX_QUOTEASSET: 'usdt',
       TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
       TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
       LIVE_CEX: 'false',
@@ -24,29 +26,43 @@ describe('checkConfigOptions', () => {
         ...config,
         CEX: 'BINANCE',
         LIVE_CEX: false,
-        BASEASSET: 'BTC',
-        QUOTEASSET: 'USDT',
+        OPENDEX_BASEASSET: 'BTC',
+        OPENDEX_QUOTEASSET: 'USDT',
+        CEX_BASEASSET: 'BTC',
+        CEX_QUOTEASSET: 'USDT',
       });
     });
 
     it('allows ETH/BTC trading pair', () => {
       const config = checkConfigOptions({
         ...validLiveCEXdisabledConf,
-        ...{ BASEASSET: 'eth', QUOTEASSET: 'btc' },
+        ...{
+          CEX_BASEASSET: 'eth',
+          CEX_QUOTEASSET: 'btc',
+          OPENDEX_BASEASSET: 'eth',
+          OPENDEX_QUOTEASSET: 'btc',
+        },
       });
       expect(config).toEqual({
         ...config,
         CEX: 'BINANCE',
         LIVE_CEX: false,
-        BASEASSET: 'ETH',
-        QUOTEASSET: 'BTC',
+        OPENDEX_BASEASSET: 'ETH',
+        OPENDEX_QUOTEASSET: 'BTC',
+        CEX_BASEASSET: 'ETH',
+        CEX_QUOTEASSET: 'BTC',
       });
     });
 
     it('does not allow LTC/LTC trading pair', () => {
       const config = {
         ...validLiveCEXdisabledConf,
-        ...{ BASEASSET: 'LTC', QUOTEASSET: 'LTC' },
+        ...{
+          CEX_BASEASSET: 'LTC',
+          CEX_QUOTEASSET: 'LTC',
+          OPENDEX_BASEASSET: 'LTC',
+          OPENDEX_QUOTEASSET: 'LTC',
+        },
       };
       expect(() => {
         checkConfigOptions(config);
@@ -87,8 +103,10 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      BASEASSET: 'BTC',
-      QUOTEASSET: 'USDT',
+      CEX_BASEASSET: 'BTC',
+      CEX_QUOTEASSET: 'USDT',
+      OPENDEX_BASEASSET: 'BTC',
+      OPENDEX_QUOTEASSET: 'USDT',
       LIVE_CEX: 'true',
     };
 
@@ -105,19 +123,77 @@ describe('checkConfigOptions', () => {
     it('allows USDT/DAI trading pair', () => {
       const config = checkConfigOptions({
         ...validLiveCEXenabledConf,
-        ...{ BASEASSET: 'USDT', QUOTEASSET: 'DAI' },
+        ...{
+          CEX_BASEASSET: 'USDT',
+          CEX_QUOTEASSET: 'DAI',
+          OPENDEX_BASEASSET: 'USDT',
+          OPENDEX_QUOTEASSET: 'DAI',
+        },
       });
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
         LIVE_CEX: true,
+        CEX_BASEASSET: 'USDT',
+        CEX_QUOTEASSET: 'DAI',
+        OPENDEX_BASEASSET: 'USDT',
+        OPENDEX_QUOTEASSET: 'DAI',
+      });
+    });
+
+    it('allows CEX[BTC/USD], OpenDEX[BTC/USDT]', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions({
+        ...validLiveCEXenabledConf,
+        ...{
+          CEX_BASEASSET: 'BTC',
+          CEX_QUOTEASSET: 'USD',
+          OPENDEX_BASEASSET: 'BTC',
+          OPENDEX_QUOTEASSET: 'USDT',
+        },
+      });
+      expect(config).toEqual({
+        ...config,
+        CEX: 'KRAKEN',
+        LIVE_CEX: true,
+        CEX_BASEASSET: 'BTC',
+        CEX_QUOTEASSET: 'USD',
+        OPENDEX_BASEASSET: 'BTC',
+        OPENDEX_QUOTEASSET: 'USDT',
+      });
+    });
+
+    it('allows CEX[USD/DAI], OpenDEX[USDT/DAI]', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions({
+        ...validLiveCEXenabledConf,
+        ...{
+          CEX_BASEASSET: 'USD',
+          CEX_QUOTEASSET: 'DAI',
+          OPENDEX_BASEASSET: 'USDT',
+          OPENDEX_QUOTEASSET: 'DAI',
+        },
+      });
+      expect(config).toEqual({
+        ...config,
+        CEX: 'KRAKEN',
+        LIVE_CEX: true,
+        CEX_BASEASSET: 'USD',
+        CEX_QUOTEASSET: 'DAI',
+        OPENDEX_BASEASSET: 'USDT',
+        OPENDEX_QUOTEASSET: 'DAI',
       });
     });
 
     it('allows ETH/BTC trading pair', () => {
       const config = checkConfigOptions({
         ...validLiveCEXenabledConf,
-        ...{ BASEASSET: 'ETH', QUOTEASSET: 'BTC' },
+        ...{
+          CEX_BASEASSET: 'ETH',
+          CEX_QUOTEASSET: 'BTC',
+          OPENDEX_BASEASSET: 'ETH',
+          OPENDEX_QUOTEASSET: 'BTC',
+        },
       });
       expect(config).toEqual({
         ...config,

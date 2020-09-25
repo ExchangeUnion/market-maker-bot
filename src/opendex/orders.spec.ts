@@ -28,7 +28,7 @@ const assertTradeInfoToOpenDEXorders = ({
   });
   if (expected.buyQuantity && expected.buyPrice) {
     const expectedBuyQuantity = coinsToSats(expected.buyQuantity.toNumber());
-    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
     expect(buyOrder).toEqual(
       expect.objectContaining({
         quantity: expectedBuyQuantity,
@@ -41,7 +41,7 @@ const assertTradeInfoToOpenDEXorders = ({
   }
   if (expected.sellQuantity && expected.sellPrice) {
     const expectedSellQuantity = coinsToSats(expected.sellQuantity.toNumber());
-    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
     expect(sellOrder).toEqual(
       expect.objectContaining({
         quantity: expectedSellQuantity,

@@ -14,8 +14,10 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
-  BASEASSET: Asset;
-  QUOTEASSET: Asset;
+  OPENDEX_BASEASSET: Asset;
+  OPENDEX_QUOTEASSET: Asset;
+  CEX_BASEASSET: Asset;
+  CEX_QUOTEASSET: Asset;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
   TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
   LIVE_CEX: boolean;
@@ -29,8 +31,10 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'OPENDEX_RPC_HOST',
   'OPENDEX_RPC_PORT',
   'MARGIN',
-  'BASEASSET',
-  'QUOTEASSET',
+  'OPENDEX_BASEASSET',
+  'OPENDEX_QUOTEASSET',
+  'CEX_BASEASSET',
+  'CEX_QUOTEASSET',
   'LIVE_CEX',
 ];
 
@@ -87,10 +91,12 @@ const getMissingOptions = (config: DotenvParseOutput): string => {
 const ALLOWED_TRADING_PAIRS: string[] = [
   'ETH/BTC',
   'BTC/USDT',
+  'BTC/USD',
   'BTC/DAI',
   'LTC/BTC',
   'LTC/USDT',
   'USDT/DAI',
+  'USD/DAI',
 ];
 
 const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
@@ -104,7 +110,7 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
     );
   }
-  const tradingPair = `${config.BASEASSET}/${config.QUOTEASSET}`.toUpperCase();
+  const tradingPair = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`.toUpperCase();
   if (!ALLOWED_TRADING_PAIRS.includes(tradingPair)) {
     throw new Error(
       `Invalid trading pair ${tradingPair}. Supported trading pairs are: ${ALLOWED_TRADING_PAIRS.join(
@@ -117,8 +123,10 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
     LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
     CEX: config.CEX.toUpperCase(),
-    BASEASSET: config.BASEASSET.toUpperCase(),
-    QUOTEASSET: config.QUOTEASSET.toUpperCase(),
+    OPENDEX_BASEASSET: config.OPENDEX_BASEASSET.toUpperCase(),
+    OPENDEX_QUOTEASSET: config.OPENDEX_QUOTEASSET.toUpperCase(),
+    CEX_BASEASSET: config.CEX_BASEASSET.toUpperCase(),
+    CEX_QUOTEASSET: config.CEX_QUOTEASSET.toUpperCase(),
   };
   return verifiedConfig as Config;
 };

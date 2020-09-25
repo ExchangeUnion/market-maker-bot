@@ -8,10 +8,13 @@ const convertBalances = (
   balances: Balances
 ): ExchangeAssetAllocation => {
   const baseAssetTotal =
-    (balances[config.BASEASSET] && balances[config.BASEASSET].total) || '0';
+    (balances[config.CEX_BASEASSET] && balances[config.CEX_BASEASSET].total) ||
+    '0';
   const baseAssetBalance = new BigNumber(baseAssetTotal);
   const quoteAssetTotal =
-    (balances[config.QUOTEASSET] && balances[config.QUOTEASSET].total) || '0';
+    (balances[config.CEX_QUOTEASSET] &&
+      balances[config.CEX_QUOTEASSET].total) ||
+    '0';
   const quoteAssetBalance = new BigNumber(quoteAssetTotal);
   return {
     baseAssetBalance,
