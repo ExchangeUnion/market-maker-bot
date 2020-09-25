@@ -4,6 +4,7 @@ import { OrderSide } from '../proto/xudrpc_pb';
 import { coinsToSats } from '../utils';
 import { testConfig } from '../test-utils';
 import { TradeInfo } from '../trade/info';
+import { Config } from '../config';
 
 type AssertTradeInfoToOpenDEXordersParams = {
   tradeInfo: TradeInfo;
@@ -13,13 +14,14 @@ type AssertTradeInfoToOpenDEXordersParams = {
     sellPrice?: BigNumber;
     sellQuantity?: BigNumber;
   };
+  config: Config;
 };
 
 const assertTradeInfoToOpenDEXorders = ({
   tradeInfo,
   expected,
+  config,
 }: AssertTradeInfoToOpenDEXordersParams) => {
-  const config = testConfig();
   const { buyOrder, sellOrder } = tradeInfoToOpenDEXorders({
     tradeInfo,
     config,
@@ -33,7 +35,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.BUY,
         pairId,
         price: expected.buyPrice.toNumber(),
-        orderId: 'arby-ETH/BTC-buy-order',
+        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-buy-order`,
       })
     );
   }
@@ -46,7 +48,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.SELL,
         pairId,
         price: expected.sellPrice.toNumber(),
-        orderId: 'arby-ETH/BTC-sell-order',
+        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-sell-order`,
       })
     );
   }
@@ -54,21 +56,21 @@ const assertTradeInfoToOpenDEXorders = ({
 
 describe('tradeInfoToOpenDEXorders', () => {
   describe('buy order', () => {
-    test('all of OpenDEX base asset max inbound can be used for buying', () => {
+    test('OpenDEX base asset max inbound for ETH/BTC', () => {
       expect.assertions(1);
       const tradeInfo = {
         price: new BigNumber('0.02'),
         assets: {
           openDEX: {
             baseAssetBalance: new BigNumber('40'),
-            baseAssetMaxInbound: new BigNumber('500'),
+            baseAssetMaxInbound: new BigNumber('0'),
             baseAssetMaxOutbound: new BigNumber('40'),
-            quoteAssetBalance: new BigNumber('9.5'),
-            quoteAssetMaxOutbound: new BigNumber('9.4'),
-            quoteAssetMaxInbound: new BigNumber('2'),
+            quoteAssetBalance: new BigNumber('0.35'),
+            quoteAssetMaxOutbound: new BigNumber('0.35'),
+            quoteAssetMaxInbound: new BigNumber('0.1'),
           },
           centralizedExchange: {
-            baseAssetBalance: new BigNumber('501'),
+            baseAssetBalance: new BigNumber('20'),
             quoteAssetBalance: new BigNumber('1.5'),
           },
         },
@@ -77,7 +79,40 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('495'),
+          buyQuantity: new BigNumber('14.1075'),
+        },
+        config: testConfig(),
+      });
+    });
+
+    test('OpenDEX base asset max inbound reduces buy quantity for BTC/USDT', () => {
+      expect.assertions(1);
+      const tradeInfo = {
+        price: new BigNumber('10000'),
+        assets: {
+          openDEX: {
+            baseAssetBalance: new BigNumber('1'),
+            baseAssetMaxInbound: new BigNumber('0.5'),
+            baseAssetMaxOutbound: new BigNumber('1'),
+            quoteAssetBalance: new BigNumber('20000'),
+            quoteAssetMaxOutbound: new BigNumber('20000'),
+            quoteAssetMaxInbound: new BigNumber('20000'),
+          },
+          centralizedExchange: {
+            baseAssetBalance: new BigNumber('1.5'),
+            quoteAssetBalance: new BigNumber('25000'),
+          },
+        },
+      };
+      assertTradeInfoToOpenDEXorders({
+        tradeInfo,
+        expected: {
+          buyPrice: new BigNumber('9400'),
+          buyQuantity: new BigNumber('0.495'),
+        },
+        config: {
+          ...testConfig(),
+          ...{ BASEASSET: 'BTC', QUOTEASSET: 'USDT' },
         },
       });
     });
@@ -91,12 +126,12 @@ describe('tradeInfoToOpenDEXorders', () => {
             baseAssetBalance: new BigNumber('40'),
             baseAssetMaxInbound: new BigNumber('9007199254740991'),
             baseAssetMaxOutbound: new BigNumber('40'),
-            quoteAssetBalance: new BigNumber('5.1'),
-            quoteAssetMaxOutbound: new BigNumber('5'),
-            quoteAssetMaxInbound: new BigNumber('2'),
+            quoteAssetBalance: new BigNumber('0.1'),
+            quoteAssetMaxOutbound: new BigNumber('0.1'),
+            quoteAssetMaxInbound: new BigNumber('0.05'),
           },
           centralizedExchange: {
-            baseAssetBalance: new BigNumber('501'),
+            baseAssetBalance: new BigNumber('500'),
             quoteAssetBalance: new BigNumber('1.5'),
           },
         },
@@ -105,8 +140,9 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('263.29787234'),
+          buyQuantity: new BigNumber('5.26595744'),
         },
+        config: testConfig(),
       });
     });
 
@@ -124,7 +160,7 @@ describe('tradeInfoToOpenDEXorders', () => {
             quoteAssetMaxInbound: new BigNumber('2'),
           },
           centralizedExchange: {
-            baseAssetBalance: new BigNumber('250'),
+            baseAssetBalance: new BigNumber('5'),
             quoteAssetBalance: new BigNumber('1.5'),
           },
         },
@@ -133,8 +169,9 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('247.5'),
+          buyQuantity: new BigNumber('4.95'),
         },
+        config: testConfig(),
       });
     });
   });
@@ -165,10 +202,11 @@ describe('tradeInfoToOpenDEXorders', () => {
           sellPrice: new BigNumber('0.0212'),
           sellQuantity: new BigNumber('39.6'),
         },
+        config: testConfig(),
       });
     });
 
-    test('OpenDEX quote asset max inbound reduces sell quantity', () => {
+    test('OpenDEX quote asset max inbound reduces sell quantity for ETH/BTC', () => {
       expect.assertions(1);
       const tradeInfo = {
         price: new BigNumber('0.02'),
@@ -192,6 +230,42 @@ describe('tradeInfoToOpenDEXorders', () => {
         expected: {
           sellPrice: new BigNumber('0.0212'),
           sellQuantity: new BigNumber('11.67452830'),
+        },
+        config: testConfig(),
+      });
+    });
+
+    test('OpenDEX quote asset max inbound for BTC/USDT', () => {
+      expect.assertions(1);
+      const tradeInfo = {
+        price: new BigNumber('10000'),
+        assets: {
+          openDEX: {
+            baseAssetBalance: new BigNumber('1'),
+            baseAssetMaxInbound: new BigNumber('1'),
+            baseAssetMaxOutbound: new BigNumber('1'),
+            quoteAssetBalance: new BigNumber('15000'),
+            quoteAssetMaxOutbound: new BigNumber('15000'),
+            quoteAssetMaxInbound: new BigNumber('0'),
+          },
+          centralizedExchange: {
+            baseAssetBalance: new BigNumber('1.5'),
+            quoteAssetBalance: new BigNumber('20000'),
+          },
+        },
+      };
+      assertTradeInfoToOpenDEXorders({
+        tradeInfo,
+        expected: {
+          sellPrice: new BigNumber('10600'),
+          sellQuantity: new BigNumber('0.44363207'),
+        },
+        config: {
+          ...testConfig(),
+          ...{
+            BASEASSET: 'BTC',
+            QUOTEASSET: 'USDT',
+          },
         },
       });
     });
@@ -221,6 +295,7 @@ describe('tradeInfoToOpenDEXorders', () => {
           sellPrice: new BigNumber('0.0212'),
           sellQuantity: new BigNumber('4.95'),
         },
+        config: testConfig(),
       });
     });
   });

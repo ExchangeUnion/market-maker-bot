@@ -3,6 +3,7 @@ import { Config } from '../config';
 import { OrderSide } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
 import { coinsToSats } from '../utils';
+import { Asset } from 'src/constants';
 
 type OpenDEXorder = {
   quantity: number;
@@ -51,8 +52,24 @@ const tradeInfoToOpenDEXorders = ({
   const margin = price.multipliedBy(marginPercentage);
   const buyPrice = price.minus(margin);
   const sellPrice = price.plus(margin);
+  const CONNEXT_CURRENCIES = ['ETH', 'USDT', 'DAI'];
+  const getOpenDEXMaxInbound = (asset: Asset) => {
+    if (CONNEXT_CURRENCIES.includes(asset)) {
+      if (asset === 'ETH') {
+        // connext node provides us max inbound liquidity of 15 ETH
+        return new BigNumber('14.25');
+      } else {
+        // ...and 5000 for other assets
+        return new BigNumber('4750');
+      }
+    } else if (asset === config.BASEASSET) {
+      return openDEXbaseAssetMaxInbound;
+    } else {
+      return openDEXquoteAssetMaxInbound;
+    }
+  };
   const buyQuantity = BigNumber.minimum(
-    openDEXbaseAssetMaxInbound,
+    getOpenDEXMaxInbound(config.BASEASSET),
     openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
     centralizedExchangeBaseAssetBalance
   );
@@ -62,7 +79,7 @@ const tradeInfoToOpenDEXorders = ({
   );
   const sellQuantity = BigNumber.minimum(
     openDEXbaseAssetMaxOutbound,
-    openDEXquoteAssetMaxInbound.dividedBy(sellPrice),
+    getOpenDEXMaxInbound(config.QUOTEASSET).dividedBy(sellPrice),
     centralizedExchangeQuoteAssetBalance.dividedBy(price)
   );
   const sellQuantityWithBuffer = sellQuantity.minus(
