@@ -79,7 +79,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           buyPrice: new BigNumber('0.0188'),
-          buyQuantity: new BigNumber('14.85'),
+          buyQuantity: new BigNumber('14.1075'),
         },
         config: testConfig(),
       });
@@ -258,7 +258,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         tradeInfo,
         expected: {
           sellPrice: new BigNumber('10600'),
-          sellQuantity: new BigNumber('0.46698113'),
+          sellQuantity: new BigNumber('0.44363207'),
         },
         config: {
           ...testConfig(),

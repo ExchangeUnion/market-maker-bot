@@ -57,10 +57,10 @@ const tradeInfoToOpenDEXorders = ({
     if (CONNEXT_CURRENCIES.includes(asset)) {
       if (asset === 'ETH') {
         // connext node provides us max inbound liquidity of 15 ETH
-        return new BigNumber('15');
+        return new BigNumber('14.25');
       } else {
         // ...and 5000 for other assets
-        return new BigNumber('5000');
+        return new BigNumber('4750');
       }
     } else if (asset === config.BASEASSET) {
       return openDEXbaseAssetMaxInbound;
