@@ -62,14 +62,14 @@ const tradeInfoToOpenDEXorders = ({
         // ...and 5000 for other assets
         return new BigNumber('4750');
       }
-    } else if (asset === config.BASEASSET) {
+    } else if (asset === config.OPENDEX_BASEASSET) {
       return openDEXbaseAssetMaxInbound;
     } else {
       return openDEXquoteAssetMaxInbound;
     }
   };
   const buyQuantity = BigNumber.minimum(
-    getOpenDEXMaxInbound(config.BASEASSET),
+    getOpenDEXMaxInbound(config.OPENDEX_BASEASSET),
     openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
     centralizedExchangeBaseAssetBalance
   );
@@ -79,7 +79,7 @@ const tradeInfoToOpenDEXorders = ({
   );
   const sellQuantity = BigNumber.minimum(
     openDEXbaseAssetMaxOutbound,
-    getOpenDEXMaxInbound(config.QUOTEASSET).dividedBy(sellPrice),
+    getOpenDEXMaxInbound(config.OPENDEX_QUOTEASSET).dividedBy(sellPrice),
     centralizedExchangeQuoteAssetBalance.dividedBy(price)
   );
   const sellQuantityWithBuffer = sellQuantity.minus(

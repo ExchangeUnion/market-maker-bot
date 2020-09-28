@@ -35,7 +35,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.BUY,
         pairId,
         price: expected.buyPrice.toNumber(),
-        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-buy-order`,
+        orderId: `arby-${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}-buy-order`,
       })
     );
   }
@@ -48,7 +48,7 @@ const assertTradeInfoToOpenDEXorders = ({
         orderSide: OrderSide.SELL,
         pairId,
         price: expected.sellPrice.toNumber(),
-        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-sell-order`,
+        orderId: `arby-${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}-sell-order`,
       })
     );
   }
@@ -112,7 +112,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         },
         config: {
           ...testConfig(),
-          ...{ BASEASSET: 'BTC', QUOTEASSET: 'USDT' },
+          ...{ OPENDEX_BASEASSET: 'BTC', OPENDEX_QUOTEASSET: 'USDT' },
         },
       });
     });
@@ -263,8 +263,8 @@ describe('tradeInfoToOpenDEXorders', () => {
         config: {
           ...testConfig(),
           ...{
-            BASEASSET: 'BTC',
-            QUOTEASSET: 'USDT',
+            OPENDEX_BASEASSET: 'BTC',
+            OPENDEX_QUOTEASSET: 'USDT',
           },
         },
       });
