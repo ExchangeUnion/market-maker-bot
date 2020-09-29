@@ -14,8 +14,8 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
-  OPENDEX_BASEASSET: Asset;
-  OPENDEX_QUOTEASSET: Asset;
+  BASEASSET: Asset;
+  QUOTEASSET: Asset;
   CEX_BASEASSET: Asset;
   CEX_QUOTEASSET: Asset;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
@@ -31,8 +31,8 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'OPENDEX_RPC_HOST',
   'OPENDEX_RPC_PORT',
   'MARGIN',
-  'OPENDEX_BASEASSET',
-  'OPENDEX_QUOTEASSET',
+  'BASEASSET',
+  'QUOTEASSET',
   'CEX_BASEASSET',
   'CEX_QUOTEASSET',
   'LIVE_CEX',
@@ -104,8 +104,8 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
     LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
     CEX: config.CEX.toUpperCase(),
-    OPENDEX_BASEASSET: config.OPENDEX_BASEASSET.toUpperCase(),
-    OPENDEX_QUOTEASSET: config.OPENDEX_QUOTEASSET.toUpperCase(),
+    BASEASSET: config.BASEASSET.toUpperCase(),
+    QUOTEASSET: config.QUOTEASSET.toUpperCase(),
     CEX_BASEASSET: config.CEX_BASEASSET.toUpperCase(),
     CEX_QUOTEASSET: config.CEX_QUOTEASSET.toUpperCase(),
   };

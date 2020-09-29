@@ -119,8 +119,8 @@ describe('getCentralizedExchangeOrder$', () => {
       ...testConfig(),
       CEX_BASEASSET: BASEASSET,
       CEX_QUOTEASSET: QUOTEASSET,
-      OPENDEX_BASEASSET: BASEASSET,
-      OPENDEX_QUOTEASSET: QUOTEASSET,
+      BASEASSET: BASEASSET,
+      QUOTEASSET: QUOTEASSET,
     };
     const expectedAssetToTradeOnCEX = BASEASSET;
     const store = {
@@ -173,8 +173,8 @@ describe('getCentralizedExchangeOrder$', () => {
       ...testConfig(),
       CEX_BASEASSET: BASEASSET,
       CEX_QUOTEASSET: QUOTEASSET,
-      OPENDEX_BASEASSET: BASEASSET,
-      OPENDEX_QUOTEASSET: QUOTEASSET,
+      BASEASSET: BASEASSET,
+      QUOTEASSET: QUOTEASSET,
     };
     const expectedAssetToTradeOnCEX = QUOTEASSET;
     const store = {

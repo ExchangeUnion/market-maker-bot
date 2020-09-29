@@ -15,8 +15,8 @@ describe('OpenDEX.assets-utils', () => {
       getChannelBalance: () => 20000000,
     };
     const balancesMap = new Map();
-    const baseAsset = config.OPENDEX_BASEASSET;
-    const quoteAsset = config.OPENDEX_QUOTEASSET;
+    const baseAsset = config.BASEASSET;
+    const quoteAsset = config.QUOTEASSET;
     balancesMap.set(baseAsset, baseAssetBalance);
     balancesMap.set(quoteAsset, quoteAssetBalance);
     const balanceResponse = ({
@@ -31,8 +31,8 @@ describe('OpenDEX.assets-utils', () => {
       getMaxsell: () => 10000000,
       getMaxbuy: () => 10000000,
     };
-    limitsMap.set(config.OPENDEX_BASEASSET, baseAssetLimits);
-    limitsMap.set(config.OPENDEX_QUOTEASSET, quoteAssetLimits);
+    limitsMap.set(config.BASEASSET, baseAssetLimits);
+    limitsMap.set(config.QUOTEASSET, quoteAssetLimits);
     const tradingLimitsResponse = ({
       getLimitsMap: () => limitsMap,
     } as unknown) as TradingLimitsResponse;
@@ -66,7 +66,7 @@ describe('OpenDEX.assets-utils', () => {
   });
 
   test('error baseAssetBalance', () => {
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = testConfig();
+    const { BASEASSET, QUOTEASSET } = testConfig();
     const balancesMap = new Map();
     const balanceResponse = ({
       getBalancesMap: () => balancesMap,
@@ -77,8 +77,8 @@ describe('OpenDEX.assets-utils', () => {
     } as unknown) as TradingLimitsResponse;
     expect(() => {
       parseOpenDEXassets({
-        baseAsset: OPENDEX_BASEASSET,
-        quoteAsset: OPENDEX_QUOTEASSET,
+        baseAsset: BASEASSET,
+        quoteAsset: QUOTEASSET,
         balanceResponse,
         tradingLimitsResponse,
       });
@@ -86,12 +86,12 @@ describe('OpenDEX.assets-utils', () => {
   });
 
   test('error quoteAssetBalance', () => {
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = testConfig();
+    const { BASEASSET, QUOTEASSET } = testConfig();
     const balancesMap = new Map();
     const baseAssetBalance = {
       getChannelBalance: () => 10000000,
     };
-    balancesMap.set(OPENDEX_BASEASSET, baseAssetBalance);
+    balancesMap.set(BASEASSET, baseAssetBalance);
     const balanceResponse = ({
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
@@ -101,8 +101,8 @@ describe('OpenDEX.assets-utils', () => {
     } as unknown) as TradingLimitsResponse;
     expect(() => {
       parseOpenDEXassets({
-        baseAsset: OPENDEX_BASEASSET,
-        quoteAsset: OPENDEX_QUOTEASSET,
+        baseAsset: BASEASSET,
+        quoteAsset: QUOTEASSET,
         balanceResponse,
         tradingLimitsResponse,
       });
@@ -110,7 +110,7 @@ describe('OpenDEX.assets-utils', () => {
   });
 
   test('error baseAssetTradingLimits', () => {
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = testConfig();
+    const { BASEASSET, QUOTEASSET } = testConfig();
     const balancesMap = new Map();
     const baseAssetBalance = {
       getChannelBalance: () => 10000000,
@@ -118,8 +118,8 @@ describe('OpenDEX.assets-utils', () => {
     const quoteAssetBalance = {
       getChannelBalance: () => 10000000,
     };
-    balancesMap.set(OPENDEX_BASEASSET, baseAssetBalance);
-    balancesMap.set(OPENDEX_QUOTEASSET, quoteAssetBalance);
+    balancesMap.set(BASEASSET, baseAssetBalance);
+    balancesMap.set(QUOTEASSET, quoteAssetBalance);
     const balanceResponse = ({
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
@@ -129,8 +129,8 @@ describe('OpenDEX.assets-utils', () => {
     } as unknown) as TradingLimitsResponse;
     expect(() => {
       parseOpenDEXassets({
-        baseAsset: OPENDEX_BASEASSET,
-        quoteAsset: OPENDEX_QUOTEASSET,
+        baseAsset: BASEASSET,
+        quoteAsset: QUOTEASSET,
         balanceResponse,
         tradingLimitsResponse,
       });
@@ -138,7 +138,7 @@ describe('OpenDEX.assets-utils', () => {
   });
 
   test('error quoteAssetLimits', () => {
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = testConfig();
+    const { BASEASSET, QUOTEASSET } = testConfig();
     const balancesMap = new Map();
     const baseAssetBalance = {
       getChannelBalance: () => 10000000,
@@ -146,8 +146,8 @@ describe('OpenDEX.assets-utils', () => {
     const quoteAssetBalance = {
       getChannelBalance: () => 10000000,
     };
-    balancesMap.set(OPENDEX_BASEASSET, baseAssetBalance);
-    balancesMap.set(OPENDEX_QUOTEASSET, quoteAssetBalance);
+    balancesMap.set(BASEASSET, baseAssetBalance);
+    balancesMap.set(QUOTEASSET, quoteAssetBalance);
     const balanceResponse = ({
       getBalancesMap: () => balancesMap,
     } as unknown) as GetBalanceResponse;
@@ -156,14 +156,14 @@ describe('OpenDEX.assets-utils', () => {
       getMaxsell: () => 5000000,
       getMaxbuy: () => 5000000,
     };
-    limitsMap.set(OPENDEX_BASEASSET, baseAssetLimits);
+    limitsMap.set(BASEASSET, baseAssetLimits);
     const tradingLimitsResponse = ({
       getLimitsMap: () => limitsMap,
     } as unknown) as TradingLimitsResponse;
     expect(() => {
       parseOpenDEXassets({
-        baseAsset: OPENDEX_BASEASSET,
-        quoteAsset: OPENDEX_QUOTEASSET,
+        baseAsset: BASEASSET,
+        quoteAsset: QUOTEASSET,
         balanceResponse,
         tradingLimitsResponse,
       });

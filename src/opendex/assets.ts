@@ -42,8 +42,8 @@ const getOpenDEXassets$ = ({
       return parseOpenDEXassets({
         balanceResponse,
         tradingLimitsResponse,
-        quoteAsset: config.OPENDEX_QUOTEASSET,
-        baseAsset: config.OPENDEX_BASEASSET,
+        quoteAsset: config.QUOTEASSET,
+        baseAsset: config.BASEASSET,
       });
     }),
     tap(assets => logBalance({ assets, logger })),
