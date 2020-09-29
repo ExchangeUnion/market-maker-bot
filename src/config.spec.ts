@@ -10,8 +10,6 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      CEX_BASEASSET: 'btc',
-      CEX_QUOTEASSET: 'usdt',
       BASEASSET: 'btc',
       QUOTEASSET: 'usdt',
       TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
@@ -30,6 +28,24 @@ describe('checkConfigOptions', () => {
         QUOTEASSET: 'USDT',
         CEX_BASEASSET: 'BTC',
         CEX_QUOTEASSET: 'USDT',
+      });
+    });
+
+    it('allows BTC/USDT with custom CEX_BASEASSET/CEX_QUOTEASSET', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions({
+        ...validLiveCEXdisabledConf,
+        CEX_BASEASSET: 'XBT',
+        CEX_QUOTEASSET: 'USD',
+      });
+      expect(config).toEqual({
+        ...config,
+        CEX: 'BINANCE',
+        LIVE_CEX: false,
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'USDT',
+        CEX_BASEASSET: 'XBT',
+        CEX_QUOTEASSET: 'USD',
       });
     });
 
@@ -88,8 +104,6 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      CEX_BASEASSET: 'BTC',
-      CEX_QUOTEASSET: 'USDT',
       BASEASSET: 'BTC',
       QUOTEASSET: 'USDT',
       LIVE_CEX: 'true',

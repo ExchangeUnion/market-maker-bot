@@ -33,8 +33,6 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'MARGIN',
   'BASEASSET',
   'QUOTEASSET',
-  'CEX_BASEASSET',
-  'CEX_QUOTEASSET',
   'LIVE_CEX',
 ];
 
@@ -99,15 +97,23 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
     );
   }
+  const BASEASSET = config.BASEASSET.toUpperCase();
+  const QUOTEASSET = config.QUOTEASSET.toUpperCase();
+  const CEX_BASEASSET = config.CEX_BASEASSET
+    ? config.CEX_BASEASSET.toUpperCase()
+    : BASEASSET;
+  const CEX_QUOTEASSET = config.CEX_QUOTEASSET
+    ? config.CEX_QUOTEASSET.toUpperCase()
+    : QUOTEASSET;
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
     LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
     CEX: config.CEX.toUpperCase(),
-    BASEASSET: config.BASEASSET.toUpperCase(),
-    QUOTEASSET: config.QUOTEASSET.toUpperCase(),
-    CEX_BASEASSET: config.CEX_BASEASSET.toUpperCase(),
-    CEX_QUOTEASSET: config.CEX_QUOTEASSET.toUpperCase(),
+    BASEASSET,
+    QUOTEASSET,
+    CEX_BASEASSET,
+    CEX_QUOTEASSET,
   };
   return verifiedConfig as Config;
 };
