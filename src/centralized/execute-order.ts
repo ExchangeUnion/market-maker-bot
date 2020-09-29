@@ -38,7 +38,7 @@ const executeCEXorder$ = ({
 }: ExecuteCEXorderParams): Observable<null> => {
   if (config.LIVE_CEX) {
     logger.info(
-      `Starting centralized exchange ${config.BASEASSET}/${config.QUOTEASSET} market ${order.side} order (quantity: ${order.quantity})`
+      `Starting centralized exchange ${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET} market ${order.side} order (quantity: ${order.quantity})`
     );
     return createOrder$({
       exchange: CEX,
@@ -62,8 +62,8 @@ const executeCEXorder$ = ({
     return of(price).pipe(
       mergeMap(price => {
         logger.info(
-          `Starting centralized exchange ${config.BASEASSET}/${
-            config.QUOTEASSET
+          `Starting centralized exchange ${config.CEX_BASEASSET}/${
+            config.CEX_QUOTEASSET
           } market ${order.side} order (quantity: ${
             order.quantity
           }, price: ${price.toFixed()})`

@@ -25,7 +25,7 @@ type TradeInfoToOpenDEXordersParams = {
 };
 
 const createOrderID = (config: Config, orderSide: OrderSide): string => {
-  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
   return orderSide === OrderSide.BUY
     ? `arby-${pairId}-buy-order`
     : `arby-${pairId}-sell-order`;
@@ -47,7 +47,7 @@ const tradeInfoToOpenDEXorders = ({
     baseAssetBalance: centralizedExchangeBaseAssetBalance,
     quoteAssetBalance: centralizedExchangeQuoteAssetBalance,
   } = centralizedExchange;
-  const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+  const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
   const marginPercentage = new BigNumber(config.MARGIN);
   const margin = price.multipliedBy(marginPercentage);
   const buyPrice = price.minus(margin);
@@ -62,14 +62,14 @@ const tradeInfoToOpenDEXorders = ({
         // ...and 5000 for other assets
         return new BigNumber('4750');
       }
-    } else if (asset === config.BASEASSET) {
+    } else if (asset === config.OPENDEX_BASEASSET) {
       return openDEXbaseAssetMaxInbound;
     } else {
       return openDEXquoteAssetMaxInbound;
     }
   };
   const buyQuantity = BigNumber.minimum(
-    getOpenDEXMaxInbound(config.BASEASSET),
+    getOpenDEXMaxInbound(config.OPENDEX_BASEASSET),
     openDEXquoteAssetMaxOutbound.dividedBy(buyPrice),
     centralizedExchangeBaseAssetBalance
   );
@@ -79,7 +79,7 @@ const tradeInfoToOpenDEXorders = ({
   );
   const sellQuantity = BigNumber.minimum(
     openDEXbaseAssetMaxOutbound,
-    getOpenDEXMaxInbound(config.QUOTEASSET).dividedBy(sellPrice),
+    getOpenDEXMaxInbound(config.OPENDEX_QUOTEASSET).dividedBy(sellPrice),
     centralizedExchangeQuoteAssetBalance.dividedBy(price)
   );
   const sellQuantityWithBuffer = sellQuantity.minus(

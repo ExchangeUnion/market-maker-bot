@@ -47,8 +47,8 @@ const assertProcessListOrders = ({
     getBuyOrdersList: () => buyOrders,
     getSellOrdersList: () => sellOrders,
   };
-  const { BASEASSET, QUOTEASSET } = testConfig();
-  ordersMap.set(`${BASEASSET}/${QUOTEASSET}`, orders);
+  const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = testConfig();
+  ordersMap.set(`${OPENDEX_BASEASSET}/${OPENDEX_QUOTEASSET}`, orders);
   const listOrdersResponse = ({
     getOrdersMap: () => ordersMap,
   } as unknown) as ListOrdersResponse;

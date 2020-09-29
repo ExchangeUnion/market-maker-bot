@@ -7,7 +7,7 @@ const deriveCEXorderQuantity = (
   price: BigNumber,
   config: Config
 ): CEXorder => {
-  if (config.BASEASSET === 'BTC') {
+  if (config.CEX_BASEASSET === 'BTC') {
     return {
       ...order,
       quantity: new BigNumber(order.quantity.dividedBy(price).toFixed(8)),

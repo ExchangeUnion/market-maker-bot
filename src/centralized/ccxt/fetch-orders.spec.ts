@@ -11,8 +11,8 @@ describe('CCXT', () => {
       fetchOpenOrders: fetchOpenOrdersMock,
     } as unknown) as Exchange;
     const config = testConfig();
-    const { BASEASSET, QUOTEASSET } = config;
-    const tradingPair = `${BASEASSET}/${QUOTEASSET}`;
+    const { CEX_BASEASSET, CEX_QUOTEASSET } = config;
+    const tradingPair = `${CEX_BASEASSET}/${CEX_QUOTEASSET}`;
     const orders$ = fetchOpenOrders$(exchange, config);
     orders$.subscribe({
       next: actualOrders => {

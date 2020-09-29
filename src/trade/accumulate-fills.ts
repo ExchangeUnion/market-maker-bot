@@ -12,7 +12,7 @@ const accumulateOrderFillsForBaseAssetReceived = (config: Config) => {
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
         const PROFIT_ASSET: Asset = 'BTC';
-        if (config.BASEASSET === PROFIT_ASSET) {
+        if (config.OPENDEX_BASEASSET === PROFIT_ASSET) {
           // accumulate quote asset sent when profit asset is the base asset
           const quantitySent = new BigNumber(
             satsToCoinsStr(curr.getAmountSent())
@@ -36,7 +36,7 @@ const accumulateOrderFillsForQuoteAssetReceived = (config: Config) => {
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
         const PROFIT_ASSET: Asset = 'BTC';
-        if (config.BASEASSET === PROFIT_ASSET) {
+        if (config.OPENDEX_BASEASSET === PROFIT_ASSET) {
           // accumulate quote asset received when profit asset is the base asset
           const quantityReceived = new BigNumber(
             satsToCoinsStr(curr.getAmountReceived())

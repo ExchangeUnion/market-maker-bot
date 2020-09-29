@@ -28,27 +28,27 @@ const assertTradeInfoToOpenDEXorders = ({
   });
   if (expected.buyQuantity && expected.buyPrice) {
     const expectedBuyQuantity = coinsToSats(expected.buyQuantity.toNumber());
-    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
     expect(buyOrder).toEqual(
       expect.objectContaining({
         quantity: expectedBuyQuantity,
         orderSide: OrderSide.BUY,
         pairId,
         price: expected.buyPrice.toNumber(),
-        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-buy-order`,
+        orderId: `arby-${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}-buy-order`,
       })
     );
   }
   if (expected.sellQuantity && expected.sellPrice) {
     const expectedSellQuantity = coinsToSats(expected.sellQuantity.toNumber());
-    const pairId = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const pairId = `${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}`;
     expect(sellOrder).toEqual(
       expect.objectContaining({
         quantity: expectedSellQuantity,
         orderSide: OrderSide.SELL,
         pairId,
         price: expected.sellPrice.toNumber(),
-        orderId: `arby-${config.BASEASSET}/${config.QUOTEASSET}-sell-order`,
+        orderId: `arby-${config.OPENDEX_BASEASSET}/${config.OPENDEX_QUOTEASSET}-sell-order`,
       })
     );
   }
@@ -112,7 +112,7 @@ describe('tradeInfoToOpenDEXorders', () => {
         },
         config: {
           ...testConfig(),
-          ...{ BASEASSET: 'BTC', QUOTEASSET: 'USDT' },
+          ...{ OPENDEX_BASEASSET: 'BTC', OPENDEX_QUOTEASSET: 'USDT' },
         },
       });
     });
@@ -263,8 +263,8 @@ describe('tradeInfoToOpenDEXorders', () => {
         config: {
           ...testConfig(),
           ...{
-            BASEASSET: 'BTC',
-            QUOTEASSET: 'USDT',
+            OPENDEX_BASEASSET: 'BTC',
+            OPENDEX_QUOTEASSET: 'USDT',
           },
         },
       });

@@ -7,12 +7,12 @@ describe('convertBalances', () => {
   it('converts CCXT Balances to ExchangeAssetAllocation', () => {
     const config = testConfig();
     const balances = ({} as unknown) as Balances;
-    balances[config.BASEASSET] = {
+    balances[config.CEX_BASEASSET] = {
       free: 10,
       used: 10,
       total: 20,
     };
-    balances[config.QUOTEASSET] = {
+    balances[config.CEX_QUOTEASSET] = {
       free: 1,
       used: 1,
       total: 2,

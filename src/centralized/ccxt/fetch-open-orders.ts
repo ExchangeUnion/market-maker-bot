@@ -7,7 +7,11 @@ const fetchOpenOrders$ = (
   config: Config
 ): Observable<Order[]> => {
   return defer(() =>
-    from(exchange.fetchOpenOrders(`${config.BASEASSET}/${config.QUOTEASSET}`))
+    from(
+      exchange.fetchOpenOrders(
+        `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`
+      )
+    )
   );
 };
 

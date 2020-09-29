@@ -16,7 +16,7 @@ const getCentralizedExchangePrice$ = ({
   logger,
 }: CentralizedExchangePriceParams): Observable<BigNumber> => {
   const priceObservable: Observable<BigNumber> = new Observable(observer => {
-    const tradingPair = `${config.BASEASSET}${config.QUOTEASSET}`;
+    const tradingPair = `${config.CEX_BASEASSET}${config.CEX_QUOTEASSET}`;
     const url = `wss://stream.binance.com:9443/ws/${tradingPair.toLowerCase()}@aggTrade`;
     const socket = new WebSocket(url);
     socket.onopen = () => {

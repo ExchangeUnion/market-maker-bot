@@ -21,12 +21,12 @@ describe('CCXT', () => {
     const config: Config = {
       ...testConfig(),
       ...{
-        BASEASSET: 'ETH',
-        QUOTEASSET: 'BTC',
+        CEX_BASEASSET: 'ETH',
+        CEX_QUOTEASSET: 'BTC',
         CEX: 'Binance',
       },
     };
-    const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
     const sellOrder$ = createOrder$({
       config,
       exchange,
@@ -61,13 +61,13 @@ describe('CCXT', () => {
     const config: Config = {
       ...testConfig(),
       ...{
-        BASEASSET: 'BTC',
-        QUOTEASSET: 'USDT',
+        CEX_BASEASSET: 'BTC',
+        CEX_QUOTEASSET: 'USDT',
         CEX: 'Binance',
       },
     };
     orderQuantity = new BigNumber('0.12345678');
-    const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
     const buyOrder$ = createOrder$({
       config,
       exchange,
@@ -102,12 +102,12 @@ describe('CCXT', () => {
     const config: Config = {
       ...testConfig(),
       ...{
-        BASEASSET: 'BTC',
-        QUOTEASSET: 'USDT',
+        CEX_BASEASSET: 'BTC',
+        CEX_QUOTEASSET: 'USDT',
         CEX: 'Kraken',
       },
     };
-    const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
     const buyOrder$ = createOrder$({
       config,
       exchange,
@@ -144,12 +144,12 @@ describe('CCXT', () => {
     const config: Config = {
       ...testConfig(),
       ...{
-        BASEASSET: 'ETH',
-        QUOTEASSET: 'BTC',
+        CEX_BASEASSET: 'ETH',
+        CEX_QUOTEASSET: 'BTC',
         CEX: 'Kraken',
       },
     };
-    const expectedSymbol = `${config.BASEASSET}/${config.QUOTEASSET}`;
+    const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
     const sellOrder$ = createOrder$({
       config,
       exchange,

@@ -12,8 +12,8 @@ describe('CCXT', () => {
     } as unknown) as Exchange;
     const orderId = '123';
     const config = testConfig();
-    const { BASEASSET, QUOTEASSET } = config;
-    const tradingPair = `${BASEASSET}/${QUOTEASSET}`;
+    const { CEX_BASEASSET, CEX_QUOTEASSET } = config;
+    const tradingPair = `${CEX_BASEASSET}/${CEX_QUOTEASSET}`;
     const orders$ = cancelOrder$(exchange, config, orderId);
     orders$.subscribe({
       next: actualResponse => {
