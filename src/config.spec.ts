@@ -54,21 +54,6 @@ describe('checkConfigOptions', () => {
       });
     });
 
-    it('does not allow LTC/LTC trading pair', () => {
-      const config = {
-        ...validLiveCEXdisabledConf,
-        ...{
-          CEX_BASEASSET: 'LTC',
-          CEX_QUOTEASSET: 'LTC',
-          OPENDEX_BASEASSET: 'LTC',
-          OPENDEX_QUOTEASSET: 'LTC',
-        },
-      };
-      expect(() => {
-        checkConfigOptions(config);
-      }).toThrowErrorMatchingSnapshot();
-    });
-
     it('requires TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE', () => {
       expect.assertions(1);
       const config = {

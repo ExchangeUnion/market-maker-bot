@@ -88,17 +88,6 @@ const getMissingOptions = (config: DotenvParseOutput): string => {
     .join(', ');
 };
 
-const ALLOWED_TRADING_PAIRS: string[] = [
-  'ETH/BTC',
-  'BTC/USDT',
-  'BTC/USD',
-  'BTC/DAI',
-  'LTC/BTC',
-  'LTC/USDT',
-  'USDT/DAI',
-  'USD/DAI',
-];
-
 const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const config = {
     ...dotEnvConfig,
@@ -108,14 +97,6 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   if (missingOptions) {
     throw new Error(
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
-    );
-  }
-  const tradingPair = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`.toUpperCase();
-  if (!ALLOWED_TRADING_PAIRS.includes(tradingPair)) {
-    throw new Error(
-      `Invalid trading pair ${tradingPair}. Supported trading pairs are: ${ALLOWED_TRADING_PAIRS.join(
-        ', '
-      )}`
     );
   }
   const verifiedConfig = {
