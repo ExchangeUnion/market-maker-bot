@@ -12,8 +12,8 @@ const processListorders = ({
   config,
 }: ProcessListOrdersParams): string[] => {
   const ordersMap = listOrdersResponse.getOrdersMap();
-  const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = config;
-  const tradingPair = `${OPENDEX_BASEASSET}/${OPENDEX_QUOTEASSET}`;
+  const { BASEASSET, QUOTEASSET } = config;
+  const tradingPair = `${BASEASSET}/${QUOTEASSET}`;
   const tradingPairOrders = ordersMap.get(tradingPair);
   if (!tradingPairOrders) {
     throw errors.INVALID_ORDERS_LIST(tradingPair);

@@ -17,8 +17,8 @@ const subscribeXudSwaps$ = ({
   request.setIncludeTaker(true);
   const subscribeSwaps$ = new Observable(subscriber => {
     const swapsSubscription = client.subscribeSwaps(request);
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = config;
-    const pairIdToMonitor = `${OPENDEX_BASEASSET}/${OPENDEX_QUOTEASSET}`;
+    const { BASEASSET, QUOTEASSET } = config;
+    const pairIdToMonitor = `${BASEASSET}/${QUOTEASSET}`;
     const onData = (swapSuccess: SwapSuccess) => {
       if (pairIdToMonitor === swapSuccess.getPairId()) {
         subscriber.next(swapSuccess);

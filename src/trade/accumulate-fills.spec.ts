@@ -151,8 +151,8 @@ describe('accumulateOrderFillsForBaseAssetReceived', () => {
       };
       const config: Config = {
         ...testConfig(),
-        OPENDEX_BASEASSET: 'BTC',
-        OPENDEX_QUOTEASSET: 'DAI',
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'DAI',
       };
       assertAccumulateFillsForBaseAssetReceived({
         config,
@@ -204,8 +204,8 @@ describe('accumulateOrderFillsForQuoteAssetReceived', () => {
         };
         const config: Config = {
           ...testConfig(),
-          OPENDEX_BASEASSET: 'BTC',
-          OPENDEX_QUOTEASSET: 'DAI',
+          BASEASSET: 'BTC',
+          QUOTEASSET: 'DAI',
         };
         assertAccumulateFillsForQuoteAssetReceived({
           config,

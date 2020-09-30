@@ -36,7 +36,7 @@ const getOpenDEXswapSuccess$ = ({
       share()
     ),
     swapSuccess => {
-      return swapSuccess.getCurrencyReceived() === config.OPENDEX_BASEASSET;
+      return swapSuccess.getCurrencyReceived() === config.BASEASSET;
     }
   );
   const catchErrorAndRetry = (source: Observable<SwapSuccess>) => {

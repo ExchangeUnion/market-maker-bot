@@ -10,10 +10,8 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      CEX_BASEASSET: 'btc',
-      CEX_QUOTEASSET: 'usdt',
-      OPENDEX_BASEASSET: 'btc',
-      OPENDEX_QUOTEASSET: 'usdt',
+      BASEASSET: 'btc',
+      QUOTEASSET: 'usdt',
       TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
       TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
       LIVE_CEX: 'false',
@@ -26,10 +24,28 @@ describe('checkConfigOptions', () => {
         ...config,
         CEX: 'BINANCE',
         LIVE_CEX: false,
-        OPENDEX_BASEASSET: 'BTC',
-        OPENDEX_QUOTEASSET: 'USDT',
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'USDT',
         CEX_BASEASSET: 'BTC',
         CEX_QUOTEASSET: 'USDT',
+      });
+    });
+
+    it('allows BTC/USDT with custom CEX_BASEASSET/CEX_QUOTEASSET', () => {
+      expect.assertions(1);
+      const config = checkConfigOptions({
+        ...validLiveCEXdisabledConf,
+        CEX_BASEASSET: 'XBT',
+        CEX_QUOTEASSET: 'USD',
+      });
+      expect(config).toEqual({
+        ...config,
+        CEX: 'BINANCE',
+        LIVE_CEX: false,
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'USDT',
+        CEX_BASEASSET: 'XBT',
+        CEX_QUOTEASSET: 'USD',
       });
     });
 
@@ -39,16 +55,16 @@ describe('checkConfigOptions', () => {
         ...{
           CEX_BASEASSET: 'eth',
           CEX_QUOTEASSET: 'btc',
-          OPENDEX_BASEASSET: 'eth',
-          OPENDEX_QUOTEASSET: 'btc',
+          BASEASSET: 'eth',
+          QUOTEASSET: 'btc',
         },
       });
       expect(config).toEqual({
         ...config,
         CEX: 'BINANCE',
         LIVE_CEX: false,
-        OPENDEX_BASEASSET: 'ETH',
-        OPENDEX_QUOTEASSET: 'BTC',
+        BASEASSET: 'ETH',
+        QUOTEASSET: 'BTC',
         CEX_BASEASSET: 'ETH',
         CEX_QUOTEASSET: 'BTC',
       });
@@ -88,10 +104,8 @@ describe('checkConfigOptions', () => {
       OPENDEX_RPC_HOST: 'localhost',
       OPENDEX_RPC_PORT: '1234',
       MARGIN: '0.06',
-      CEX_BASEASSET: 'BTC',
-      CEX_QUOTEASSET: 'USDT',
-      OPENDEX_BASEASSET: 'BTC',
-      OPENDEX_QUOTEASSET: 'USDT',
+      BASEASSET: 'BTC',
+      QUOTEASSET: 'USDT',
       LIVE_CEX: 'true',
     };
 
@@ -111,8 +125,8 @@ describe('checkConfigOptions', () => {
         ...{
           CEX_BASEASSET: 'USDT',
           CEX_QUOTEASSET: 'DAI',
-          OPENDEX_BASEASSET: 'USDT',
-          OPENDEX_QUOTEASSET: 'DAI',
+          BASEASSET: 'USDT',
+          QUOTEASSET: 'DAI',
         },
       });
       expect(config).toEqual({
@@ -121,8 +135,8 @@ describe('checkConfigOptions', () => {
         LIVE_CEX: true,
         CEX_BASEASSET: 'USDT',
         CEX_QUOTEASSET: 'DAI',
-        OPENDEX_BASEASSET: 'USDT',
-        OPENDEX_QUOTEASSET: 'DAI',
+        BASEASSET: 'USDT',
+        QUOTEASSET: 'DAI',
       });
     });
 
@@ -133,8 +147,8 @@ describe('checkConfigOptions', () => {
         ...{
           CEX_BASEASSET: 'BTC',
           CEX_QUOTEASSET: 'USD',
-          OPENDEX_BASEASSET: 'BTC',
-          OPENDEX_QUOTEASSET: 'USDT',
+          BASEASSET: 'BTC',
+          QUOTEASSET: 'USDT',
         },
       });
       expect(config).toEqual({
@@ -143,8 +157,8 @@ describe('checkConfigOptions', () => {
         LIVE_CEX: true,
         CEX_BASEASSET: 'BTC',
         CEX_QUOTEASSET: 'USD',
-        OPENDEX_BASEASSET: 'BTC',
-        OPENDEX_QUOTEASSET: 'USDT',
+        BASEASSET: 'BTC',
+        QUOTEASSET: 'USDT',
       });
     });
 
@@ -155,8 +169,8 @@ describe('checkConfigOptions', () => {
         ...{
           CEX_BASEASSET: 'USD',
           CEX_QUOTEASSET: 'DAI',
-          OPENDEX_BASEASSET: 'USDT',
-          OPENDEX_QUOTEASSET: 'DAI',
+          BASEASSET: 'USDT',
+          QUOTEASSET: 'DAI',
         },
       });
       expect(config).toEqual({
@@ -165,8 +179,8 @@ describe('checkConfigOptions', () => {
         LIVE_CEX: true,
         CEX_BASEASSET: 'USD',
         CEX_QUOTEASSET: 'DAI',
-        OPENDEX_BASEASSET: 'USDT',
-        OPENDEX_QUOTEASSET: 'DAI',
+        BASEASSET: 'USDT',
+        QUOTEASSET: 'DAI',
       });
     });
 
@@ -176,8 +190,8 @@ describe('checkConfigOptions', () => {
         ...{
           CEX_BASEASSET: 'ETH',
           CEX_QUOTEASSET: 'BTC',
-          OPENDEX_BASEASSET: 'ETH',
-          OPENDEX_QUOTEASSET: 'BTC',
+          BASEASSET: 'ETH',
+          QUOTEASSET: 'BTC',
         },
       });
       expect(config).toEqual({

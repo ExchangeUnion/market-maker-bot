@@ -14,8 +14,8 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
-  OPENDEX_BASEASSET: Asset;
-  OPENDEX_QUOTEASSET: Asset;
+  BASEASSET: Asset;
+  QUOTEASSET: Asset;
   CEX_BASEASSET: Asset;
   CEX_QUOTEASSET: Asset;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
@@ -31,10 +31,8 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'OPENDEX_RPC_HOST',
   'OPENDEX_RPC_PORT',
   'MARGIN',
-  'OPENDEX_BASEASSET',
-  'OPENDEX_QUOTEASSET',
-  'CEX_BASEASSET',
-  'CEX_QUOTEASSET',
+  'BASEASSET',
+  'QUOTEASSET',
   'LIVE_CEX',
 ];
 
@@ -48,6 +46,8 @@ const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED = [
   'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
 ];
 
+const OPTIONAL_CONFIG = ['CEX_BASEASSET', 'CEX_QUOTEASSET'];
+
 const setLogLevel = (logLevel: string): Level => {
   return Object.values(Level).reduce((finalLevel, level) => {
     if (logLevel === level) {
@@ -60,7 +60,8 @@ const setLogLevel = (logLevel: string): Level => {
 const getEnvironmentConfig = (): DotenvParseOutput => {
   const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.concat(
     REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED,
-    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED
+    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED,
+    OPTIONAL_CONFIG
   ).reduce((envConfig: DotenvParseOutput, configOption) => {
     if (process.env[configOption]) {
       return {
@@ -99,15 +100,23 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
       `Incomplete configuration. Please add the following options to .env or as environment variables: ${missingOptions}`
     );
   }
+  const BASEASSET = config.BASEASSET.toUpperCase();
+  const QUOTEASSET = config.QUOTEASSET.toUpperCase();
+  const CEX_BASEASSET = config.CEX_BASEASSET
+    ? config.CEX_BASEASSET.toUpperCase()
+    : BASEASSET;
+  const CEX_QUOTEASSET = config.CEX_QUOTEASSET
+    ? config.CEX_QUOTEASSET.toUpperCase()
+    : QUOTEASSET;
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
     LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
     CEX: config.CEX.toUpperCase(),
-    OPENDEX_BASEASSET: config.OPENDEX_BASEASSET.toUpperCase(),
-    OPENDEX_QUOTEASSET: config.OPENDEX_QUOTEASSET.toUpperCase(),
-    CEX_BASEASSET: config.CEX_BASEASSET.toUpperCase(),
-    CEX_QUOTEASSET: config.CEX_QUOTEASSET.toUpperCase(),
+    BASEASSET,
+    QUOTEASSET,
+    CEX_BASEASSET,
+    CEX_QUOTEASSET,
   };
   return verifiedConfig as Config;
 };

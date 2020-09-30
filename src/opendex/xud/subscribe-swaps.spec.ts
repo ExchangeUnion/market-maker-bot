@@ -38,9 +38,9 @@ describe('subscribeXudSwaps$', () => {
     } as unknown) as XudClient;
     onSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'on');
     offSwapSubscriptionSpy = jest.spyOn(mockSwapSubscription, 'off');
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = config;
+    const { BASEASSET, QUOTEASSET } = config;
     swapSuccess = {
-      getPairId: () => `${OPENDEX_BASEASSET}/${OPENDEX_QUOTEASSET}`,
+      getPairId: () => `${BASEASSET}/${QUOTEASSET}`,
     };
   });
 

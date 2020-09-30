@@ -101,12 +101,12 @@ describe('getOpenDEXswapSuccess$', () => {
       subscribeXudSwaps$: '1s a 1s b',
       unsubscribe: '4s !',
     };
-    const { OPENDEX_BASEASSET, OPENDEX_QUOTEASSET } = config;
+    const { BASEASSET, QUOTEASSET } = config;
     const swapSuccessA = ({
-      getCurrencyReceived: () => OPENDEX_BASEASSET,
+      getCurrencyReceived: () => BASEASSET,
     } as unknown) as SwapSuccess;
     const swapSuccessB = ({
-      getCurrencyReceived: () => OPENDEX_QUOTEASSET,
+      getCurrencyReceived: () => QUOTEASSET,
     } as unknown) as SwapSuccess;
     const inputValues = {
       subscribeXudSwaps$: {
