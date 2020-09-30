@@ -46,10 +46,7 @@ const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED = [
   'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
 ];
 
-const OPTIONAL_CONFIG = [
-  'CEX_BASEASSET',
-  'CEX_QUOTEASSET',
-];
+const OPTIONAL_CONFIG = ['CEX_BASEASSET', 'CEX_QUOTEASSET'];
 
 const setLogLevel = (logLevel: string): Level => {
   return Object.values(Level).reduce((finalLevel, level) => {
@@ -64,7 +61,7 @@ const getEnvironmentConfig = (): DotenvParseOutput => {
   const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.concat(
     REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED,
     REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED,
-    OPTIONAL_CONFIG,
+    OPTIONAL_CONFIG
   ).reduce((envConfig: DotenvParseOutput, configOption) => {
     if (process.env[configOption]) {
       return {
