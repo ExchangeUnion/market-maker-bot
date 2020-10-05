@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`verifyMarkets throws when BTC/USD trading pair not exist 1`] = `"The configured trading pair BTC/USD does not exist on Binance"`;

@@ -4,8 +4,6 @@ const MAX_RETRY_ATTEMPS = 10;
 const MAX_RETRY_ATTEMPS_CLEANUP = 5;
 const CLEANUP_RETRY_INTERVAL = 1000;
 
-type Asset = 'BTC' | 'ETH' | 'DAI' | 'USDT';
-
 enum OrderSide {
   BUY = 'buy',
   SELL = 'sell',
@@ -16,6 +14,5 @@ export {
   MAX_RETRY_ATTEMPS_CLEANUP,
   MAX_RETRY_ATTEMPS,
   RETRY_INTERVAL,
-  Asset,
   OrderSide,
 };

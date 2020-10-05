@@ -19,6 +19,8 @@ import { getArbyStore } from './store';
 import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
+import { Dictionary, Market } from 'ccxt';
+import { verifyMarkets } from './centralized/verify-markets';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -40,6 +42,7 @@ type StartArbyParams = {
     config,
     loadMarkets$,
   }: InitCEXparams) => Observable<InitCEXResponse>;
+  verifyMarkets: (config: Config, CEXmarkets: Dictionary<Market>) => boolean;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -83,6 +86,7 @@ export const startArby = ({
   trade$,
   cleanup$,
   initCEX$,
+  verifyMarkets,
 }: StartArbyParams): Observable<any> => {
   const store = getArbyStore();
   return config$.pipe(
@@ -93,10 +97,11 @@ export const startArby = ({
         getExchange,
       });
       return CEX$.pipe(
-        mergeMap(({ markets, exchange: CEX }) => {
+        mergeMap(({ markets: CEXmarkets, exchange: CEX }) => {
           const loggers = getLoggers(config);
           loggers.global.info('Starting. Hello, Arby.');
           logConfig(config, loggers.global);
+          verifyMarkets(config, CEXmarkets);
           const tradeComplete$ = trade$({
             config,
             loggers,
@@ -149,6 +154,7 @@ if (!module.parent) {
     shutdown$: getStartShutdown$(),
     cleanup$: getCleanup$,
     initCEX$,
+    verifyMarkets,
   }).subscribe({
     error: error => {
       if (error.message) {

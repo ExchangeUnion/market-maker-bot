@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { Config } from '../config';
-import { Asset, OrderSide } from '../constants';
+import { OrderSide } from '../constants';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { ArbyStore, getArbyStore } from '../store';
 import { getLoggers, testConfig } from '../test-utils';
@@ -29,7 +29,7 @@ const assertOrderBuilder = (
     a: CEXorder;
   },
   config: Config,
-  expectedAssetToTradeOnCEX: Asset,
+  expectedAssetToTradeOnCEX: string,
   store?: ArbyStore
 ) => {
   testScheduler.run(helpers => {
@@ -113,8 +113,8 @@ describe('getCentralizedExchangeOrder$', () => {
         side: OrderSide.BUY,
       } as unknown) as CEXorder,
     };
-    const BASEASSET: Asset = 'ETH';
-    const QUOTEASSET: Asset = 'BTC';
+    const BASEASSET = 'ETH';
+    const QUOTEASSET = 'BTC';
     const config = {
       ...testConfig(),
       CEX_BASEASSET: BASEASSET,
@@ -167,8 +167,8 @@ describe('getCentralizedExchangeOrder$', () => {
         side: OrderSide.BUY,
       } as unknown) as CEXorder,
     };
-    const BASEASSET: Asset = 'BTC';
-    const QUOTEASSET: Asset = 'USDT';
+    const BASEASSET = 'BTC';
+    const QUOTEASSET = 'USDT';
     const config = {
       ...testConfig(),
       CEX_BASEASSET: BASEASSET,

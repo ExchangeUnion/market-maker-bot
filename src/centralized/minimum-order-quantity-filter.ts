@@ -1,11 +1,8 @@
 import BigNumber from 'bignumber.js';
-import { Asset } from '../constants';
+import { errors } from '../opendex/errors';
 
 type MinimumCEXquantities = {
-  BTC: BigNumber;
-  ETH: BigNumber;
-  DAI: BigNumber;
-  USDT: BigNumber;
+  [key: string]: BigNumber;
 };
 
 const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
@@ -15,9 +12,17 @@ const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
   USDT: new BigNumber('15'),
 };
 
-const quantityAboveMinimum = (asset: Asset) => {
+const getMinimumOrderSize = (asset: string): BigNumber => {
+  const minimumOrderSize = MINIMUM_ORDER_SIZE[asset];
+  if (!minimumOrderSize) {
+    throw errors.CEX_INVALID_MINIMUM_ORDER_QUANTITY(asset);
+  }
+  return minimumOrderSize;
+};
+
+const quantityAboveMinimum = (asset: string) => {
   return (quantity: BigNumber): boolean => {
-    return quantity.isGreaterThanOrEqualTo(MINIMUM_ORDER_SIZE[asset]);
+    return quantity.isGreaterThanOrEqualTo(getMinimumOrderSize(asset));
   };
 };
 

@@ -16,9 +16,14 @@ type AssertStartArbyParams = {
     cleanup$: string;
     initCEX$: string;
   };
+  verifyMarkets?: () => boolean;
 };
 
-const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
+const assertStartArby = ({
+  expected,
+  inputEvents,
+  verifyMarkets,
+}: AssertStartArbyParams) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const config$ = cold(inputEvents.config$) as Observable<Config>;
@@ -41,8 +46,9 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
       trade$: getTrade$,
       cleanup$,
       initCEX$,
+      verifyMarkets: verifyMarkets ? verifyMarkets : () => true,
     });
-    expectObservable(arby$).toBe(expected);
+    expectObservable(arby$).toBe(expected, undefined, { message: 'error' });
   });
 };
 
@@ -65,6 +71,24 @@ describe('startArby', () => {
     assertStartArby({
       inputEvents,
       expected,
+    });
+  });
+
+  it('errors when verifyMarkets fails', () => {
+    const inputEvents = {
+      config$: '1000ms a',
+      initCEX$: '1s a',
+      getTrade$: 'b',
+      shutdown$: '',
+      cleanup$: '',
+    };
+    const expected = '2s #';
+    assertStartArby({
+      inputEvents,
+      expected,
+      verifyMarkets: () => {
+        throw { message: 'error' };
+      },
     });
   });
 
