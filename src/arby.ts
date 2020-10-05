@@ -3,7 +3,7 @@ import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 import { getExchange } from './centralized/ccxt/exchange';
 import {
   initCEX$,
-  InitBinanceParams,
+  InitCEXparams,
   InitCEXResponse,
 } from './centralized/ccxt/init';
 import { loadMarkets$ } from './centralized/ccxt/load-markets';
@@ -15,10 +15,10 @@ import { Logger, Loggers } from './logger';
 import { catchOpenDEXerror } from './opendex/catch-error';
 import { getOpenDEXcomplete$ } from './opendex/complete';
 import { removeOpenDEXorders$ } from './opendex/remove-orders';
+import { getArbyStore } from './store';
 import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
-import { getArbyStore } from './store';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -39,7 +39,7 @@ type StartArbyParams = {
     getExchange,
     config,
     loadMarkets$,
-  }: InitBinanceParams) => Observable<InitCEXResponse>;
+  }: InitCEXparams) => Observable<InitCEXResponse>;
 };
 
 const logConfig = (config: Config, logger: Logger) => {

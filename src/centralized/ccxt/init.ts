@@ -1,9 +1,9 @@
 import { Dictionary, Exchange, Market } from 'ccxt';
 import { Observable } from 'rxjs';
-import { mapTo, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Config } from '../../config';
 
-type InitBinanceParams = {
+type InitCEXparams = {
   config: Config;
   loadMarkets$: (exchange: Exchange) => Observable<Dictionary<Market>>;
   getExchange: (config: Config) => Exchange;
@@ -18,7 +18,7 @@ const initCEX$ = ({
   getExchange,
   config,
   loadMarkets$,
-}: InitBinanceParams): Observable<InitCEXResponse> => {
+}: InitCEXparams): Observable<InitCEXResponse> => {
   const exchange = getExchange(config);
   return loadMarkets$(exchange).pipe(
     map(markets => {
@@ -30,4 +30,4 @@ const initCEX$ = ({
   );
 };
 
-export { initCEX$, InitBinanceParams, InitCEXResponse };
+export { initCEX$, InitCEXparams, InitCEXResponse };

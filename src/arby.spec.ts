@@ -2,9 +2,8 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { startArby } from '../src/arby';
 import { Config } from '../src/config';
-import { getLoggers } from './test-utils';
-import { Exchange } from 'ccxt';
 import { InitCEXResponse } from './centralized/ccxt/init';
+import { getLoggers } from './test-utils';
 
 let testScheduler: TestScheduler;
 
