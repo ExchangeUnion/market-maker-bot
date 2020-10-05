@@ -2,7 +2,7 @@ import { Exchange } from 'ccxt';
 import { concat, Observable } from 'rxjs';
 import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 import { getExchange } from './centralized/ccxt/exchange';
-import { initBinance$, InitBinanceParams } from './centralized/ccxt/init';
+import { initCEX$, InitBinanceParams } from './centralized/ccxt/init';
 import { loadMarkets$ } from './centralized/ccxt/load-markets';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
@@ -32,7 +32,7 @@ type StartArbyParams = {
     config,
     removeOpenDEXorders$,
   }: GetCleanupParams) => Observable<unknown>;
-  initBinance$: ({
+  initCEX$: ({
     getExchange,
     config,
     loadMarkets$,
@@ -79,12 +79,12 @@ export const startArby = ({
   shutdown$,
   trade$,
   cleanup$,
-  initBinance$,
+  initCEX$,
 }: StartArbyParams): Observable<any> => {
   const store = getArbyStore();
   return config$.pipe(
     mergeMap(config => {
-      const CEX$ = initBinance$({
+      const CEX$ = initCEX$({
         config,
         loadMarkets$,
         getExchange,
@@ -145,7 +145,7 @@ if (!module.parent) {
     getLoggers,
     shutdown$: getStartShutdown$(),
     cleanup$: getCleanup$,
-    initBinance$,
+    initCEX$,
   }).subscribe({
     error: error => {
       if (error.message) {

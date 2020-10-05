@@ -9,7 +9,7 @@ type InitBinanceParams = {
   getExchange: (config: Config) => Exchange;
 };
 
-const initBinance$ = ({
+const initCEX$ = ({
   getExchange,
   config,
   loadMarkets$,
@@ -18,4 +18,4 @@ const initBinance$ = ({
   return loadMarkets$(exchange).pipe(mapTo(exchange));
 };
 
-export { initBinance$, InitBinanceParams };
+export { initCEX$, InitBinanceParams };

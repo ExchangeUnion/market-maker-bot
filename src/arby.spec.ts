@@ -14,7 +14,7 @@ type AssertStartArbyParams = {
     getTrade$: string;
     shutdown$: string;
     cleanup$: string;
-    initBinance$: string;
+    initCEX$: string;
   };
 };
 
@@ -29,10 +29,8 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
     const cleanup$ = () => {
       return cold(inputEvents.cleanup$);
     };
-    const initBinance$ = () => {
-      return (cold(inputEvents.initBinance$) as unknown) as Observable<
-        Exchange
-      >;
+    const initCEX$ = () => {
+      return (cold(inputEvents.initCEX$) as unknown) as Observable<Exchange>;
     };
     const arby$ = startArby({
       config$,
@@ -40,7 +38,7 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
       shutdown$,
       trade$: getTrade$,
       cleanup$,
-      initBinance$,
+      initCEX$,
     });
     expectObservable(arby$).toBe(expected);
   });
@@ -56,7 +54,7 @@ describe('startArby', () => {
   it('waits for valid configuration before starting', () => {
     const inputEvents = {
       config$: '1000ms a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: 'b',
       shutdown$: '',
       cleanup$: '',
@@ -71,7 +69,7 @@ describe('startArby', () => {
   it('performs cleanup when shutting down gracefully', () => {
     const inputEvents = {
       config$: 'a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: '500ms b',
       shutdown$: '10s c',
       cleanup$: '2s a',
@@ -86,7 +84,7 @@ describe('startArby', () => {
   it('performs cleanup when getTrade$ errors', () => {
     const inputEvents = {
       config$: 'a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: '500ms #',
       shutdown$: '10s c',
       cleanup$: '2s a',

@@ -2,7 +2,7 @@ import { Dictionary, Exchange, Market } from 'ccxt';
 import { Observable, of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { testConfig } from '../../test-utils';
-import { initBinance$ } from './init';
+import { initCEX$ } from './init';
 
 let testScheduler: TestScheduler;
 
@@ -21,7 +21,7 @@ const assertInitBinance = (
     };
     const config = testConfig();
     const getExchange = () => ('a' as unknown) as Exchange;
-    const centralizedExchangeOrder$ = initBinance$({
+    const centralizedExchangeOrder$ = initCEX$({
       config,
       loadMarkets$,
       getExchange,
@@ -54,7 +54,7 @@ it('initializes once and loads markets', done => {
   const getExchange = jest.fn(() => {
     return (null as unknown) as Exchange;
   });
-  const CEX = initBinance$({
+  const CEX = initCEX$({
     loadMarkets$,
     config: testConfig(),
     getExchange,
