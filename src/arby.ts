@@ -1,8 +1,11 @@
-import { Exchange } from 'ccxt';
 import { concat, Observable } from 'rxjs';
 import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 import { getExchange } from './centralized/ccxt/exchange';
-import { initCEX$, InitBinanceParams } from './centralized/ccxt/init';
+import {
+  initCEX$,
+  InitBinanceParams,
+  InitCEXResponse,
+} from './centralized/ccxt/init';
 import { loadMarkets$ } from './centralized/ccxt/load-markets';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
@@ -36,7 +39,7 @@ type StartArbyParams = {
     getExchange,
     config,
     loadMarkets$,
-  }: InitBinanceParams) => Observable<Exchange>;
+  }: InitBinanceParams) => Observable<InitCEXResponse>;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -90,7 +93,7 @@ export const startArby = ({
         getExchange,
       });
       return CEX$.pipe(
-        mergeMap(CEX => {
+        mergeMap(({ markets, exchange: CEX }) => {
           const loggers = getLoggers(config);
           loggers.global.info('Starting. Hello, Arby.');
           logConfig(config, loggers.global);

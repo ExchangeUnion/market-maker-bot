@@ -4,6 +4,7 @@ import { startArby } from '../src/arby';
 import { Config } from '../src/config';
 import { getLoggers } from './test-utils';
 import { Exchange } from 'ccxt';
+import { InitCEXResponse } from './centralized/ccxt/init';
 
 let testScheduler: TestScheduler;
 
@@ -30,7 +31,9 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
       return cold(inputEvents.cleanup$);
     };
     const initCEX$ = () => {
-      return (cold(inputEvents.initCEX$) as unknown) as Observable<Exchange>;
+      return (cold(inputEvents.initCEX$) as unknown) as Observable<
+        InitCEXResponse
+      >;
     };
     const arby$ = startArby({
       config$,

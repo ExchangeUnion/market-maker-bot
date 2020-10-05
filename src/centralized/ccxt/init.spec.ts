@@ -26,7 +26,9 @@ const assertInitBinance = (
       loadMarkets$,
       getExchange,
     });
-    expectObservable(centralizedExchangeOrder$).toBe(expected);
+    expectObservable(centralizedExchangeOrder$).toBe(expected, {
+      a: { exchange: 'a', markets: 'a' },
+    });
   });
 };
 
