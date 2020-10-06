@@ -14,6 +14,8 @@ import { createOpenDEXorders$ } from '../opendex/create-orders';
 import { ArbyStore } from '../store';
 import { getCleanup$, GetCleanupParams } from './cleanup';
 import { getTradeInfo$ } from './info';
+import { getKrakenPrice$ } from '../centralized/kraken-price';
+import { getBinancePrice$ } from '../centralized/binance-price';
 
 type GetTradeParams = {
   config: Config;
@@ -63,6 +65,8 @@ const getNewTrade$ = ({
   const centralizedExchangePrice$ = getCentralizedExchangePrice$({
     config,
     logger: loggers.centralized,
+    getBinancePrice$,
+    getKrakenPrice$,
   });
   return merge(
     getOpenDEXcomplete$({
