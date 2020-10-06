@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getCentralizedExchangePrice$ errors for unknown exchange 1`] = `"Could not get price feed for unknown exchange: ASDF"`;
