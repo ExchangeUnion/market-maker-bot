@@ -3,7 +3,6 @@ import { Config } from '../config';
 import { OrderSide } from '../proto/xudrpc_pb';
 import { TradeInfo } from '../trade/info';
 import { coinsToSats } from '../utils';
-import { Asset } from 'src/constants';
 
 type OpenDEXorder = {
   quantity: number;
@@ -53,7 +52,7 @@ const tradeInfoToOpenDEXorders = ({
   const buyPrice = price.minus(margin);
   const sellPrice = price.plus(margin);
   const CONNEXT_CURRENCIES = ['ETH', 'USDT', 'DAI'];
-  const getOpenDEXMaxInbound = (asset: Asset) => {
+  const getOpenDEXMaxInbound = (asset: string) => {
     if (CONNEXT_CURRENCIES.includes(asset)) {
       if (asset === 'ETH') {
         // connext node provides us max inbound liquidity of 15 ETH

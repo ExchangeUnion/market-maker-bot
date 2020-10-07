@@ -2,7 +2,6 @@ import { DotenvParseOutput } from 'dotenv';
 import { Observable, of } from 'rxjs';
 import { map, pluck } from 'rxjs/operators';
 import { Level } from './logger';
-import { Asset } from './constants';
 
 export type Config = {
   LOG_LEVEL: Level;
@@ -14,10 +13,10 @@ export type Config = {
   OPENDEX_RPC_HOST: string;
   OPENDEX_RPC_PORT: string;
   MARGIN: string;
-  BASEASSET: Asset;
-  QUOTEASSET: Asset;
-  CEX_BASEASSET: Asset;
-  CEX_QUOTEASSET: Asset;
+  BASEASSET: string;
+  QUOTEASSET: string;
+  CEX_BASEASSET: string;
+  CEX_QUOTEASSET: string;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
   TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
   LIVE_CEX: boolean;

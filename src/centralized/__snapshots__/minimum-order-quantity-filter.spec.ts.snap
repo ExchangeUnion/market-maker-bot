@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`quantityAboveMinimum throws for unknown asset KILRAU 1`] = `"Could not retrieve minimum order quantity for KILRAU"`;

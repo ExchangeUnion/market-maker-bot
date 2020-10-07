@@ -2,8 +2,8 @@ import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { startArby } from '../src/arby';
 import { Config } from '../src/config';
+import { InitCEXResponse } from './centralized/ccxt/init';
 import { getLoggers } from './test-utils';
-import { Exchange } from 'ccxt';
 
 let testScheduler: TestScheduler;
 
@@ -14,11 +14,16 @@ type AssertStartArbyParams = {
     getTrade$: string;
     shutdown$: string;
     cleanup$: string;
-    initBinance$: string;
+    initCEX$: string;
   };
+  verifyMarkets?: () => boolean;
 };
 
-const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
+const assertStartArby = ({
+  expected,
+  inputEvents,
+  verifyMarkets,
+}: AssertStartArbyParams) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
     const config$ = cold(inputEvents.config$) as Observable<Config>;
@@ -29,9 +34,9 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
     const cleanup$ = () => {
       return cold(inputEvents.cleanup$);
     };
-    const initBinance$ = () => {
-      return (cold(inputEvents.initBinance$) as unknown) as Observable<
-        Exchange
+    const initCEX$ = () => {
+      return (cold(inputEvents.initCEX$) as unknown) as Observable<
+        InitCEXResponse
       >;
     };
     const arby$ = startArby({
@@ -40,9 +45,10 @@ const assertStartArby = ({ expected, inputEvents }: AssertStartArbyParams) => {
       shutdown$,
       trade$: getTrade$,
       cleanup$,
-      initBinance$,
+      initCEX$,
+      verifyMarkets: verifyMarkets ? verifyMarkets : () => true,
     });
-    expectObservable(arby$).toBe(expected);
+    expectObservable(arby$).toBe(expected, undefined, { message: 'error' });
   });
 };
 
@@ -56,7 +62,7 @@ describe('startArby', () => {
   it('waits for valid configuration before starting', () => {
     const inputEvents = {
       config$: '1000ms a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: 'b',
       shutdown$: '',
       cleanup$: '',
@@ -68,10 +74,28 @@ describe('startArby', () => {
     });
   });
 
+  it('errors when verifyMarkets fails', () => {
+    const inputEvents = {
+      config$: '1000ms a',
+      initCEX$: '1s a',
+      getTrade$: 'b',
+      shutdown$: '',
+      cleanup$: '',
+    };
+    const expected = '2s #';
+    assertStartArby({
+      inputEvents,
+      expected,
+      verifyMarkets: () => {
+        throw { message: 'error' };
+      },
+    });
+  });
+
   it('performs cleanup when shutting down gracefully', () => {
     const inputEvents = {
       config$: 'a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: '500ms b',
       shutdown$: '10s c',
       cleanup$: '2s a',
@@ -86,7 +110,7 @@ describe('startArby', () => {
   it('performs cleanup when getTrade$ errors', () => {
     const inputEvents = {
       config$: 'a',
-      initBinance$: '1s a',
+      initCEX$: '1s a',
       getTrade$: '500ms #',
       shutdown$: '10s c',
       cleanup$: '2s a',

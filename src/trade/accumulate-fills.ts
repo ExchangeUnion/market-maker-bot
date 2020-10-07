@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import { Config } from '../config';
-import { Asset } from '../constants';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../utils';
 
@@ -11,7 +10,7 @@ const accumulateOrderFillsForBaseAssetReceived = (config: Config) => {
     const SEED_VALUE = new BigNumber('0');
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
-        const PROFIT_ASSET: Asset = 'BTC';
+        const PROFIT_ASSET = 'BTC';
         if (config.BASEASSET === PROFIT_ASSET) {
           // accumulate quote asset sent when profit asset is the base asset
           const quantitySent = new BigNumber(
@@ -35,7 +34,7 @@ const accumulateOrderFillsForQuoteAssetReceived = (config: Config) => {
     const SEED_VALUE = new BigNumber('0');
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
-        const PROFIT_ASSET: Asset = 'BTC';
+        const PROFIT_ASSET = 'BTC';
         if (config.BASEASSET === PROFIT_ASSET) {
           // accumulate quote asset received when profit asset is the base asset
           const quantityReceived = new BigNumber(

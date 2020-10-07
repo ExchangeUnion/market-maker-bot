@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { OrderSide, Asset } from '../constants';
+import { OrderSide } from '../constants';
 import { deriveCEXorderQuantity } from './derive-order-quantity';
 import { CEXorder } from './order-builder';
 import { testConfig } from '../test-utils';
@@ -15,8 +15,8 @@ describe('deriveCEXorderQuantity', () => {
       quantity: new BigNumber('0.00104227'),
       side: OrderSide.BUY,
     };
-    const CEX_BASEASSET: Asset = 'BTC';
-    const CEX_QUOTEASSET: Asset = 'USDT';
+    const CEX_BASEASSET = 'BTC';
+    const CEX_QUOTEASSET = 'USDT';
     const config = {
       ...testConfig(),
       CEX_BASEASSET,
@@ -32,8 +32,8 @@ describe('deriveCEXorderQuantity', () => {
       quantity: new BigNumber('10.94381840'),
       side: OrderSide.BUY,
     };
-    const CEX_BASEASSET: Asset = 'ETH';
-    const CEX_QUOTEASSET: Asset = 'BTC';
+    const CEX_BASEASSET = 'ETH';
+    const CEX_QUOTEASSET = 'BTC';
     const config = {
       ...testConfig(),
       CEX_BASEASSET,

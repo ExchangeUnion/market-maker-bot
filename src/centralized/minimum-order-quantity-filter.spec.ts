@@ -37,4 +37,12 @@ describe('quantityAboveMinimum', () => {
     );
     expect(quantityAboveMinimum('USDT')(quantity)).toEqual(false);
   });
+
+  it('throws for unknown asset KILRAU', () => {
+    expect.assertions(1);
+    const quantity = new BigNumber('1');
+    expect(() => {
+      quantityAboveMinimum('KILRAU')(quantity);
+    }).toThrowErrorMatchingSnapshot();
+  });
 });

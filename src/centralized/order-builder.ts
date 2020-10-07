@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { merge, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, repeat, take } from 'rxjs/operators';
 import { Config } from '../config';
-import { Asset, OrderSide } from '../constants';
+import { OrderSide } from '../constants';
 import { Logger } from '../logger';
 import {
   GetOpenDEXswapSuccessParams,
@@ -28,7 +28,7 @@ type GetOrderBuilderParams = {
     config: Config
   ) => (source: Observable<SwapSuccess>) => Observable<BigNumber>;
   quantityAboveMinimum: (
-    asset: Asset
+    asset: string
   ) => (filledQuantity: BigNumber) => boolean;
   store: ArbyStore;
 };
@@ -55,7 +55,7 @@ const getOrderBuilder$ = ({
     getXudClient$,
     subscribeXudSwaps$,
   });
-  const assetToTradeOnCEX: Asset =
+  const assetToTradeOnCEX: string =
     config.CEX_QUOTEASSET === 'BTC'
       ? config.CEX_BASEASSET
       : config.CEX_QUOTEASSET;

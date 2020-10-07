@@ -1,8 +1,11 @@
-import { Exchange } from 'ccxt';
 import { concat, Observable } from 'rxjs';
 import { catchError, mergeMap, takeUntil } from 'rxjs/operators';
 import { getExchange } from './centralized/ccxt/exchange';
-import { initBinance$, InitBinanceParams } from './centralized/ccxt/init';
+import {
+  initCEX$,
+  InitCEXparams,
+  InitCEXResponse,
+} from './centralized/ccxt/init';
 import { loadMarkets$ } from './centralized/ccxt/load-markets';
 import { getCentralizedExchangePrice$ } from './centralized/exchange-price';
 import { getCentralizedExchangeOrder$ } from './centralized/order';
@@ -12,10 +15,12 @@ import { Logger, Loggers } from './logger';
 import { catchOpenDEXerror } from './opendex/catch-error';
 import { getOpenDEXcomplete$ } from './opendex/complete';
 import { removeOpenDEXorders$ } from './opendex/remove-orders';
+import { getArbyStore } from './store';
 import { getCleanup$, GetCleanupParams } from './trade/cleanup';
 import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
-import { getArbyStore } from './store';
+import { Dictionary, Market } from 'ccxt';
+import { verifyMarkets } from './centralized/verify-markets';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -32,11 +37,12 @@ type StartArbyParams = {
     config,
     removeOpenDEXorders$,
   }: GetCleanupParams) => Observable<unknown>;
-  initBinance$: ({
+  initCEX$: ({
     getExchange,
     config,
     loadMarkets$,
-  }: InitBinanceParams) => Observable<Exchange>;
+  }: InitCEXparams) => Observable<InitCEXResponse>;
+  verifyMarkets: (config: Config, CEXmarkets: Dictionary<Market>) => boolean;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -79,21 +85,23 @@ export const startArby = ({
   shutdown$,
   trade$,
   cleanup$,
-  initBinance$,
+  initCEX$,
+  verifyMarkets,
 }: StartArbyParams): Observable<any> => {
   const store = getArbyStore();
   return config$.pipe(
     mergeMap(config => {
-      const CEX$ = initBinance$({
+      const CEX$ = initCEX$({
         config,
         loadMarkets$,
         getExchange,
       });
       return CEX$.pipe(
-        mergeMap(CEX => {
+        mergeMap(({ markets: CEXmarkets, exchange: CEX }) => {
           const loggers = getLoggers(config);
           loggers.global.info('Starting. Hello, Arby.');
           logConfig(config, loggers.global);
+          verifyMarkets(config, CEXmarkets);
           const tradeComplete$ = trade$({
             config,
             loggers,
@@ -145,7 +153,8 @@ if (!module.parent) {
     getLoggers,
     shutdown$: getStartShutdown$(),
     cleanup$: getCleanup$,
-    initBinance$,
+    initCEX$,
+    verifyMarkets,
   }).subscribe({
     error: error => {
       if (error.message) {

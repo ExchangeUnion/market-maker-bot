@@ -7,6 +7,8 @@ const errorCodes = {
   INVALID_ORDERS_LIST: `${errorCodePrefix}.4`,
   CENTRALIZED_EXCHANGE_PRICE_FEED_ERROR: `${errorCodePrefix}.5`,
   CEX_INVALID_CREDENTIALS: `${errorCodePrefix}.6`,
+  CEX_INVALID_MINIMUM_ORDER_QUANTITY: `${errorCodePrefix}.7`,
+  CEX_INVALID_TRADING_PAIR: `${errorCodePrefix}.8`,
 };
 
 type ArbyError = {
@@ -39,6 +41,14 @@ const errors = {
     message: 'Invalid CEX_API_KEY or CEX_API_SECRET',
     code: errorCodes.CEX_INVALID_CREDENTIALS,
   },
+  CEX_INVALID_MINIMUM_ORDER_QUANTITY: (asset: string) => ({
+    message: `Could not retrieve minimum order quantity for ${asset}`,
+    code: errorCodes.CEX_INVALID_MINIMUM_ORDER_QUANTITY,
+  }),
+  CEX_INVALID_TRADING_PAIR: (tradingPair: string, CEX: string) => ({
+    message: `The configured trading pair ${tradingPair} does not exist on ${CEX}`,
+    code: errorCodes.CEX_INVALID_TRADING_PAIR,
+  }),
 };
 
 export { errorCodes, errors, ArbyError };
