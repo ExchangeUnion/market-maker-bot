@@ -63,9 +63,9 @@ Total USDT balance between OpenDEX and Binance `21300 + 700 = 22000 USDT`
 ### FAQ
 
 #### Which exchanges are supported?
-Currently, only Binance is supported. Kraken and Bitfinex are next on the roadmap.
+Currently, Binance and Kraken are supported. Bitfinex is next on the roadmap.
 
-https://github.com/ExchangeUnion/market-maker-tools/issues/59
+https://github.com/ExchangeUnion/market-maker-tools/issues/92
 
 #### What happens if I lose connectivity to Binance?
 Arby will automatically remove all orders on OpenDEX until connection is re-established.
