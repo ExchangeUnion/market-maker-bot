@@ -36,7 +36,7 @@ const executeCEXorder$ = ({
   order,
   createOrder$,
 }: ExecuteCEXorderParams): Observable<null> => {
-  if (config.LIVE_CEX) {
+  if (!config.TEST_MODE) {
     logger.info(
       `Starting centralized exchange ${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET} market ${order.side} order (quantity: ${order.quantity})`
     );

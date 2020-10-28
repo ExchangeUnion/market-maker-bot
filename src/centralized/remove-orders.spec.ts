@@ -73,7 +73,7 @@ describe('removeCEXorders$', () => {
   it('executes a real CEX order cancellation in live mode', () => {
     const config = {
       ...testConfig(),
-      LIVE_CEX: true,
+      TEST_MODE: false,
     };
     const inputEvents = {
       config,
@@ -88,7 +88,7 @@ describe('removeCEXorders$', () => {
   it('does not cancel orders when no open orders exist', () => {
     const config = {
       ...testConfig(),
-      LIVE_CEX: true,
+      TEST_MODE: false,
     };
     const inputEvents = {
       config,

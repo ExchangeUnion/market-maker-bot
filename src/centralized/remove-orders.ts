@@ -15,7 +15,7 @@ const removeCEXorders$ = (
     orderId: string
   ) => Observable<Order>
 ): Observable<unknown> => {
-  if (config.LIVE_CEX) {
+  if (!config.TEST_MODE) {
     const getOrderIds = (orders: Order[]) => orders.map(order => order.id);
     return fetchOpenOrders$(exchange, config).pipe(
       map(getOrderIds),

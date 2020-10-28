@@ -84,7 +84,7 @@ describe('CEXassets$', () => {
   it('fetches balances from CEX every 30 seconds', () => {
     const config = {
       ...testConfig(),
-      LIVE_CEX: true,
+      TEST_MODE: false,
     };
     assertCEXassets({
       config,

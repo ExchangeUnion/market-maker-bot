@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`checkConfigOptions LIVE_CEX disabled requires TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE"`;
+exports[`checkConfigOptions TEST_MODE disabled requires CEX_API_KEY 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: CEX_API_KEY"`;
 
-exports[`checkConfigOptions LIVE_CEX disabled requires TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE"`;
+exports[`checkConfigOptions TEST_MODE disabled requires CEX_API_SECRET 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: CEX_API_SECRET"`;
 
-exports[`checkConfigOptions LIVE_CEX enabled requires CEX_API_KEY 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: CEX_API_KEY"`;
+exports[`checkConfigOptions TEST_MODE enabled requires TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE"`;
 
-exports[`checkConfigOptions LIVE_CEX enabled requires CEX_API_SECRET 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: CEX_API_SECRET"`;
+exports[`checkConfigOptions TEST_MODE enabled requires TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE 1`] = `"Incomplete configuration. Please add the following options to .env or as environment variables: TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE"`;

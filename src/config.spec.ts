@@ -1,7 +1,7 @@
 import { checkConfigOptions } from './config';
 
 describe('checkConfigOptions', () => {
-  describe('LIVE_CEX disabled', () => {
+  describe('TEST_MODE enabled', () => {
     const validLiveCEXdisabledConf = {
       LOG_LEVEL: 'trace',
       CEX: 'binance',
@@ -14,7 +14,7 @@ describe('checkConfigOptions', () => {
       QUOTEASSET: 'usdt',
       TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
       TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
-      LIVE_CEX: 'false',
+      TEST_MODE: 'true',
     };
 
     it('allows BTC/USDT', () => {
@@ -23,7 +23,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'BINANCE',
-        LIVE_CEX: false,
+        TEST_MODE: true,
         BASEASSET: 'BTC',
         QUOTEASSET: 'USDT',
         CEX_BASEASSET: 'BTC',
@@ -41,7 +41,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'BINANCE',
-        LIVE_CEX: false,
+        TEST_MODE: true,
         BASEASSET: 'BTC',
         QUOTEASSET: 'USDT',
         CEX_BASEASSET: 'XBT',
@@ -62,7 +62,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'BINANCE',
-        LIVE_CEX: false,
+        TEST_MODE: true,
         BASEASSET: 'ETH',
         QUOTEASSET: 'BTC',
         CEX_BASEASSET: 'ETH',
@@ -93,7 +93,7 @@ describe('checkConfigOptions', () => {
     });
   });
 
-  describe('LIVE_CEX enabled', () => {
+  describe('TEST_MODE disabled', () => {
     const validLiveCEXenabledConf = {
       LOG_LEVEL: 'trace',
       CEX: 'kraken',
@@ -106,7 +106,7 @@ describe('checkConfigOptions', () => {
       MARGIN: '0.06',
       BASEASSET: 'BTC',
       QUOTEASSET: 'USDT',
-      LIVE_CEX: 'true',
+      TEST_MODE: 'false',
     };
 
     it('allows BTC/USDT', () => {
@@ -115,7 +115,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
-        LIVE_CEX: true,
+        TEST_MODE: false,
       });
     });
 
@@ -132,7 +132,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
-        LIVE_CEX: true,
+        TEST_MODE: false,
         CEX_BASEASSET: 'USDT',
         CEX_QUOTEASSET: 'DAI',
         BASEASSET: 'USDT',
@@ -154,7 +154,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
-        LIVE_CEX: true,
+        TEST_MODE: false,
         CEX_BASEASSET: 'BTC',
         CEX_QUOTEASSET: 'USD',
         BASEASSET: 'BTC',
@@ -176,7 +176,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
-        LIVE_CEX: true,
+        TEST_MODE: false,
         CEX_BASEASSET: 'USD',
         CEX_QUOTEASSET: 'DAI',
         BASEASSET: 'USDT',
@@ -197,7 +197,7 @@ describe('checkConfigOptions', () => {
       expect(config).toEqual({
         ...config,
         CEX: 'KRAKEN',
-        LIVE_CEX: true,
+        TEST_MODE: false,
       });
     });
 

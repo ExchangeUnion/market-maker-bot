@@ -44,7 +44,7 @@ const getCentralizedExchangeAssets$ = ({
   logAssetAllocation,
 }: GetCentralizedExchangeAssetsParams): Observable<ExchangeAssetAllocation> => {
   const logAssetAllocationWithLogger = curry(logAssetAllocation)(logger);
-  if (config.LIVE_CEX) {
+  if (!config.TEST_MODE) {
     const convertBalancesWithConfig = curry(convertBalances)(config);
     return CEXfetchBalance$(CEX).pipe(
       map(convertBalancesWithConfig),

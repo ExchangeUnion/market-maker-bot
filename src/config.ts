@@ -19,7 +19,7 @@ export type Config = {
   CEX_QUOTEASSET: string;
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
   TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
-  LIVE_CEX: boolean;
+  TEST_MODE: boolean;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -32,17 +32,17 @@ const REQUIRED_CONFIGURATION_OPTIONS = [
   'MARGIN',
   'BASEASSET',
   'QUOTEASSET',
-  'LIVE_CEX',
+  'TEST_MODE',
 ];
 
-const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED = [
-  'CEX_API_KEY',
-  'CEX_API_SECRET',
-];
-
-const REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED = [
+const REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_ENABLED = [
   'TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE',
   'TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE',
+];
+
+const REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_DISABLED = [
+  'CEX_API_KEY',
+  'CEX_API_SECRET',
 ];
 
 const OPTIONAL_CONFIG = ['CEX_BASEASSET', 'CEX_QUOTEASSET'];
@@ -58,8 +58,8 @@ const setLogLevel = (logLevel: string): Level => {
 
 const getEnvironmentConfig = (): DotenvParseOutput => {
   const environmentConfig = REQUIRED_CONFIGURATION_OPTIONS.concat(
-    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED,
-    REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED,
+    REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_ENABLED,
+    REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_DISABLED,
     OPTIONAL_CONFIG
   ).reduce((envConfig: DotenvParseOutput, configOption) => {
     if (process.env[configOption]) {
@@ -75,9 +75,9 @@ const getEnvironmentConfig = (): DotenvParseOutput => {
 
 const getMissingOptions = (config: DotenvParseOutput): string => {
   const ADDITIONAL_CONF_OPTIONS =
-    config['LIVE_CEX'] === 'true'
-      ? REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_ENABLED
-      : REQUIRED_CONFIGURATION_OPTIONS_LIVE_CEX_DISABLED;
+    config['TEST_MODE'] === 'true'
+      ? REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_ENABLED
+      : REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_DISABLED;
   return REQUIRED_CONFIGURATION_OPTIONS.concat(ADDITIONAL_CONF_OPTIONS)
     .reduce((missingOptions: string[], configOption) => {
       if (!config[configOption]) {
@@ -110,7 +110,7 @@ const checkConfigOptions = (dotEnvConfig: DotenvParseOutput): Config => {
   const verifiedConfig = {
     ...config,
     LOG_LEVEL: setLogLevel(config.LOG_LEVEL),
-    LIVE_CEX: config.LIVE_CEX === 'true' ? true : false,
+    TEST_MODE: config.TEST_MODE === 'true' ? true : false,
     CEX: config.CEX.toUpperCase(),
     BASEASSET,
     QUOTEASSET,

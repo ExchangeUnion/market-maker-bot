@@ -64,7 +64,7 @@ describe('executeCEXorder$', () => {
   it('executes real order in production mode', () => {
     const config = {
       ...testConfig(),
-      LIVE_CEX: true,
+      TEST_MODE: false,
     };
     const inputEvents = {
       createOrder$: '1s a',
@@ -82,7 +82,7 @@ describe('executeCEXorder$', () => {
   it('retries to execute order upon failure', () => {
     const config = {
       ...testConfig(),
-      LIVE_CEX: true,
+      TEST_MODE: false,
     };
     const inputEvents = {
       createOrder$: '1s # 1s a',
