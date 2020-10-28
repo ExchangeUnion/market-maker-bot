@@ -58,21 +58,21 @@ const parseOpenDEXassets = ({
     throw errors.TRADING_LIMITS_MISSING(baseAsset);
   }
   const baseAssetMaxOutbound = new BigNumber(
-    satsToCoinsStr(baseAssetLimits.getMaxsell())
-  );
+    satsToCoinsStr(baseAssetLimits.getMaxSell())
+  ).plus(new BigNumber(satsToCoinsStr(baseAssetLimits.getReservedOutbound())));
   const baseAssetMaxInbound = new BigNumber(
-    satsToCoinsStr(baseAssetLimits.getMaxbuy())
-  );
+    satsToCoinsStr(baseAssetLimits.getMaxBuy())
+  ).plus(new BigNumber(satsToCoinsStr(baseAssetLimits.getReservedInbound())));
   const quoteAssetLimits = tradingLimitsMap.get(quoteAsset);
   if (!quoteAssetLimits) {
     throw errors.TRADING_LIMITS_MISSING(quoteAsset);
   }
   const quoteAssetMaxOutbound = new BigNumber(
-    satsToCoinsStr(quoteAssetLimits.getMaxsell())
-  );
+    satsToCoinsStr(quoteAssetLimits.getMaxSell())
+  ).plus(new BigNumber(satsToCoinsStr(quoteAssetLimits.getReservedOutbound())));
   const quoteAssetMaxInbound = new BigNumber(
-    satsToCoinsStr(quoteAssetLimits.getMaxbuy())
-  );
+    satsToCoinsStr(quoteAssetLimits.getMaxBuy())
+  ).plus(new BigNumber(satsToCoinsStr(quoteAssetLimits.getReservedInbound())));
   return {
     baseAssetBalance,
     quoteAssetBalance,

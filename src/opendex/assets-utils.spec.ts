@@ -24,12 +24,16 @@ describe('OpenDEX.assets-utils', () => {
     } as unknown) as GetBalanceResponse;
     const limitsMap = new Map();
     const baseAssetLimits = {
-      getMaxsell: () => 5000000,
-      getMaxbuy: () => 5000000,
+      getMaxSell: () => 2500000,
+      getMaxBuy: () => 2500000,
+      getReservedInbound: () => 2500000,
+      getReservedOutbound: () => 2500000,
     };
     const quoteAssetLimits = {
-      getMaxsell: () => 10000000,
-      getMaxbuy: () => 10000000,
+      getMaxSell: () => 5000000,
+      getMaxBuy: () => 5000000,
+      getReservedInbound: () => 5000000,
+      getReservedOutbound: () => 5000000,
     };
     limitsMap.set(config.BASEASSET, baseAssetLimits);
     limitsMap.set(config.QUOTEASSET, quoteAssetLimits);
@@ -48,19 +52,27 @@ describe('OpenDEX.assets-utils', () => {
         satsToCoinsStr(baseAssetBalance.getChannelBalance())
       ),
       baseAssetMaxOutbound: new BigNumber(
-        satsToCoinsStr(baseAssetLimits.getMaxsell())
+        satsToCoinsStr(
+          baseAssetLimits.getMaxSell() + baseAssetLimits.getReservedOutbound()
+        )
       ),
       baseAssetMaxInbound: new BigNumber(
-        satsToCoinsStr(baseAssetLimits.getMaxbuy())
+        satsToCoinsStr(
+          baseAssetLimits.getMaxBuy() + baseAssetLimits.getReservedInbound()
+        )
       ),
       quoteAssetBalance: new BigNumber(
         satsToCoinsStr(quoteAssetBalance.getChannelBalance())
       ),
       quoteAssetMaxOutbound: new BigNumber(
-        satsToCoinsStr(quoteAssetLimits.getMaxsell())
+        satsToCoinsStr(
+          quoteAssetLimits.getMaxSell() + quoteAssetLimits.getReservedOutbound()
+        )
       ),
       quoteAssetMaxInbound: new BigNumber(
-        satsToCoinsStr(quoteAssetLimits.getMaxbuy())
+        satsToCoinsStr(
+          quoteAssetLimits.getMaxBuy() + quoteAssetLimits.getReservedInbound()
+        )
       ),
     });
   });
@@ -153,8 +165,10 @@ describe('OpenDEX.assets-utils', () => {
     } as unknown) as GetBalanceResponse;
     const limitsMap = new Map();
     const baseAssetLimits = {
-      getMaxsell: () => 5000000,
-      getMaxbuy: () => 5000000,
+      getMaxSell: () => 2500000,
+      getMaxBuy: () => 2500000,
+      getReservedOutbound: () => 2500000,
+      getReservedInbound: () => 2500000,
     };
     limitsMap.set(BASEASSET, baseAssetLimits);
     const tradingLimitsResponse = ({
