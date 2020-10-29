@@ -59,11 +59,11 @@ const logConfig = (config: Config, logger: Logger) => {
     QUOTEASSET,
     TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE,
     TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE,
-    LIVE_CEX,
+    TEST_MODE,
     CEX,
   } = config;
   logger.info(`Running with config:
-LIVE_CEX: ${LIVE_CEX}
+TEST_MODE: ${TEST_MODE}
 CEX: ${CEX}
 LOG_LEVEL: ${LOG_LEVEL}
 DATA_DIR: ${DATA_DIR}
