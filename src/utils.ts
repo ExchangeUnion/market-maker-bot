@@ -26,8 +26,7 @@ export const getStartShutdown$ = (): Observable<unknown> => {
   process.on('SIGTERM', () => shutdown$.next());
   const ONE_MINUTE = 1000 * 60;
   const ONE_HOUR = ONE_MINUTE * 60;
-  const SIX_HOURS = ONE_HOUR * 6;
-  const restart$ = timer(SIX_HOURS).pipe(
+  const restart$ = timer(ONE_HOUR).pipe(
     tap(() => console.log('Restarting Arby to reduce memory usage.'))
   );
   return merge(shutdown$.asObservable(), restart$).pipe(take(1));
