@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Observable, Subject, timer, merge } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { curry } from 'ramda';
 
@@ -24,12 +24,7 @@ export const getStartShutdown$ = (): Observable<unknown> => {
   const shutdown$ = new Subject();
   process.on('SIGINT', () => shutdown$.next());
   process.on('SIGTERM', () => shutdown$.next());
-  const ONE_MINUTE = 1000 * 60;
-  const ONE_HOUR = ONE_MINUTE * 60;
-  const restart$ = timer(ONE_HOUR).pipe(
-    tap(() => console.log('Restarting Arby to reduce memory usage.'))
-  );
-  return merge(shutdown$.asObservable(), restart$).pipe(take(1));
+  return shutdown$.asObservable().pipe(take(1));
 };
 
 const debugObservable = (prefix: string, source: Observable<any>) => {

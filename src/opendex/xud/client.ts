@@ -20,7 +20,9 @@ const getXudClient$ = (config: Config): Observable<XudClient> => {
       options
     );
     subscriber.next(client);
-    subscriber.complete();
+    return () => {
+      client.close();
+    };
   }).pipe(
     catchError(error => {
       if (error.code === 'ENOENT') {
