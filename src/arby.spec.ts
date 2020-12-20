@@ -4,6 +4,7 @@ import { startArby } from '../src/arby';
 import { Config } from '../src/config';
 import { InitCEXResponse } from './centralized/ccxt/init';
 import { getLoggers } from './test-utils';
+import { InitDBResponse } from './db/db';
 
 let testScheduler: TestScheduler;
 
@@ -15,6 +16,7 @@ type AssertStartArbyParams = {
     shutdown$: string;
     cleanup$: string;
     initCEX$: string;
+    initDB$: string;
   };
   verifyMarkets?: () => boolean;
 };
@@ -39,6 +41,11 @@ const assertStartArby = ({
         InitCEXResponse
       >;
     };
+    const initDB$ = () => {
+      return (cold(inputEvents.initDB$) as unknown) as Observable<
+        InitDBResponse
+      >;
+    };
     const arby$ = startArby({
       config$,
       getLoggers,
@@ -46,6 +53,7 @@ const assertStartArby = ({
       trade$: getTrade$,
       cleanup$,
       initCEX$,
+      initDB$,
       verifyMarkets: verifyMarkets ? verifyMarkets : () => true,
     });
     expectObservable(arby$).toBe(expected, undefined, { message: 'error' });
@@ -63,11 +71,12 @@ describe('startArby', () => {
     const inputEvents = {
       config$: '1000ms a',
       initCEX$: '1s a',
+      initDB$: '1s a',
       getTrade$: 'b',
       shutdown$: '',
       cleanup$: '',
     };
-    const expected = '2s b';
+    const expected = '3s b';
     assertStartArby({
       inputEvents,
       expected,
@@ -78,11 +87,12 @@ describe('startArby', () => {
     const inputEvents = {
       config$: '1000ms a',
       initCEX$: '1s a',
+      initDB$: '1s a',
       getTrade$: 'b',
       shutdown$: '',
       cleanup$: '',
     };
-    const expected = '2s #';
+    const expected = '3s #';
     assertStartArby({
       inputEvents,
       expected,
@@ -96,11 +106,12 @@ describe('startArby', () => {
     const inputEvents = {
       config$: 'a',
       initCEX$: '1s a',
+      initDB$: '1s a',
       getTrade$: '500ms b',
       shutdown$: '10s c',
       cleanup$: '2s a',
     };
-    const expected = '1500ms b 11499ms a';
+    const expected = '2500ms b 11499ms a';
     assertStartArby({
       inputEvents,
       expected,
@@ -111,11 +122,12 @@ describe('startArby', () => {
     const inputEvents = {
       config$: 'a',
       initCEX$: '1s a',
+      initDB$: '1s a',
       getTrade$: '500ms #',
       shutdown$: '10s c',
       cleanup$: '2s a',
     };
-    const expected = '3500ms a';
+    const expected = '4500ms a';
     assertStartArby({
       inputEvents,
       expected,
