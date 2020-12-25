@@ -7,6 +7,7 @@ import { OrderSide } from '../constants';
 import { Config } from '../config';
 import { Observable } from 'rxjs';
 import { Order, Exchange } from 'ccxt';
+import { OrderInstance } from '../db/order';
 
 let testScheduler: TestScheduler;
 
@@ -25,6 +26,9 @@ const assertExecuteCEXorder = (
     const createOrder$ = () => {
       return (cold(inputEvents.createOrder$) as unknown) as Observable<Order>;
     };
+    const saveOrder$ = () => {
+      return (cold('') as unknown) as Observable<OrderInstance>;
+    };
     const CEX = (null as unknown) as Exchange;
     const CEXorder$ = executeCEXorder$({
       CEX,
@@ -33,6 +37,7 @@ const assertExecuteCEXorder = (
       price: inputEvents.price,
       order: inputEvents.order,
       createOrder$,
+      saveOrder$,
     });
     expectObservable(CEXorder$, inputEvents.unsubscribe).toBe(expected, {
       a: null,

@@ -7,7 +7,7 @@ import {
 } from 'sequelize';
 import { ModelCtor } from 'sequelize/types/lib/model';
 
-type TradeAttributes = {
+export type TradeAttributes = {
   id: string;
   orderId: string;
   amount: number;
