@@ -1,7 +1,6 @@
 import { from, Observable, of } from 'rxjs';
 import { Sequelize, ModelCtor } from 'sequelize';
 import { Order, OrderInstance } from './order';
-import { Fee, FeeInstance } from './fee';
 import { Trade, TradeInstance } from './trade';
 import { Logger } from '../logger';
 import { mergeMap } from 'rxjs/operators';
@@ -13,14 +12,12 @@ type InitDBparams = {
 
 type InitDBResponse = {
   Order: ModelCtor<OrderInstance>;
-  Fee: ModelCtor<FeeInstance>;
   Trade: ModelCtor<TradeInstance>;
 };
 
 const createModels = (sequelize: Sequelize): InitDBResponse => {
   const models = {
     Order: Order(sequelize),
-    Fee: Fee(sequelize),
     Trade: Trade(sequelize),
   };
 
@@ -33,15 +30,6 @@ const createModels = (sequelize: Sequelize): InitDBResponse => {
     as: 'orderInstance',
     constraints: true,
     foreignKey: 'orderId',
-  });
-
-  models.Fee.belongsTo(models.Order, {
-    foreignKey: 'orderId',
-    constraints: true,
-  });
-  models.Fee.belongsTo(models.Trade, {
-    foreignKey: 'tradeId',
-    constraints: true,
   });
 
   return models;
@@ -63,11 +51,7 @@ const initDB$ = ({
         mergeMap(() => {
           return from(models.Order.sync()).pipe(
             mergeMap(() => {
-              return from(models.Trade.sync()).pipe(
-                mergeMap(() => {
-                  return from(models.Fee.sync()).pipe(mergeMap(() => of(models)));
-                })
-              );
+              return from(models.Trade.sync()).pipe(mergeMap(() => of(models)));
             })
           );
         })

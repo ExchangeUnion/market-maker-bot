@@ -35,10 +35,10 @@ export function Trade(sequelize: Sequelize): ModelCtor<TradeInstance> {
     info: { type: DataTypes.STRING, allowNull: false },
     price: { type: DataTypes.DOUBLE, allowNull: false },
     timestamp: { type: DataTypes.BIGINT, allowNull: false },
-    type: { type: DataTypes.STRING, allowNull: false },
-    side: { type: DataTypes.STRING, allowNull: false },
-    symbol: { type: DataTypes.STRING, allowNull: false },
-    takerOrMaker: { type: DataTypes.STRING, allowNull: false },
+    type: { type: DataTypes.STRING(5), allowNull: true },
+    side: { type: DataTypes.STRING(5), allowNull: false },
+    symbol: { type: DataTypes.STRING(10), allowNull: false },
+    takerOrMaker: { type: DataTypes.STRING(5), allowNull: false },
     cost: { type: DataTypes.DOUBLE, allowNull: false },
   };
 

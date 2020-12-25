@@ -7,7 +7,7 @@ import {
 } from 'sequelize';
 import { ModelCtor } from 'sequelize/types/lib/model';
 
-type OrderAttributes = {
+export type OrderAttributes = {
   id: string;
   datetime: string;
   timestamp: number;
@@ -23,6 +23,10 @@ type OrderAttributes = {
   remaining: number;
   cost: number;
   info: any;
+  feeType: 'taker' | 'maker';
+  feeCurrency: string;
+  feeRate: number;
+  feeCost: number;
 };
 
 export interface OrderInstance
@@ -35,10 +39,10 @@ export function Order(sequelize: Sequelize): ModelCtor<OrderInstance> {
     datetime: { type: DataTypes.STRING, allowNull: false },
     timestamp: { type: DataTypes.BIGINT, allowNull: false },
     lastTradeTimestamp: { type: DataTypes.BIGINT, allowNull: false },
-    status: { type: DataTypes.STRING, allowNull: false },
-    symbol: { type: DataTypes.STRING, allowNull: false },
+    status: { type: DataTypes.STRING(10), allowNull: false },
+    symbol: { type: DataTypes.STRING(10), allowNull: false },
     type: { type: DataTypes.STRING, allowNull: false },
-    side: { type: DataTypes.STRING, allowNull: false },
+    side: { type: DataTypes.STRING(5), allowNull: false },
     price: { type: DataTypes.DOUBLE, allowNull: false },
     average: { type: DataTypes.DOUBLE, allowNull: true },
     amount: { type: DataTypes.DOUBLE, allowNull: false },
@@ -46,6 +50,10 @@ export function Order(sequelize: Sequelize): ModelCtor<OrderInstance> {
     remaining: { type: DataTypes.DOUBLE, allowNull: false },
     cost: { type: DataTypes.DOUBLE, allowNull: false },
     info: { type: DataTypes.STRING, allowNull: false },
+    feeType: { type: DataTypes.STRING(5), allowNull: false },
+    feeCurrency: { type: DataTypes.STRING(10), allowNull: false },
+    feeRate: { type: DataTypes.DOUBLE, allowNull: false },
+    feeCost: { type: DataTypes.DOUBLE, allowNull: false },
   };
 
   const options: ModelOptions = {
