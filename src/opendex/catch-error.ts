@@ -10,6 +10,7 @@ import { Logger, Loggers } from '../logger';
 import { errorCodes, errors } from '../opendex/errors';
 import { GetCleanupParams } from '../trade/cleanup';
 import { removeOpenDEXorders$ } from './remove-orders';
+import { closeDB$ } from '../db/db';
 
 const catchOpenDEXerror = (
   loggers: Loggers,
@@ -73,6 +74,7 @@ const catchOpenDEXerror = (
                   loggers,
                   removeOpenDEXorders$,
                   removeCEXorders$,
+                  closeDB$,
                   CEX,
                 }).pipe(ignoreElements()),
                 timer(RETRY_INTERVAL)

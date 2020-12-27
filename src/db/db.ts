@@ -35,11 +35,13 @@ const createModels = (sequelize: Sequelize): InitDBResponse => {
   return models;
 };
 
+let sequelize: Sequelize;
+
 const initDB$ = ({
   logger,
   dataDir,
 }: InitDBparams): Observable<InitDBResponse> => {
-  const sequelize = new Sequelize({
+  sequelize = new Sequelize({
     storage: dataDir ? `${dataDir}/arby.db` : undefined,
     logging: logger.trace,
     dialect: 'sqlite',
@@ -60,4 +62,8 @@ const initDB$ = ({
   );
 };
 
-export { initDB$, InitDBparams, InitDBResponse };
+const closeDB$ = (): Observable<void> => {
+  return from(sequelize.close());
+};
+
+export { initDB$, InitDBparams, InitDBResponse, closeDB$ };

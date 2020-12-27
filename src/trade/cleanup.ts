@@ -47,6 +47,7 @@ type GetCleanupParams = {
       orderId: string
     ) => Observable<Order>
   ) => Observable<unknown>;
+  closeDB$: () => Observable<void>;
   CEX: Exchange;
 };
 
@@ -55,6 +56,7 @@ const getCleanup$ = ({
   loggers,
   removeOpenDEXorders$,
   removeCEXorders$,
+  closeDB$,
   CEX,
 }: GetCleanupParams): Observable<unknown> => {
   const retryOnError = (logger: Logger, source: Observable<any>) => {
@@ -77,6 +79,11 @@ const getCleanup$ = ({
   const retryOnErrorOpenDEX = curriedRetryOnError(loggers.opendex);
   const retryonErrorCEX = curriedRetryOnError(loggers.centralized);
   return combineLatest(
+    closeDB$().pipe(
+      tap(() => {
+        loggers.db.info('DB has been closed');
+      })
+    ),
     removeOpenDEXorders$({
       config,
       getXudClient$,

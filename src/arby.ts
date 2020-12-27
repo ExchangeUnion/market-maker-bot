@@ -21,7 +21,7 @@ import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 import { Dictionary, Market } from 'ccxt';
 import { verifyMarkets } from './centralized/verify-markets';
-import { initDB$, InitDBparams, InitDBResponse } from './db/db';
+import { initDB$, InitDBparams, InitDBResponse, closeDB$ } from './db/db';
 import { OrderRepository } from './db/order-repository';
 
 type StartArbyParams = {
@@ -135,6 +135,7 @@ export const startArby = ({
                   loggers,
                   removeOpenDEXorders$,
                   removeCEXorders$,
+                  closeDB$,
                   CEX,
                 })
               ).pipe(
@@ -148,6 +149,7 @@ export const startArby = ({
                     removeOpenDEXorders$,
                     removeCEXorders$,
                     CEX,
+                    closeDB$,
                   });
                 })
               );
