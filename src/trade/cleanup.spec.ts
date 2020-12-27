@@ -19,6 +19,7 @@ type AssertCleanupParams = {
   };
   inputEvents: {
     removeOpenDEXorders$: string;
+    closeDB$: string;
     removeCEXorders$: string;
     unsubscribe?: string;
   };
@@ -35,6 +36,9 @@ const assertGetTrade = ({
     const removeOpenDEXorders$ = () => {
       return (openDEXorders$ as unknown) as Observable<null>;
     };
+    const closeDB$ = () => {
+      return (cold(inputEvents.closeDB$) as unknown) as Observable<void>;
+    };
     const CEXorders$ = cold(inputEvents.removeCEXorders$);
     const removeCEXorders$ = () => CEXorders$;
     const CEX = (null as unknown) as Exchange;
@@ -44,6 +48,7 @@ const assertGetTrade = ({
       removeOpenDEXorders$,
       removeCEXorders$,
       CEX,
+      closeDB$,
     });
     expectObservable(cleanup$, inputEvents.unsubscribe).toBe(expected);
     expectSubscriptions(CEXorders$.subscriptions).toBe(
@@ -59,10 +64,11 @@ describe('getCleanup$$', () => {
   beforeEach(testSchedulerSetup);
 
   it('removes all orders on OpenDEX and CEX', () => {
-    expect.assertions(3);
+    //expect.assertions(3);
     const inputEvents = {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s a',
+      closeDB$: '1s',
     };
     const expected = '2s |';
     const expectedSubscriptions = {
@@ -82,6 +88,7 @@ describe('getCleanup$$', () => {
       removeOpenDEXorders$: '1s #',
       removeCEXorders$: '2s a',
       unsubscribe: '15s !',
+      closeDB$: '',
     };
     const expected = '11s #';
     const expectedSubscriptions = {
@@ -108,6 +115,7 @@ describe('getCleanup$$', () => {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s #',
       unsubscribe: '20s !',
+      closeDB$: '',
     };
     const expected = '17s #';
     const expectedSubscriptions = {

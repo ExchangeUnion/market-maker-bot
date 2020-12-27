@@ -35,6 +35,7 @@ const getLoggers = (): Loggers => {
     global: mockLogger,
     centralized: mockLogger,
     opendex: mockLogger,
+    db: mockLogger,
   } as unknown) as Loggers;
 };
 
