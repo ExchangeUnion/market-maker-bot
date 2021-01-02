@@ -36,9 +36,6 @@ const assertGetTrade = ({
     const removeOpenDEXorders$ = () => {
       return (openDEXorders$ as unknown) as Observable<null>;
     };
-    const closeDB$ = () => {
-      return (cold(inputEvents.closeDB$) as unknown) as Observable<void>;
-    };
     const CEXorders$ = cold(inputEvents.removeCEXorders$);
     const removeCEXorders$ = () => CEXorders$;
     const CEX = (null as unknown) as Exchange;
@@ -48,7 +45,6 @@ const assertGetTrade = ({
       removeOpenDEXorders$,
       removeCEXorders$,
       CEX,
-      closeDB$,
     });
     expectObservable(cleanup$, inputEvents.unsubscribe).toBe(expected);
     expectSubscriptions(CEXorders$.subscriptions).toBe(

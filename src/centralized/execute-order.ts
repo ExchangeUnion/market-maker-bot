@@ -61,7 +61,7 @@ const executeCEXorder$ = ({
         logger.info(
           `Centralized exchange order finished: ${JSON.stringify(order)}`
         );
-        saveOrder$({ order, logger, models });
+        saveOrder$({ order, logger, models }).subscribe();
       }),
       catchError((e, caught) => {
         logger.warn(`Failed to execute CEX order: ${e}. Retrying in 1000ms`);

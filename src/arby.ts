@@ -34,6 +34,8 @@ type StartArbyParams = {
     getCentralizedExchangeOrder$,
     getOpenDEXcomplete$,
     shutdown$,
+    models,
+    saveOrder$,
   }: GetTradeParams) => Observable<boolean>;
   cleanup$: ({
     config,
@@ -135,7 +137,6 @@ export const startArby = ({
                   loggers,
                   removeOpenDEXorders$,
                   removeCEXorders$,
-                  closeDB$,
                   CEX,
                 })
               ).pipe(
@@ -149,7 +150,6 @@ export const startArby = ({
                     removeOpenDEXorders$,
                     removeCEXorders$,
                     CEX,
-                    closeDB$,
                   });
                 })
               );
@@ -182,8 +182,18 @@ if (!module.parent) {
       } else {
         console.log(error);
       }
-      process.exit(1);
+      closeDB$().subscribe({
+        complete: () => {
+          process.exit(1);
+        },
+      });
     },
-    complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
+    complete: () => {
+      closeDB$().subscribe({
+        complete: () => {
+          console.log('Shutdown complete. Goodbye, Arby.');
+        },
+      });
+    },
   });
 }
