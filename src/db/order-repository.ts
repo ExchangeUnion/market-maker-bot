@@ -8,81 +8,79 @@ import { TradeAttributes } from './trade';
 
 type SaveOrderParams = {
   order: Order;
+  models: InitDBResponse;
+  logger: Logger;
 };
 
-class OrderRepository {
-  constructor(private models: InitDBResponse, private logger: Logger) {}
+const saveOrder$ = ({
+  order,
+  models,
+  logger,
+}: SaveOrderParams): Observable<OrderInstance> => {
+  logger.trace(`Saving order ${JSON.stringify(order)} into database`);
 
-  public saveOrder$ = ({
-    order,
-  }: SaveOrderParams): Observable<OrderInstance> => {
-    this.logger.trace(`Saving order ${JSON.stringify(order)} into database`);
+  const arbyOrder = convertToArbyOrder(order);
+  const arbyTrades = convertToArbyTrades(order.trades, order.id);
+  // TODO async
+  return from(models.Order.create(arbyOrder)).pipe(
+    mergeMap(order => {
+      return from(models.Trade.bulkCreate(arbyTrades)).pipe(
+        map(() => {
+          logger.trace(`Order with id ${order.id} has been successfully saved`);
+          return order;
+        })
+      );
+    })
+  );
+};
 
-    const arbyOrder = this.convertToArbyOrder(order);
-    const arbyTrades = this.convertToArbyTrades(order.trades, order.id);
-    // TODO async
-    return from(this.models.Order.create(arbyOrder)).pipe(
-      mergeMap(order => {
-        return from(this.models.Trade.bulkCreate(arbyTrades)).pipe(
-          map(() => {
-            this.logger.trace(
-              `Order with id ${order.id} has been successfully saved`
-            );
-            return order;
-          })
-        );
-      })
-    );
+const convertToArbyOrder = (order: Order): OrderAttributes => {
+  return {
+    id: order.id,
+    datetime: order.datetime,
+    timestamp: order.timestamp,
+    lastTradeTimestamp: order.lastTradeTimestamp,
+    status: order.status,
+    symbol: order.symbol,
+    type: order.type,
+    side: order.side,
+    price: order.price,
+    average: order.average,
+    amount: order.amount,
+    filled: order.filled,
+    remaining: order.remaining,
+    cost: order.cost,
+    info: order.info,
+    feeType: order.fee.type,
+    feeCurrency: order.fee.currency,
+    feeRate: order.fee.rate,
+    feeCost: order.fee.cost,
   };
+};
 
-  private convertToArbyOrder(order: Order): OrderAttributes {
-    return {
-      id: order.id,
-      datetime: order.datetime,
-      timestamp: order.timestamp,
-      lastTradeTimestamp: order.lastTradeTimestamp,
-      status: order.status,
-      symbol: order.symbol,
-      type: order.type,
-      side: order.side,
-      price: order.price,
-      average: order.average,
-      amount: order.amount,
-      filled: order.filled,
-      remaining: order.remaining,
-      cost: order.cost,
-      info: order.info,
-      feeType: order.fee.type,
-      feeCurrency: order.fee.currency,
-      feeRate: order.fee.rate,
-      feeCost: order.fee.cost,
-    };
-  }
-
-  private convertToArbyTrades(
-    trades: Trade[],
-    orderId: string
-  ): TradeAttributes[] {
-    const result: TradeAttributes[] = [];
-    trades.forEach(trade => {
-      result.push({
-        id: trade.id,
-        orderId,
-        amount: trade.amount,
-        datetime: trade.datetime,
-        info: trade.info,
-        price: trade.price,
-        timestamp: trade.timestamp,
-        type: trade.type,
-        side: trade.side,
-        symbol: trade.symbol,
-        takerOrMaker: trade.takerOrMaker,
-        cost: trade.cost,
-      });
+const convertToArbyTrades = (
+  trades: Trade[],
+  orderId: string
+): TradeAttributes[] => {
+  const result: TradeAttributes[] = [];
+  trades.forEach(trade => {
+    result.push({
+      id: trade.id,
+      orderId,
+      amount: trade.amount,
+      datetime: trade.datetime,
+      info: trade.info,
+      price: trade.price,
+      timestamp: trade.timestamp,
+      type: trade.type,
+      side: trade.side,
+      symbol: trade.symbol,
+      takerOrMaker: trade.takerOrMaker,
+      cost: trade.cost,
     });
+  });
 
-    return result;
-  }
-}
+  return result;
+};
 
-export { OrderRepository, SaveOrderParams };
+export { saveOrder$, SaveOrderParams };

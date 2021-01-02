@@ -15,6 +15,7 @@ import { CreateOrderParams } from './ccxt/create-order';
 import { CEXorder } from './order-builder';
 import { SaveOrderParams } from '../db/order-repository';
 import { OrderInstance } from '../db/order';
+import { InitDBResponse } from '../db/db';
 
 type ExecuteCEXorderParams = {
   CEX: Exchange;
@@ -22,7 +23,12 @@ type ExecuteCEXorderParams = {
   logger: Logger;
   price: BigNumber;
   order: CEXorder;
-  saveOrder$: ({ order }: SaveOrderParams) => Observable<OrderInstance>;
+  saveOrder$: ({
+    order,
+    logger,
+    models,
+  }: SaveOrderParams) => Observable<OrderInstance>;
+  models: InitDBResponse;
   createOrder$: ({
     config,
     exchange,
@@ -39,6 +45,7 @@ const executeCEXorder$ = ({
   order,
   createOrder$,
   saveOrder$,
+  models,
 }: ExecuteCEXorderParams): Observable<null> => {
   if (!config.TEST_MODE) {
     logger.info(
@@ -54,7 +61,7 @@ const executeCEXorder$ = ({
         logger.info(
           `Centralized exchange order finished: ${JSON.stringify(order)}`
         );
-        saveOrder$({ order });
+        saveOrder$({ order, logger, models });
       }),
       catchError((e, caught) => {
         logger.warn(`Failed to execute CEX order: ${e}. Retrying in 1000ms`);

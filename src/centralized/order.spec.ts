@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getLoggers, testConfig } from '../test-utils';
+import { getLoggers, getModels, testConfig } from '../test-utils';
 import { getCentralizedExchangeOrder$ } from './order';
 import { CEXorder } from './order-builder';
 import BigNumber from 'bignumber.js';
@@ -51,6 +51,7 @@ const assertCentralizedExchangeOrder = (
       deriveCEXorderQuantity,
       store,
       saveOrder$,
+      models: getModels(),
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

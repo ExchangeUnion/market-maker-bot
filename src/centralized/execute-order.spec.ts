@@ -1,6 +1,6 @@
 import { TestScheduler } from 'rxjs/testing';
 import { executeCEXorder$ } from './execute-order';
-import { getLoggers, testConfig } from '../test-utils';
+import { getLoggers, getModels, testConfig } from '../test-utils';
 import BigNumber from 'bignumber.js';
 import { CEXorder } from './order-builder';
 import { OrderSide } from '../constants';
@@ -8,6 +8,7 @@ import { Config } from '../config';
 import { Observable } from 'rxjs';
 import { Order, Exchange } from 'ccxt';
 import { OrderInstance } from '../db/order';
+import { InitDBResponse } from '../db/db';
 
 let testScheduler: TestScheduler;
 
@@ -16,6 +17,7 @@ const assertExecuteCEXorder = (
     config: Config;
     price: BigNumber;
     order: CEXorder;
+    models: InitDBResponse;
     createOrder$: string;
     unsubscribe?: string;
   },
@@ -38,6 +40,7 @@ const assertExecuteCEXorder = (
       order: inputEvents.order,
       createOrder$,
       saveOrder$,
+      models: inputEvents.models,
     });
     expectObservable(CEXorder$, inputEvents.unsubscribe).toBe(expected, {
       a: null,
@@ -61,6 +64,7 @@ describe('executeCEXorder$', () => {
         quantity: new BigNumber('0.001'),
         side: OrderSide.BUY,
       },
+      models: getModels(),
     };
     const expected = '5s (a|)';
     assertExecuteCEXorder(inputEvents, expected);
@@ -79,6 +83,7 @@ describe('executeCEXorder$', () => {
         quantity: new BigNumber('0.001'),
         side: OrderSide.BUY,
       },
+      models: getModels(),
     };
     const expected = '1s (a|)';
     assertExecuteCEXorder(inputEvents, expected);
@@ -98,6 +103,7 @@ describe('executeCEXorder$', () => {
         side: OrderSide.BUY,
       },
       unsubscribe: '4s !',
+      models: getModels(),
     };
     const expected = '';
     assertExecuteCEXorder(inputEvents, expected);

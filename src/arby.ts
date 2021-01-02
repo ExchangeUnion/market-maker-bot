@@ -22,7 +22,7 @@ import { getStartShutdown$ } from './utils';
 import { Dictionary, Market } from 'ccxt';
 import { verifyMarkets } from './centralized/verify-markets';
 import { initDB$, InitDBparams, InitDBResponse, closeDB$ } from './db/db';
-import { OrderRepository } from './db/order-repository';
+import { saveOrder$ } from './db/order-repository';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -115,7 +115,6 @@ export const startArby = ({
               loggers.global.info('Starting. Hello, Arby.');
               logConfig(config, loggers.global);
               verifyMarkets(config, CEXmarkets);
-              const orderRepository = new OrderRepository(models, loggers.db);
               const tradeComplete$ = trade$({
                 config,
                 loggers,
@@ -126,7 +125,8 @@ export const startArby = ({
                 getCentralizedExchangePrice$,
                 CEX,
                 store,
-                saveOrder$: orderRepository.saveOrder$,
+                saveOrder$,
+                models,
               }).pipe(takeUntil(shutdown$));
               return concat(
                 tradeComplete$,

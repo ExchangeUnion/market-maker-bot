@@ -21,6 +21,7 @@ import { CEXorder, GetOrderBuilderParams } from './order-builder';
 import { ArbyStore } from 'src/store';
 import { SaveOrderParams } from '../db/order-repository';
 import { OrderInstance } from '../db/order';
+import { InitDBResponse } from '../db/db';
 
 type GetCentralizedExchangeOrderParams = {
   CEX: Exchange;
@@ -47,6 +48,7 @@ type GetCentralizedExchangeOrderParams = {
   ) => CEXorder;
   store: ArbyStore;
   saveOrder$: ({ order }: SaveOrderParams) => Observable<OrderInstance>;
+  models: InitDBResponse;
 };
 
 const getCentralizedExchangeOrder$ = ({
@@ -59,6 +61,7 @@ const getCentralizedExchangeOrder$ = ({
   centralizedExchangePrice$,
   deriveCEXorderQuantity,
   store,
+  models,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   return getOrderBuilder$({
     config,
@@ -85,6 +88,7 @@ const getCentralizedExchangeOrder$ = ({
         price,
         order: deriveCEXorderQuantity(order, price, config),
         saveOrder$,
+        models,
       });
     })
   );
