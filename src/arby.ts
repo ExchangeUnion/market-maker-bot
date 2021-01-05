@@ -102,6 +102,7 @@ export const startArby = ({
           loggers.global.info('Starting. Hello, Arby.');
           logConfig(config, loggers.global);
           verifyMarkets(config, CEXmarkets);
+          store.setMarkets(CEXmarkets);
           const tradeComplete$ = trade$({
             config,
             loggers,

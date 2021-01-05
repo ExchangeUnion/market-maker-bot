@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { Dictionary, Market } from 'ccxt';
 import { getArbyStore } from './store';
 
 describe('ArbyStore', () => {
@@ -14,6 +15,24 @@ describe('ArbyStore', () => {
     const { selectState } = getArbyStore();
     selectState('lastBuyOrderUpdatePrice').subscribe(price => {
       expect(price).toEqual(new BigNumber('0'));
+      done();
+    });
+  });
+
+  it('selectState returns empty initial markets', done => {
+    const { selectState } = getArbyStore();
+    selectState('markets').subscribe(markets => {
+      expect(markets).toEqual({});
+      done();
+    });
+  });
+
+  it('selectState returns updated markets', done => {
+    const { selectState, setMarkets } = getArbyStore();
+    const testMarkets = ({ 'BTC/USDT': true } as unknown) as Dictionary<Market>;
+    setMarkets(testMarkets);
+    selectState('markets').subscribe(markets => {
+      expect(markets).toEqual(testMarkets);
       done();
     });
   });

@@ -1,29 +1,35 @@
-import BigNumber from 'bignumber.js';
-import { errors } from '../opendex/errors';
+import { BigNumber } from 'bignumber.js';
+import { curry } from 'ramda';
+import { EMPTY, Observable, of } from 'rxjs';
+import { mergeMap, take } from 'rxjs/operators';
+import { Logger } from '../logger';
+import { ArbyStore } from '../store';
 
-type MinimumCEXquantities = {
-  [key: string]: BigNumber;
-};
-
-const MINIMUM_ORDER_SIZE: MinimumCEXquantities = {
-  BTC: new BigNumber('0.001'),
-  ETH: new BigNumber('0.05'),
-  DAI: new BigNumber('15'),
-  USDT: new BigNumber('15'),
-};
-
-const getMinimumOrderSize = (asset: string): BigNumber => {
-  const minimumOrderSize = MINIMUM_ORDER_SIZE[asset];
-  if (!minimumOrderSize) {
-    throw errors.CEX_INVALID_MINIMUM_ORDER_QUANTITY(asset);
+const quantityAboveMinimum = curry(
+  (
+    store: ArbyStore,
+    logger: Logger,
+    assetToTradeOnCEX: string,
+    minimumQuantity$: Observable<BigNumber>,
+    quantity: BigNumber
+  ) => {
+    logger.info(
+      `Swap success. Accumulated ${assetToTradeOnCEX} quantity: ${quantity.toFixed()}`
+    );
+    store.resetLastOrderUpdatePrice();
+    return minimumQuantity$.pipe(
+      take(1),
+      mergeMap(minimumQuantity => {
+        if (quantity.isGreaterThanOrEqualTo(minimumQuantity)) {
+          return of(quantity);
+        }
+        logger.info(
+          `Will not execute CEX order because ${quantity.toFixed()} is below the minimum allowed CEX quantity ${minimumQuantity.toFixed()}`
+        );
+        return EMPTY;
+      })
+    );
   }
-  return minimumOrderSize;
-};
+);
 
-const quantityAboveMinimum = (asset: string) => {
-  return (quantity: BigNumber): boolean => {
-    return quantity.isGreaterThanOrEqualTo(getMinimumOrderSize(asset));
-  };
-};
-
-export { quantityAboveMinimum, MINIMUM_ORDER_SIZE };
+export { quantityAboveMinimum };

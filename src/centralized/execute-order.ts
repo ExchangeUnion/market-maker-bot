@@ -14,38 +14,19 @@ import { Logger } from '../logger';
 import { CreateOrderParams } from './ccxt/create-order';
 import { CEXorder } from './order-builder';
 
-type ExecuteCEXorderParams = {
-  CEX: Exchange;
-  config: Config;
-  logger: Logger;
-  price: BigNumber;
-  order: CEXorder;
-  createOrder$: ({
-    config,
-    exchange,
-    side,
-    quantity,
-  }: CreateOrderParams) => Observable<Order>;
-};
-
-const executeCEXorder$ = ({
-  CEX,
-  config,
-  logger,
-  price,
-  order,
-  createOrder$,
-}: ExecuteCEXorderParams): Observable<null> => {
+const executeCEXorder$ = (
+  CEX: Exchange,
+  config: Config,
+  logger: Logger,
+  price: BigNumber,
+  order: CEXorder,
+  createOrder$: (...args: CreateOrderParams) => Observable<Order>
+): Observable<null> => {
   if (!config.TEST_MODE) {
     logger.info(
       `Starting centralized exchange ${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET} market ${order.side} order (quantity: ${order.quantity})`
     );
-    return createOrder$({
-      exchange: CEX,
-      config,
-      side: order.side,
-      quantity: order.quantity,
-    }).pipe(
+    return createOrder$(config, CEX, order.side, order.quantity).pipe(
       tap(order =>
         logger.info(
           `Centralized exchange order finished: ${JSON.stringify(order)}`
@@ -76,5 +57,7 @@ const executeCEXorder$ = ({
     );
   }
 };
+
+type ExecuteCEXorderParams = Parameters<typeof executeCEXorder$>;
 
 export { executeCEXorder$, ExecuteCEXorderParams };

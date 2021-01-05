@@ -4,19 +4,12 @@ import BigNumber from 'bignumber.js';
 import { Observable, from, defer } from 'rxjs';
 import { Config } from '../../config';
 
-type CreateOrderParams = {
-  config: Config;
-  exchange: Exchange;
-  side: OrderSide;
-  quantity: BigNumber;
-};
-
-const createOrder$ = ({
-  config,
-  exchange,
-  side,
-  quantity,
-}: CreateOrderParams): Observable<Order> => {
+const createOrder$ = (
+  config: Config,
+  exchange: Exchange,
+  side: OrderSide,
+  quantity: BigNumber
+): Observable<Order> => {
   return defer(() => {
     const price = undefined;
     const params =
@@ -32,5 +25,7 @@ const createOrder$ = ({
     );
   });
 };
+
+type CreateOrderParams = Parameters<typeof createOrder$>;
 
 export { createOrder$, CreateOrderParams };

@@ -26,14 +26,14 @@ const assertExecuteCEXorder = (
       return (cold(inputEvents.createOrder$) as unknown) as Observable<Order>;
     };
     const CEX = (null as unknown) as Exchange;
-    const CEXorder$ = executeCEXorder$({
+    const CEXorder$ = executeCEXorder$(
       CEX,
-      config: inputEvents.config,
-      logger: getLoggers().centralized,
-      price: inputEvents.price,
-      order: inputEvents.order,
-      createOrder$,
-    });
+      inputEvents.config,
+      getLoggers().centralized,
+      inputEvents.price,
+      inputEvents.order,
+      createOrder$
+    );
     expectObservable(CEXorder$, inputEvents.unsubscribe).toBe(expected, {
       a: null,
     });
