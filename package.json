@@ -51,8 +51,6 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "1.1.7",
-    "axios": "0.19.2",
-    "axios-debug-log": "0.7.0",
     "bignumber.js": "9.0.0",
     "ccxt": "1.30.51",
     "dotenv": "8.2.0",
