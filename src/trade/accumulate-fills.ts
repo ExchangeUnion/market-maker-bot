@@ -1,12 +1,13 @@
 import BigNumber from 'bignumber.js';
+import { curry } from 'ramda';
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import { Config } from '../config';
 import { SwapSuccess } from '../proto/xudrpc_pb';
 import { satsToCoinsStr } from '../utils';
 
-const accumulateOrderFillsForBaseAssetReceived = (config: Config) => {
-  return (source: Observable<SwapSuccess>) => {
+const accumulateOrderFillsForBaseAssetReceived = curry(
+  (config: Config, source: Observable<SwapSuccess>) => {
     const SEED_VALUE = new BigNumber('0');
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
@@ -26,11 +27,11 @@ const accumulateOrderFillsForBaseAssetReceived = (config: Config) => {
         }
       }, SEED_VALUE)
     );
-  };
-};
+  }
+);
 
-const accumulateOrderFillsForQuoteAssetReceived = (config: Config) => {
-  return (source: Observable<SwapSuccess>) => {
+const accumulateOrderFillsForQuoteAssetReceived = curry(
+  (config: Config, source: Observable<SwapSuccess>) => {
     const SEED_VALUE = new BigNumber('0');
     return source.pipe(
       scan((acc: BigNumber, curr: SwapSuccess) => {
@@ -50,8 +51,8 @@ const accumulateOrderFillsForQuoteAssetReceived = (config: Config) => {
         }
       }, SEED_VALUE)
     );
-  };
-};
+  }
+);
 
 export {
   accumulateOrderFillsForBaseAssetReceived,

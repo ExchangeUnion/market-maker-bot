@@ -1,11 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { Config } from '../config';
 import { OrderSide } from '../constants';
 import { SwapSuccess } from '../proto/xudrpc_pb';
-import { ArbyStore, getArbyStore } from '../store';
-import { getLoggers, testConfig } from '../test-utils';
+import { testConfig } from '../test-utils';
 import { CEXorder, getOrderBuilder$ } from './order-builder';
 
 let testScheduler: TestScheduler;
@@ -28,9 +27,7 @@ const assertOrderBuilder = (
   expectedValues: {
     a: CEXorder;
   },
-  config: Config,
-  expectedAssetToTradeOnCEX: string,
-  store?: ArbyStore
+  config: Config
 ) => {
   testScheduler.run(helpers => {
     const { cold, expectObservable } = helpers;
@@ -48,33 +45,20 @@ const assertOrderBuilder = (
     };
     const accumulateOrderFillsForAssetReceived = jest
       .fn()
-      .mockImplementation(() => {
-        return (v: any) => v;
-      });
-    const quantityAboveMinimum = jest.fn().mockImplementation(() => {
-      return () => true;
-    });
-    const orderBuilder$ = getOrderBuilder$({
+      .mockImplementation((v: any) => v);
+    const filterMinimumQuantity = (qty: BigNumber) => of(qty);
+    const orderBuilder$ = getOrderBuilder$(
       config,
-      logger: getLoggers().centralized,
       getOpenDEXswapSuccess$,
-      accumulateOrderFillsForBaseAssetReceived: accumulateOrderFillsForAssetReceived,
-      accumulateOrderFillsForQuoteAssetReceived: accumulateOrderFillsForAssetReceived,
-      quantityAboveMinimum,
-      store: store ? store : getArbyStore(),
-    });
+      accumulateOrderFillsForAssetReceived,
+      accumulateOrderFillsForAssetReceived,
+      filterMinimumQuantity
+    );
     expectObservable(orderBuilder$, inputEvents.unsubscribe).toBe(
       expected,
       expectedValues
     );
     expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledTimes(2);
-    expect(accumulateOrderFillsForAssetReceived).toHaveBeenCalledWith(
-      expect.objectContaining(config)
-    );
-    expect(quantityAboveMinimum).toHaveBeenCalledTimes(2);
-    expect(quantityAboveMinimum).toHaveBeenCalledWith(
-      expectedAssetToTradeOnCEX
-    );
   });
 };
 
@@ -86,7 +70,7 @@ describe('getCentralizedExchangeOrder$', () => {
   });
 
   it('accumulates buy and sell orders for ETHBTC', () => {
-    expect.assertions(6);
+    expect.assertions(2);
     const inputEvents = {
       receivedBaseAssetSwapSuccess$: '1s a',
       receivedQuoteAssetSwapSuccess$: '1400ms b',
@@ -122,25 +106,17 @@ describe('getCentralizedExchangeOrder$', () => {
       BASEASSET: BASEASSET,
       QUOTEASSET: QUOTEASSET,
     };
-    const expectedAssetToTradeOnCEX = BASEASSET;
-    const store = {
-      ...getArbyStore(),
-      ...{ resetLastOrderUpdatePrice: jest.fn() },
-    };
     assertOrderBuilder(
       inputEvents,
       inputValues,
       expected,
       expectedValues,
-      config,
-      expectedAssetToTradeOnCEX,
-      store
+      config
     );
-    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(4);
   });
 
   it('accumulates buy and sell orders for BTCUSDT', () => {
-    expect.assertions(6);
+    expect.assertions(2);
     const inputEvents = {
       receivedBaseAssetSwapSuccess$: '1s a',
       receivedQuoteAssetSwapSuccess$: '1400ms b',
@@ -176,20 +152,12 @@ describe('getCentralizedExchangeOrder$', () => {
       BASEASSET: BASEASSET,
       QUOTEASSET: QUOTEASSET,
     };
-    const expectedAssetToTradeOnCEX = QUOTEASSET;
-    const store = {
-      ...getArbyStore(),
-      ...{ resetLastOrderUpdatePrice: jest.fn() },
-    };
     assertOrderBuilder(
       inputEvents,
       inputValues,
       expected,
       expectedValues,
-      config,
-      expectedAssetToTradeOnCEX,
-      store
+      config
     );
-    expect(store.resetLastOrderUpdatePrice).toHaveBeenCalledTimes(4);
   });
 });

@@ -27,12 +27,12 @@ describe('CCXT', () => {
       },
     };
     const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
-    const sellOrder$ = createOrder$({
+    const sellOrder$ = createOrder$(
       config,
       exchange,
-      side: OrderSide.SELL,
-      quantity: orderQuantity,
-    });
+      OrderSide.SELL,
+      orderQuantity
+    );
     sellOrder$.subscribe({
       next: actualOrderResponse => {
         expect(actualOrderResponse).toEqual(orderResponse);
@@ -68,12 +68,12 @@ describe('CCXT', () => {
     };
     orderQuantity = new BigNumber('0.12345678');
     const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
-    const buyOrder$ = createOrder$({
+    const buyOrder$ = createOrder$(
       config,
       exchange,
-      side: OrderSide.BUY,
-      quantity: orderQuantity,
-    });
+      OrderSide.BUY,
+      orderQuantity
+    );
     buyOrder$.subscribe({
       next: actualOrderResponse => {
         expect(actualOrderResponse).toEqual(orderResponse);
@@ -108,12 +108,12 @@ describe('CCXT', () => {
       },
     };
     const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
-    const buyOrder$ = createOrder$({
+    const buyOrder$ = createOrder$(
       config,
       exchange,
-      side: OrderSide.BUY,
-      quantity: orderQuantity,
-    });
+      OrderSide.BUY,
+      orderQuantity
+    );
     buyOrder$.subscribe({
       next: actualOrderResponse => {
         expect(actualOrderResponse).toEqual(orderResponse);
@@ -150,12 +150,12 @@ describe('CCXT', () => {
       },
     };
     const expectedSymbol = `${config.CEX_BASEASSET}/${config.CEX_QUOTEASSET}`;
-    const sellOrder$ = createOrder$({
+    const sellOrder$ = createOrder$(
       config,
       exchange,
-      side: OrderSide.SELL,
-      quantity: orderQuantity,
-    });
+      OrderSide.SELL,
+      orderQuantity
+    );
     sellOrder$.subscribe({
       next: actualOrderResponse => {
         expect(actualOrderResponse).toEqual(orderResponse);
