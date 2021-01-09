@@ -21,8 +21,9 @@ import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 import { Dictionary, Market } from 'ccxt';
 import { verifyMarkets } from './centralized/verify-markets';
-import { initDB$, InitDBparams, InitDBResponse, closeDB$ } from './db/db';
+import { initDB$, InitDBParams, InitDBResponse, closeDB$ } from './db/db';
 import { saveOrder$ } from './db/order-repository';
+import { closeServer$, initHttp$, InitHttpParams } from './http/http';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -50,7 +51,12 @@ type StartArbyParams = {
   initDB$: ({
     dataDir: string,
     logger: Logger,
-  }: InitDBparams) => Observable<InitDBResponse>;
+  }: InitDBParams) => Observable<InitDBResponse>;
+  initHttp$: ({
+    port: number,
+    models: InitDBResponse,
+    logger: Logger,
+  }: InitHttpParams) => Observable<void>;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -96,6 +102,7 @@ export const startArby = ({
   initCEX$,
   initDB$,
   verifyMarkets,
+  initHttp$,
 }: StartArbyParams): Observable<any> => {
   const store = getArbyStore();
   return config$.pipe(
@@ -107,6 +114,13 @@ export const startArby = ({
       });
       return db$.pipe(
         mergeMap((models: InitDBResponse) => {
+          if (config.START_HTTP) {
+            initHttp$({
+              logger: loggers.http,
+              port: parseInt(config.HTTP_PORT),
+              models,
+            });
+          }
           const CEX$ = initCEX$({
             config,
             loadMarkets$,
@@ -175,10 +189,11 @@ if (!module.parent) {
     initCEX$,
     verifyMarkets,
     initDB$,
+    initHttp$,
   })
     .pipe(
       mergeMap(() => {
-        return closeDB$();
+        return concat(closeDB$(), closeServer$());
       })
     )
     .subscribe({

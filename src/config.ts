@@ -20,6 +20,8 @@ export type Config = {
   TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: string;
   TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: string;
   TEST_MODE: boolean;
+  START_HTTP: boolean;
+  HTTP_PORT: string;
 };
 
 const REQUIRED_CONFIGURATION_OPTIONS = [
@@ -45,7 +47,9 @@ const REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_DISABLED = [
   'CEX_API_SECRET',
 ];
 
-const OPTIONAL_CONFIG = ['CEX_BASEASSET', 'CEX_QUOTEASSET'];
+const REQUIRED_CONFIGURATION_OPTIONS_HTTP_ENABLED = ['HTTP_PORT'];
+
+const OPTIONAL_CONFIG = ['CEX_BASEASSET', 'CEX_QUOTEASSET', 'START_HTTP'];
 
 const setLogLevel = (logLevel: string): Level => {
   return Object.values(Level).reduce((finalLevel, level) => {
@@ -74,10 +78,15 @@ const getEnvironmentConfig = (): DotenvParseOutput => {
 };
 
 const getMissingOptions = (config: DotenvParseOutput): string => {
-  const ADDITIONAL_CONF_OPTIONS =
+  let ADDITIONAL_CONF_OPTIONS =
     config['TEST_MODE'] === 'true'
       ? REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_ENABLED
       : REQUIRED_CONFIGURATION_OPTIONS_TEST_MODE_DISABLED;
+  ADDITIONAL_CONF_OPTIONS = ADDITIONAL_CONF_OPTIONS.concat(
+    config['START_HTTP'] === 'true'
+      ? REQUIRED_CONFIGURATION_OPTIONS_HTTP_ENABLED
+      : []
+  );
   return REQUIRED_CONFIGURATION_OPTIONS.concat(ADDITIONAL_CONF_OPTIONS)
     .reduce((missingOptions: string[], configOption) => {
       if (!config[configOption]) {

@@ -23,6 +23,8 @@ const testConfig = (): Config => {
     TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
     TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
     TEST_MODE: true,
+    START_HTTP: false,
+    HTTP_PORT: '10000',
   };
 };
 

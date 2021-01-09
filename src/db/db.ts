@@ -5,7 +5,7 @@ import { Trade, TradeInstance } from './trade';
 import { Logger } from '../logger';
 import { mergeMap } from 'rxjs/operators';
 
-type InitDBparams = {
+type InitDBParams = {
   dataDir?: string;
   logger: Logger;
 };
@@ -40,7 +40,7 @@ let sequelize: Sequelize;
 const initDB$ = ({
   logger,
   dataDir,
-}: InitDBparams): Observable<InitDBResponse> => {
+}: InitDBParams): Observable<InitDBResponse> => {
   sequelize = new Sequelize({
     storage: dataDir ? `${dataDir}/arby.db` : undefined,
     logging: logger.trace,
@@ -66,4 +66,4 @@ const closeDB$ = (): Observable<void> => {
   return from(sequelize.close());
 };
 
-export { initDB$, InitDBparams, InitDBResponse, closeDB$ };
+export { initDB$, InitDBParams, InitDBResponse, closeDB$ };
