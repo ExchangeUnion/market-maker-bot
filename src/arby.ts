@@ -21,6 +21,9 @@ import { getNewTrade$, GetTradeParams } from './trade/trade';
 import { getStartShutdown$ } from './utils';
 import { Dictionary, Market } from 'ccxt';
 import { verifyMarkets } from './centralized/verify-markets';
+import { initDB$, InitDBParams, InitDBResponse, closeDB$ } from './db/db';
+import { saveOrder$ } from './db/order-repository';
+import { closeServer$, initHttp$, InitHttpParams } from './http/http';
 
 type StartArbyParams = {
   config$: Observable<Config>;
@@ -32,6 +35,8 @@ type StartArbyParams = {
     getCentralizedExchangeOrder$,
     getOpenDEXcomplete$,
     shutdown$,
+    models,
+    saveOrder$,
   }: GetTradeParams) => Observable<boolean>;
   cleanup$: ({
     config,
@@ -43,6 +48,15 @@ type StartArbyParams = {
     loadMarkets$,
   }: InitCEXparams) => Observable<InitCEXResponse>;
   verifyMarkets: (config: Config, CEXmarkets: Dictionary<Market>) => boolean;
+  initDB$: ({
+    dataDir: string,
+    logger: Logger,
+  }: InitDBParams) => Observable<InitDBResponse>;
+  initHttp$: ({
+    port: number,
+    models: InitDBResponse,
+    logger: Logger,
+  }: InitHttpParams) => Observable<void>;
 };
 
 const logConfig = (config: Config, logger: Logger) => {
@@ -86,54 +100,73 @@ export const startArby = ({
   trade$,
   cleanup$,
   initCEX$,
+  initDB$,
   verifyMarkets,
+  initHttp$,
 }: StartArbyParams): Observable<any> => {
   const store = getArbyStore();
   return config$.pipe(
     mergeMap(config => {
-      const CEX$ = initCEX$({
-        config,
-        loadMarkets$,
-        getExchange,
+      const loggers = getLoggers(config);
+      const db$ = initDB$({
+        logger: loggers.db,
+        dataDir: config.DATA_DIR,
       });
-      return CEX$.pipe(
-        mergeMap(({ markets: CEXmarkets, exchange: CEX }) => {
-          const loggers = getLoggers(config);
-          loggers.global.info('Starting. Hello, Arby.');
-          logConfig(config, loggers.global);
-          verifyMarkets(config, CEXmarkets);
-          const tradeComplete$ = trade$({
+      return db$.pipe(
+        mergeMap((models: InitDBResponse) => {
+          if (config.START_HTTP) {
+            initHttp$({
+              logger: loggers.http,
+              port: parseInt(config.HTTP_PORT),
+              models,
+            });
+          }
+          const CEX$ = initCEX$({
             config,
-            loggers,
-            getOpenDEXcomplete$,
-            shutdown$,
-            getCentralizedExchangeOrder$,
-            catchOpenDEXerror,
-            getCentralizedExchangePrice$,
-            CEX,
-            store,
-          }).pipe(takeUntil(shutdown$));
-          return concat(
-            tradeComplete$,
-            cleanup$({
-              config,
-              loggers,
-              removeOpenDEXorders$,
-              removeCEXorders$,
-              CEX,
-            })
-          ).pipe(
-            catchError(e => {
-              loggers.global.info(
-                `Unrecoverable error: ${JSON.stringify(e)} - cleaning up.`
-              );
-              return cleanup$({
+            loadMarkets$,
+            getExchange,
+          });
+          return CEX$.pipe(
+            mergeMap(({ markets: CEXmarkets, exchange: CEX }) => {
+              loggers.global.info('Starting. Hello, Arby.');
+              logConfig(config, loggers.global);
+              verifyMarkets(config, CEXmarkets);
+              const tradeComplete$ = trade$({
                 config,
                 loggers,
-                removeOpenDEXorders$,
-                removeCEXorders$,
+                getOpenDEXcomplete$,
+                shutdown$,
+                getCentralizedExchangeOrder$,
+                catchOpenDEXerror,
+                getCentralizedExchangePrice$,
                 CEX,
-              });
+                store,
+                saveOrder$,
+                models,
+              }).pipe(takeUntil(shutdown$));
+              return concat(
+                tradeComplete$,
+                cleanup$({
+                  config,
+                  loggers,
+                  removeOpenDEXorders$,
+                  removeCEXorders$,
+                  CEX,
+                })
+              ).pipe(
+                catchError(e => {
+                  loggers.global.info(
+                    `Unrecoverable error: ${JSON.stringify(e)} - cleaning up.`
+                  );
+                  return cleanup$({
+                    config,
+                    loggers,
+                    removeOpenDEXorders$,
+                    removeCEXorders$,
+                    CEX,
+                  });
+                })
+              );
             })
           );
         })
@@ -155,15 +188,25 @@ if (!module.parent) {
     cleanup$: getCleanup$,
     initCEX$,
     verifyMarkets,
-  }).subscribe({
-    error: error => {
-      if (error.message) {
-        console.log(`Error: ${error.message}`);
-      } else {
-        console.log(error);
-      }
-      process.exit(1);
-    },
-    complete: () => console.log('Shutdown complete. Goodbye, Arby.'),
-  });
+    initDB$,
+    initHttp$,
+  })
+    .pipe(
+      mergeMap(() => {
+        return concat(closeDB$(), closeServer$());
+      })
+    )
+    .subscribe({
+      error: error => {
+        if (error.message) {
+          console.log(`Error: ${error.message}`);
+        } else {
+          console.log(error);
+        }
+        process.exit(1);
+      },
+      complete: () => {
+        console.log('Shutdown complete. Goodbye, Arby.');
+      },
+    });
 }

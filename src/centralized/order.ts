@@ -19,6 +19,9 @@ import { ExecuteCEXorderParams } from './execute-order';
 import { quantityAboveMinimum } from './minimum-order-quantity-filter';
 import { CEXorder, GetOrderBuilderParams } from './order-builder';
 import { ArbyStore } from 'src/store';
+import { SaveOrderParams } from '../db/order-repository';
+import { OrderInstance } from '../db/order';
+import { InitDBResponse } from '../db/db';
 
 type GetCentralizedExchangeOrderParams = {
   CEX: Exchange;
@@ -28,6 +31,7 @@ type GetCentralizedExchangeOrderParams = {
     logger,
     price,
     order,
+    saveOrder$,
   }: ExecuteCEXorderParams) => Observable<null>;
   getOrderBuilder$: ({
     config,
@@ -43,17 +47,21 @@ type GetCentralizedExchangeOrderParams = {
     config: Config
   ) => CEXorder;
   store: ArbyStore;
+  saveOrder$: ({ order }: SaveOrderParams) => Observable<OrderInstance>;
+  models: InitDBResponse;
 };
 
 const getCentralizedExchangeOrder$ = ({
   CEX,
   logger,
   config,
+  saveOrder$,
   executeCEXorder$,
   getOrderBuilder$,
   centralizedExchangePrice$,
   deriveCEXorderQuantity,
   store,
+  models,
 }: GetCentralizedExchangeOrderParams): Observable<null> => {
   return getOrderBuilder$({
     config,
@@ -79,6 +87,8 @@ const getCentralizedExchangeOrder$ = ({
         logger,
         price,
         order: deriveCEXorderQuantity(order, price, config),
+        saveOrder$,
+        models,
       });
     })
   );

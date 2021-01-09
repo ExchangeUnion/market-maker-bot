@@ -1,5 +1,9 @@
 import { Config } from './config';
 import { Level, Loggers } from './logger';
+import { InitDBResponse } from './db/db';
+import { Sequelize } from 'sequelize';
+import { Order } from './db/order';
+import { Trade } from './db/trade';
 
 const testConfig = (): Config => {
   return {
@@ -19,6 +23,18 @@ const testConfig = (): Config => {
     TEST_CENTRALIZED_EXCHANGE_BASEASSET_BALANCE: '321',
     TEST_CENTRALIZED_EXCHANGE_QUOTEASSET_BALANCE: '123',
     TEST_MODE: true,
+    START_HTTP: false,
+    HTTP_PORT: '10000',
+  };
+};
+
+const getModels = (): InitDBResponse => {
+  const sequelize = new Sequelize({
+    dialect: 'sqlite',
+  });
+  return {
+    Order: Order(sequelize),
+    Trade: Trade(sequelize),
   };
 };
 
@@ -35,6 +51,7 @@ const getLoggers = (): Loggers => {
     global: mockLogger,
     centralized: mockLogger,
     opendex: mockLogger,
+    db: mockLogger,
   } as unknown) as Loggers;
 };
 
@@ -43,4 +60,4 @@ type TestError = {
   message: string;
 };
 
-export { getLoggers, testConfig, TestError };
+export { getModels, getLoggers, testConfig, TestError };

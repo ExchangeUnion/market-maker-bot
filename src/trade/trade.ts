@@ -16,6 +16,9 @@ import { getCleanup$, GetCleanupParams } from './cleanup';
 import { getTradeInfo$ } from './info';
 import { getKrakenPrice$ } from '../centralized/kraken-price';
 import { getBinancePrice$ } from '../centralized/binance-price';
+import { SaveOrderParams } from '../db/order-repository';
+import { OrderInstance } from '../db/order';
+import { InitDBResponse } from '../db/db';
 
 type GetTradeParams = {
   config: Config;
@@ -29,6 +32,7 @@ type GetTradeParams = {
     config,
     getOrderBuilder$,
     executeCEXorder$,
+    models,
   }: GetCentralizedExchangeOrderParams) => Observable<null>;
   shutdown$: Observable<unknown>;
   catchOpenDEXerror: (
@@ -49,6 +53,8 @@ type GetTradeParams = {
   }: CentralizedExchangePriceParams) => Observable<BigNumber>;
   CEX: Exchange;
   store: ArbyStore;
+  saveOrder$: ({ order }: SaveOrderParams) => Observable<OrderInstance>;
+  models: InitDBResponse;
 };
 
 const getNewTrade$ = ({
@@ -61,6 +67,8 @@ const getNewTrade$ = ({
   getCentralizedExchangePrice$,
   CEX,
   store,
+  saveOrder$,
+  models,
 }: GetTradeParams): Observable<boolean> => {
   const centralizedExchangePrice$ = getCentralizedExchangePrice$({
     config,
@@ -90,6 +98,8 @@ const getNewTrade$ = ({
       centralizedExchangePrice$,
       deriveCEXorderQuantity,
       store,
+      saveOrder$,
+      models,
     })
   ).pipe(
     tap(() => {

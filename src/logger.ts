@@ -24,12 +24,16 @@ export enum Context {
   Global = 'GLOBAL',
   OpenDex = 'OpenDEX',
   Centralized = 'Centralized',
+  DB = 'DB',
+  HTTP = 'HTTP',
 }
 
 type Loggers = {
   global: Logger;
   centralized: Logger;
   opendex: Logger;
+  db: Logger;
+  http: Logger;
 };
 
 class Logger {
@@ -103,6 +107,8 @@ class Logger {
       global: new Logger({ ...object, context: Context.Global }),
       centralized: new Logger({ ...object, context: Context.Centralized }),
       opendex: new Logger({ ...object, context: Context.OpenDex }),
+      db: new Logger({ ...object, context: Context.DB }),
+      http: new Logger({ ...object, context: Context.HTTP }),
     };
   };
 

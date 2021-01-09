@@ -19,6 +19,7 @@ type AssertCleanupParams = {
   };
   inputEvents: {
     removeOpenDEXorders$: string;
+    closeDB$: string;
     removeCEXorders$: string;
     unsubscribe?: string;
   };
@@ -63,6 +64,7 @@ describe('getCleanup$$', () => {
     const inputEvents = {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s a',
+      closeDB$: '1s',
     };
     const expected = '2s |';
     const expectedSubscriptions = {
@@ -82,6 +84,7 @@ describe('getCleanup$$', () => {
       removeOpenDEXorders$: '1s #',
       removeCEXorders$: '2s a',
       unsubscribe: '15s !',
+      closeDB$: '',
     };
     const expected = '11s #';
     const expectedSubscriptions = {
@@ -108,6 +111,7 @@ describe('getCleanup$$', () => {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s #',
       unsubscribe: '20s !',
+      closeDB$: '',
     };
     const expected = '17s #';
     const expectedSubscriptions = {
