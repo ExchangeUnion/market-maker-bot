@@ -1,11 +1,12 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { getLoggers, testConfig } from '../test-utils';
+import { getLoggers, getModels, testConfig } from '../test-utils';
 import { getCentralizedExchangeOrder$ } from './order';
 import { CEXorder } from './order-builder';
 import BigNumber from 'bignumber.js';
 import { Exchange } from 'ccxt';
 import { getArbyStore } from '../store';
+import { OrderInstance } from '../db/order';
 
 let testScheduler: TestScheduler;
 
@@ -34,6 +35,9 @@ const assertCentralizedExchangeOrder = (
     const centralizedExchangePrice$ = (cold(
       inputEvents.centralizedExchangePrice$
     ) as unknown) as Observable<BigNumber>;
+    const saveOrder$ = () => {
+      return (cold('') as unknown) as Observable<OrderInstance>;
+    };
     const CEX = (null as unknown) as Exchange;
     const deriveCEXorderQuantity = (order: any) => order;
     const store = getArbyStore();
@@ -46,6 +50,8 @@ const assertCentralizedExchangeOrder = (
       centralizedExchangePrice$,
       deriveCEXorderQuantity,
       store,
+      saveOrder$,
+      models: getModels(),
     });
     expectObservable(centralizedExchangeOrder$, inputEvents.unsubscribe).toBe(
       expected

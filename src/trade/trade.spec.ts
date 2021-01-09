@@ -4,8 +4,9 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
 import { getArbyStore } from '../store';
-import { getLoggers, testConfig, TestError } from '../test-utils';
+import { getLoggers, getModels, testConfig, TestError } from '../test-utils';
 import { getNewTrade$ } from './trade';
+import { OrderInstance } from '../db/order';
 
 let testScheduler: TestScheduler;
 const testSchedulerSetup = () => {
@@ -73,6 +74,9 @@ const assertGetTrade = ({
     const getCentralizedExchangePrice$ = () => {
       return (cold('') as unknown) as Observable<BigNumber>;
     };
+    const saveOrder$ = () => {
+      return (cold('') as unknown) as Observable<OrderInstance>;
+    };
     const CEX = (null as unknown) as Exchange;
     const store = getArbyStore();
     const trade$ = getNewTrade$({
@@ -85,6 +89,8 @@ const assertGetTrade = ({
       catchOpenDEXerror,
       getCentralizedExchangePrice$,
       store,
+      saveOrder$,
+      models: getModels(),
     });
     expectObservable(trade$).toBe(expected, { a: true }, expectedError);
   });
