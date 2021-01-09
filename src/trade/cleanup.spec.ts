@@ -60,7 +60,7 @@ describe('getCleanup$$', () => {
   beforeEach(testSchedulerSetup);
 
   it('removes all orders on OpenDEX and CEX', () => {
-    //expect.assertions(3);
+    expect.assertions(3);
     const inputEvents = {
       removeOpenDEXorders$: '1s a',
       removeCEXorders$: '2s a',

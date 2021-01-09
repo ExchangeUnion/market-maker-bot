@@ -175,25 +175,23 @@ if (!module.parent) {
     initCEX$,
     verifyMarkets,
     initDB$,
-  }).subscribe({
-    error: error => {
-      if (error.message) {
-        console.log(`Error: ${error.message}`);
-      } else {
-        console.log(error);
-      }
-      closeDB$().subscribe({
-        complete: () => {
-          process.exit(1);
-        },
-      });
-    },
-    complete: () => {
-      closeDB$().subscribe({
-        complete: () => {
-          console.log('Shutdown complete. Goodbye, Arby.');
-        },
-      });
-    },
-  });
+  })
+    .pipe(
+      mergeMap(() => {
+        return closeDB$();
+      })
+    )
+    .subscribe({
+      error: error => {
+        if (error.message) {
+          console.log(`Error: ${error.message}`);
+        } else {
+          console.log(error);
+        }
+        process.exit(1);
+      },
+      complete: () => {
+        console.log('Shutdown complete. Goodbye, Arby.');
+      },
+    });
 }
