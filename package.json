@@ -50,7 +50,7 @@
     "typescript": "3.9.3"
   },
   "dependencies": {
-    "@grpc/grpc-js": "1.1.7",
+    "@grpc/grpc-js": "1.1.8",
     "bignumber.js": "9.0.0",
     "ccxt": "1.30.51",
     "dotenv": "8.2.0",
