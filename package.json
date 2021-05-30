@@ -59,7 +59,7 @@
     "rxjs": "6.5.5",
     "uuid": "8.1.0",
     "winston": "3.2.1",
-    "ws": "7.3.0"
+    "ws": "7.4.6"
   },
   "cross-os": {
     "postcompile": {
